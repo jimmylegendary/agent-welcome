@@ -26,12 +26,19 @@
     "published_sha256": "f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
     "size_bytes": 21858488,
     "payload_path": "prime-agent",
-    "source_refs": ["src_prime_release", "src_prime_installer"],
+    "source_refs": [
+      "src_prime_release",
+      "src_prime_installer",
+      "src_prime_version_cli",
+      "src_prime_version_config"
+    ],
     "claim_refs": [
       "claim_prime_glibc_min",
       "claim_prime_libc_family",
       "claim_prime_archive_digest",
-      "claim_prime_archive_size"
+      "claim_prime_archive_size",
+      "claim_prime_version_stdout",
+      "claim_prime_version_resolution"
     ],
     "observed_sha256": null,
     "download_verified": false,

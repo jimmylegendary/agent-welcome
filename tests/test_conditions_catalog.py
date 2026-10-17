@@ -7,7 +7,9 @@ from agent_welcome.catalog import (
     evaluate_condition,
     evaluate_route,
     load_catalog,
+    load_recipe,
     validate_catalog,
+    validate_recipe,
 )
 
 
@@ -82,6 +84,30 @@ class ConditionTests(unittest.TestCase):
         with self.assertRaises(CatalogError):
             evaluate_condition({'op': 'eq', 'fact': 'os', 'value': 'linux'}, {'os': []})
 
+    def test_in_operator_does_not_coerce_bool_to_integer_equality(self):
+        result = evaluate_condition(
+            {'op': 'in', 'fact': 'enabled', 'values': [False, 1]},
+            {'enabled': True},
+        )
+        self.assertEqual(result['status'], 'fail')
+
+    def test_known_observation_fields_reject_wrong_types_but_null_remains_unknown(self):
+        condition = {'op': 'eq', 'fact': 'kernel_os', 'value': 'linux'}
+        invalid = [
+            {'kernel_os': 'linux', 'host_os': False},
+            {'kernel_os': 'linux', 'runtime_kind': 123},
+            {'kernel_os': 'linux', 'capabilities': 'bad'},
+        ]
+        for observations in invalid:
+            with self.subTest(observations=observations), self.assertRaises(CatalogError):
+                evaluate_condition(condition, observations)
+        result = evaluate_condition(
+            {'op': 'eq', 'fact': 'host_os', 'value': 'android'},
+            {'kernel_os': 'linux', 'host_os': None, 'runtime_kind': None,
+             'capabilities': None},
+        )
+        self.assertEqual(result['status'], 'unknown')
+
 
 class CatalogTests(unittest.TestCase):
     @classmethod
@@ -127,6 +153,71 @@ class CatalogTests(unittest.TestCase):
         )
         self.assertNotEqual(result['status'], 'pass')
         self.assertIn('check_sandbox', result['missing_checks'])
+
+    def test_every_codex_route_requires_artifact_readonly_sandbox_and_profile_checks(self):
+        check_results = {
+            'check_agent_version': True,
+            'check_sandbox': True,
+            'check_account_permission': True,
+            'check_login_and_readonly_task': True,
+            'check_permission_profile': True,
+        }
+        codux = evaluate_route(
+            self.graph,
+            'route_codux_community',
+            {'kernel_os': 'linux', 'host_os': 'android',
+             'architecture': 'aarch64', 'runtime_kind': 'proot'},
+            check_results,
+        )
+        self.assertNotEqual(codux['status'], 'pass')
+        for check_id in (
+            'check_artifact_integrity',
+            'check_agent_runtime_compatibility',
+            'check_permission_profile',
+        ):
+            self.assertIn(check_id, codux['missing_checks'])
+        self.assertIn('sandbox.permission_profile', codux['missing_facts'])
+
+    def test_codex_route_pass_requires_observed_permission_profile_and_all_checks(self):
+        observations = {
+            'kernel_os': 'linux',
+            'host_os': 'android',
+            'architecture': 'aarch64',
+            'runtime_kind': 'proot',
+            'sandbox': {'enabled': True, 'permission_profile': 'workspace-write'},
+        }
+        results = {
+            check_id: True for check_id in (
+                'check_artifact_integrity',
+                'check_agent_runtime_compatibility',
+                'check_agent_version',
+                'check_login_and_readonly_task',
+                'check_sandbox',
+                'check_permission_profile',
+            )
+        }
+        result = evaluate_route(
+            self.graph, 'route_codux_community', observations, results,
+        )
+        self.assertEqual(result['status'], 'pass')
+
+    def test_codex_auth_route_keeps_sandbox_and_profile_gate_when_runtime_unknown(self):
+        result = evaluate_route(
+            self.graph,
+            'route_codex_device_auth_beta',
+            {'auth': {'failure_stage': 'localhost_callback'}},
+            {
+                'check_agent_version': True,
+                'check_account_permission': True,
+                'check_login_and_readonly_task': True,
+                'check_artifact_integrity': True,
+                'check_agent_runtime_compatibility': True,
+                'check_sandbox': True,
+            },
+        )
+        self.assertNotEqual(result['status'], 'pass')
+        self.assertIn('check_permission_profile', result['missing_checks'])
+        self.assertEqual(result['applicability']['status'], 'unknown')
 
     def test_proot_does_not_infer_android_host_from_linux_kernel(self):
         result = evaluate_route(
@@ -205,6 +296,27 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(artifact['libc_min_version'], claims['claim_prime_glibc_min']['value'])
         self.assertIsNone(artifact['observed_sha256'])
         self.assertFalse(artifact['download_verified'])
+        for ref in ('src_prime_version_cli', 'src_prime_version_config'):
+            self.assertIn(ref, artifact['source_refs'])
+        for ref in ('claim_prime_version_stdout', 'claim_prime_version_resolution'):
+            self.assertIn(ref, artifact['claim_refs'])
+
+    def test_bound_recipe_rejects_asset_name_or_url_drift(self):
+        recipe = load_recipe(ROOT / 'recipes' / 'prime-agent-0.10.0-linux-arm64.json')
+        for key, value in (
+            ('name', '../../outside.txt'),
+            ('url', 'https://attacker.invalid/prime-agent.tar.gz'),
+        ):
+            changed = json.loads(json.dumps(recipe))
+            changed['artifact'][key] = value
+            with self.subTest(field=key), self.assertRaises(CatalogError):
+                validate_recipe(changed, self.graph)
+
+    def test_recipe_rejects_required_checks_without_an_implemented_adapter(self):
+        recipe = load_recipe(ROOT / 'recipes' / 'prime-agent-0.10.0-linux-arm64.json')
+        recipe['required_checks'].append('check_sandbox')
+        with self.assertRaises(CatalogError):
+            validate_recipe(recipe)
 
 
 if __name__ == '__main__':

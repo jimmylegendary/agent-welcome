@@ -200,7 +200,7 @@
       "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
       "release_tag": "v0.10.0",
       "content_sha256": "82afa854760ad8a088372b94307e59d1e32dadf5e1838c5fc1dcf53eea4fca29",
-      "locator": "lines 808-831; staged payload layout around lines 2247-2252",
+      "locator": "lines 808-831: glibc floor; lines 798-805 and 2284-2294: staged executable name and extraction check",
       "legacy": false,
       "evidence_status": "pinned_source"
     },
@@ -250,6 +250,28 @@
       "revision": "bf85202aebffed078b6835413d7e651ec274bd9c",
       "content_sha256": "c902330943197b0fa81eea659c8ab03830893a9bc66ad9f5d46decf5b8cee097",
       "locator": "README body, 199 lines; setup/screenshots/troubleshooting sections",
+      "legacy": false,
+      "evidence_status": "pinned_source"
+    },
+    {
+      "id": "src_prime_version_cli",
+      "kind": "official_repository",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/crates/pa-cli/src/lib.rs",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "release_tag": "v0.10.0",
+      "content_sha256": "c0e0e0e82fcf6a54d461fa8b346b5cc2d6189daea247f7aa11c7d1451b9ca4d7",
+      "locator": "lines 150-152: --version prints config::version and exits 0",
+      "legacy": false,
+      "evidence_status": "pinned_source"
+    },
+    {
+      "id": "src_prime_version_config",
+      "kind": "official_repository",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/crates/pa-cli/src/config.rs",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "release_tag": "v0.10.0",
+      "content_sha256": "cc20d6ec28af07356b0d21c14079662b737a05ffa473de525806fdec4f4c4cda",
+      "locator": "lines 45-65: packaged manifest version, compiled version fallback, PI_PACKAGE_DIR override",
       "legacy": false,
       "evidence_status": "pinned_source"
     }
@@ -404,8 +426,12 @@
         ]
       },
       "required_check_ids": [
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
         "check_agent_version",
-        "check_sandbox"
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile"
       ],
       "agent_id": "agent_codex"
     },
@@ -494,13 +520,26 @@
               "browser_open",
               "localhost_callback"
             ]
+          },
+          {
+            "op": "in",
+            "fact": "runtime_kind",
+            "values": [
+              "native",
+              "proot",
+              "utm_guest"
+            ]
           }
         ]
       },
       "required_check_ids": [
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
         "check_agent_version",
-        "check_account_permission",
-        "check_login_and_readonly_task"
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile",
+        "check_account_permission"
       ],
       "agent_id": "agent_codex"
     },
@@ -523,7 +562,9 @@
       "runtime_tested": false,
       "source_refs": [
         "src_prime_release",
-        "src_prime_installer"
+        "src_prime_installer",
+        "src_prime_version_cli",
+        "src_prime_version_config"
       ],
       "artifact_id": "prime-agent-0.10.0-linux-arm64",
       "version": "0.10.0",
@@ -539,10 +580,13 @@
         "claim_prime_glibc_min",
         "claim_prime_libc_family",
         "claim_prime_archive_digest",
-        "claim_prime_archive_size"
+        "claim_prime_archive_size",
+        "claim_prime_version_stdout",
+        "claim_prime_version_resolution"
       ],
       "observed_sha256": null,
-      "download_verified": false
+      "download_verified": false,
+      "name": "prime-agent-0.10.0-linux-arm64.tar.gz"
     },
     {
       "id": "symptom_prime_glibc_mismatch",
@@ -670,8 +714,12 @@
         ]
       },
       "required_check_ids": [
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
         "check_agent_version",
-        "check_sandbox"
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile"
       ],
       "agent_id": "agent_codex"
     },
@@ -1398,8 +1446,12 @@
         "route_original_artifact"
       ],
       "required_check_ids": [
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
         "check_agent_version",
-        "check_sandbox"
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile"
       ],
       "source_refs": [
         "legacy_src_plan",
@@ -1444,8 +1496,13 @@
         "route_codex_device_auth_beta"
       ],
       "required_check_ids": [
-        "check_account_permission",
-        "check_login_and_readonly_task"
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
+        "check_agent_version",
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile",
+        "check_account_permission"
       ],
       "source_refs": [
         "legacy_src_android_report",
@@ -1622,7 +1679,12 @@
         "route_codux_community"
       ],
       "required_check_ids": [
-        "check_sandbox"
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
+        "check_agent_version",
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile"
       ],
       "source_refs": [
         "legacy_src_android_report",
@@ -1653,6 +1715,78 @@
       "source_refs": [
         "src_prime_installer",
         "src_prime_release"
+      ]
+    },
+    {
+      "id": "source_src_prime_version_cli",
+      "type": "source",
+      "label": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/crates/pa-cli/src/lib.rs",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/crates/pa-cli/src/lib.rs",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "content_sha256": "c0e0e0e82fcf6a54d461fa8b346b5cc2d6189daea247f7aa11c7d1451b9ca4d7",
+      "evidence_status": "pinned_source",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_prime_version_cli"
+      ]
+    },
+    {
+      "id": "source_src_prime_version_config",
+      "type": "source",
+      "label": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/crates/pa-cli/src/config.rs",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/crates/pa-cli/src/config.rs",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "content_sha256": "cc20d6ec28af07356b0d21c14079662b737a05ffa473de525806fdec4f4c4cda",
+      "evidence_status": "pinned_source",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_prime_version_config"
+      ]
+    },
+    {
+      "id": "claim_prime_version_stdout",
+      "type": "claim",
+      "label": "stdout_format",
+      "source_id": "src_prime_version_cli",
+      "predicate": "stdout_format",
+      "value": "product_version_only",
+      "evidence_status": "source_verified",
+      "source_refs": [
+        "src_prime_version_cli"
+      ]
+    },
+    {
+      "id": "claim_prime_version_resolution",
+      "type": "claim",
+      "label": "version_resolution",
+      "source_id": "src_prime_version_config",
+      "predicate": "version_resolution",
+      "value": "packaged_manifest_then_compiled_version",
+      "evidence_status": "source_verified",
+      "source_refs": [
+        "src_prime_version_config"
+      ]
+    },
+    {
+      "id": "check_agent_runtime_compatibility",
+      "type": "success_check",
+      "label": "현재 agent artifact의 target/ABI가 관측 runtime과 맞음",
+      "evidence_status": "design_proposal",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codex_targets",
+        "legacy_src_android_report"
+      ]
+    },
+    {
+      "id": "check_permission_profile",
+      "type": "success_check",
+      "label": "sandbox permission profile을 명시적으로 선택하고 검토함",
+      "evidence_status": "design_proposal",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codex_sandbox",
+        "legacy_src_android_report"
       ]
     }
   ],
@@ -3365,6 +3499,645 @@
       "details": {
         "original_relation": "requires"
       }
+    },
+    {
+      "id": "link_claim_prime_version_stdout_source",
+      "source": "claim_prime_version_stdout",
+      "target": "source_src_prime_version_cli",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_version_cli"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claim_prime_version_resolution_source",
+      "source": "claim_prime_version_resolution",
+      "target": "source_src_prime_version_config",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_version_config"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_artifact_claim_prime_version_stdout",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "claim_prime_version_stdout",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_version_cli",
+        "src_prime_version_config"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_artifact_claim_prime_version_resolution",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "claim_prime_version_resolution",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_version_cli",
+        "src_prime_version_config"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_route_codux_community_check_artifact_integrity",
+      "source": "route_codux_community",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codux_community_check_agent_runtime_compatibility",
+      "source": "route_codux_community",
+      "target": "check_agent_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codux_community_check_agent_version",
+      "source": "route_codux_community",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codux_community_check_login_and_readonly_task",
+      "source": "route_codux_community",
+      "target": "check_login_and_readonly_task",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codux_community_check_sandbox",
+      "source": "route_codux_community",
+      "target": "check_sandbox",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codux_community_check_permission_profile",
+      "source": "route_codux_community",
+      "target": "check_permission_profile",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codex_device_auth_beta_check_artifact_integrity",
+      "source": "route_codex_device_auth_beta",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codex_device_auth_beta_check_agent_runtime_compatibility",
+      "source": "route_codex_device_auth_beta",
+      "target": "check_agent_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codex_device_auth_beta_check_agent_version",
+      "source": "route_codex_device_auth_beta",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codex_device_auth_beta_check_login_and_readonly_task",
+      "source": "route_codex_device_auth_beta",
+      "target": "check_login_and_readonly_task",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codex_device_auth_beta_check_sandbox",
+      "source": "route_codex_device_auth_beta",
+      "target": "check_sandbox",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codex_device_auth_beta_check_permission_profile",
+      "source": "route_codex_device_auth_beta",
+      "target": "check_permission_profile",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_codex_device_auth_beta_check_account_permission",
+      "source": "route_codex_device_auth_beta",
+      "target": "check_account_permission",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_utm_se_guest_check_artifact_integrity",
+      "source": "route_utm_se_guest",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_utm_se_guest_check_agent_runtime_compatibility",
+      "source": "route_utm_se_guest",
+      "target": "check_agent_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_utm_se_guest_check_agent_version",
+      "source": "route_utm_se_guest",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_utm_se_guest_check_login_and_readonly_task",
+      "source": "route_utm_se_guest",
+      "target": "check_login_and_readonly_task",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_utm_se_guest_check_sandbox",
+      "source": "route_utm_se_guest",
+      "target": "check_sandbox",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_route_utm_se_guest_check_permission_profile",
+      "source": "route_utm_se_guest",
+      "target": "check_permission_profile",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_check_artifact_integrity",
+      "source": "pb_android_codex_context",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_check_agent_runtime_compatibility",
+      "source": "pb_android_codex_context",
+      "target": "check_agent_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_check_login_and_readonly_task",
+      "source": "pb_android_codex_context",
+      "target": "check_login_and_readonly_task",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_check_permission_profile",
+      "source": "pb_android_codex_context",
+      "target": "check_permission_profile",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_check_artifact_integrity",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_check_agent_runtime_compatibility",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "check_agent_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_check_agent_version",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_check_sandbox",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "check_sandbox",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_check_permission_profile",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "check_permission_profile",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_check_artifact_integrity",
+      "source": "pb_android_prime_glibc",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_check_runtime_compatibility",
+      "source": "pb_android_prime_glibc",
+      "target": "check_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_check_artifact_integrity",
+      "source": "pb_proot_sandbox_capability",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_check_agent_runtime_compatibility",
+      "source": "pb_proot_sandbox_capability",
+      "target": "check_agent_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_check_agent_version",
+      "source": "pb_proot_sandbox_capability",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_check_login_and_readonly_task",
+      "source": "pb_proot_sandbox_capability",
+      "target": "check_login_and_readonly_task",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_check_permission_profile",
+      "source": "pb_proot_sandbox_capability",
+      "target": "check_permission_profile",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
     }
   ],
   "recovery_playbooks": [
@@ -3460,8 +4233,12 @@
         "route_original_artifact"
       ],
       "required_check_ids": [
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
         "check_agent_version",
-        "check_sandbox"
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile"
       ],
       "agent_ids": [
         "agent_codex"
@@ -3549,8 +4326,13 @@
         "route_codex_device_auth_beta"
       ],
       "required_check_ids": [
-        "check_account_permission",
-        "check_login_and_readonly_task"
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
+        "check_agent_version",
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile",
+        "check_account_permission"
       ],
       "agent_ids": [
         "agent_codex"
@@ -3848,7 +4630,12 @@
         "route_codux_community"
       ],
       "required_check_ids": [
-        "check_sandbox"
+        "check_artifact_integrity",
+        "check_agent_runtime_compatibility",
+        "check_agent_version",
+        "check_login_and_readonly_task",
+        "check_sandbox",
+        "check_permission_profile"
       ],
       "agent_ids": [
         "agent_codex"
@@ -3930,6 +4717,26 @@
       "value": null,
       "locator": "README body at captured revision",
       "evidence_status": "not_established",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_prime_version_stdout",
+      "source_id": "src_prime_version_cli",
+      "subject": "prime-agent@0.10.0/--version",
+      "predicate": "stdout_format",
+      "value": "product_version_only",
+      "locator": "lines 150-152",
+      "evidence_status": "source_verified",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_prime_version_resolution",
+      "source_id": "src_prime_version_config",
+      "subject": "prime-agent@0.10.0/--version",
+      "predicate": "version_resolution",
+      "value": "packaged_manifest_then_compiled_version",
+      "locator": "lines 45-65; PI_PACKAGE_DIR can override package directory",
+      "evidence_status": "source_verified",
       "claim_class": "pinned_claim"
     }
   ]

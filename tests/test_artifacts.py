@@ -1,5 +1,6 @@
 import hashlib
 import io
+import json
 import os
 import tarfile
 import tempfile
@@ -7,8 +8,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from agent_welcome import artifacts as artifacts_module
 from agent_welcome.artifacts import (
     InstallError,
+    cleanup_staging,
     download_artifact,
     verify_extract_and_probe,
 )
@@ -54,11 +57,105 @@ def artifact_for(blob):
 
 
 class ArtifactTests(unittest.TestCase):
+    def test_download_rejects_path_escape_and_unpinned_url_before_touching_sentinel(self):
+        blob = archive_bytes([('prime-agent', 'file', VERSION_SCRIPT)])
+        cases = [
+            ('../../outside.bin', artifacts_module.PINNED_ARTIFACT_URL, 'outside.bin'),
+            (
+                artifacts_module.PINNED_ARTIFACT_NAME,
+                'https://attacker.invalid/payload.tar.gz',
+                f'downloads/{artifacts_module.PINNED_ARTIFACT_NAME}',
+            ),
+        ]
+        for name, url, sentinel_relative in cases:
+            with self.subTest(name=name, url=url), tempfile.TemporaryDirectory() as temp:
+                state_dir = Path(temp) / 'state'
+                sentinel = state_dir / sentinel_relative
+                sentinel.parent.mkdir(parents=True, exist_ok=True)
+                sentinel.write_bytes(b'keep this user file')
+                artifact = artifact_for(blob)
+                artifact['name'] = name
+                artifact['url'] = url
+                with patch(
+                    'agent_welcome.artifacts.urllib.request.urlopen',
+                    side_effect=AssertionError('network must not be reached'),
+                ) as request:
+                    with self.assertRaises(InstallError):
+                        download_artifact(artifact, state_dir)
+                request.assert_not_called()
+                self.assertEqual(sentinel.read_bytes(), b'keep this user file')
+
+    def test_source_replacement_after_digest_cannot_change_installed_snapshot(self):
+        original_payload = VERSION_SCRIPT
+        replaced_payload = b'#!/bin/sh\nprintf "0.10.0\\n"\n# replaced after digest\n'
+        original_blob = archive_bytes([('prime-agent', 'file', original_payload)])
+        replaced_blob = archive_bytes([('prime-agent', 'file', replaced_payload)])
+        artifact = artifact_for(original_blob)
+        with tempfile.TemporaryDirectory() as temp:
+            archive = Path(temp) / 'source.tar.gz'
+            archive.write_bytes(original_blob)
+            real_validate = artifacts_module._validate_archive
+
+            def replace_external_path_before_archive_read(path, selected_artifact):
+                archive.write_bytes(replaced_blob)
+                return real_validate(path, selected_artifact)
+
+            with patch.object(
+                artifacts_module,
+                '_validate_archive',
+                side_effect=replace_external_path_before_archive_read,
+            ):
+                result = verify_extract_and_probe(
+                    artifact, archive, Path(temp) / 'install', allowed_root=temp,
+                )
+            installed_payload = Path(temp) / 'install' / 'prime-agent'
+            self.assertEqual(result['status'], 'pass')
+            self.assertEqual(result['observed_sha256'], hashlib.sha256(original_blob).hexdigest())
+            self.assertEqual(installed_payload.read_bytes(), original_payload)
+            self.assertEqual(archive.read_bytes(), replaced_blob)
+
+    def test_staging_cleanup_only_removes_exact_registered_run_owned_stage(self):
+        run_id = 'a' * 24
+        with tempfile.TemporaryDirectory() as temp:
+            parent = Path(temp) / 'install'
+            parent.mkdir()
+            stage = parent / f'.prime-stage-{run_id}-1'
+            stage.mkdir()
+            (stage / '.agent-welcome-stage-owner.json').write_text(
+                json.dumps({'run_id': run_id, 'attempt': 1})
+            )
+            user_backup = parent / '.prime-stage-user-backup'
+            user_backup.mkdir()
+            (user_backup / 'keep.txt').write_text('preserve')
+            cleanup_staging(parent, run_id=run_id, attempts=[1], allowed_root=temp)
+            self.assertFalse(stage.exists())
+            self.assertEqual((user_backup / 'keep.txt').read_text(), 'preserve')
+
+    @unittest.skipIf(os.name == 'nt', 'symlink creation may require elevated Windows privileges')
+    def test_staging_cleanup_never_follows_symlinked_parent_outside_state_root(self):
+        run_id = 'b' * 24
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / 'state'
+            root.mkdir()
+            outside = Path(temp) / 'outside-install'
+            outside.mkdir()
+            stage = outside / f'.prime-stage-{run_id}-1'
+            stage.mkdir()
+            (stage / '.agent-welcome-stage-owner.json').write_text(
+                json.dumps({'run_id': run_id, 'attempt': 1})
+            )
+            (stage / 'keep.txt').write_text('preserve')
+            (root / 'install').symlink_to(outside, target_is_directory=True)
+            cleanup_staging(
+                root / 'install', run_id=run_id, attempts=[1], allowed_root=root,
+            )
+            self.assertEqual((stage / 'keep.txt').read_text(), 'preserve')
+
     def test_download_is_bounded_and_replaces_a_bad_state_local_cache(self):
         blob = archive_bytes([('prime-agent', 'file', VERSION_SCRIPT)])
         artifact = artifact_for(blob)
-        artifact['name'] = 'fixture.tar.gz'
-        artifact['url'] = 'https://downloads.invalid/fixture.tar.gz'
+        artifact['name'] = artifacts_module.PINNED_ARTIFACT_NAME
+        artifact['url'] = artifacts_module.PINNED_ARTIFACT_URL
         artifact['size_bytes'] = len(blob)
         with tempfile.TemporaryDirectory() as temp:
             cached = Path(temp) / 'downloads' / artifact['name']
@@ -96,6 +193,23 @@ class ArtifactTests(unittest.TestCase):
             self.assertEqual(result['version'], '0.10.0')
             self.assertEqual(result['observed_sha256'], hashlib.sha256(blob).hexdigest())
             self.assertTrue((Path(temp) / 'owned-install' / 'prime-agent').exists())
+
+    def test_probe_ignores_inherited_pi_package_dir_override(self):
+        payload = (
+            b'#!/bin/sh\n'
+            b'if [ -n "${PI_PACKAGE_DIR:-}" ]; then echo 9.9.9; '
+            b'else echo 0.10.0; fi\n'
+        )
+        blob = archive_bytes([('prime-agent', 'file', payload)])
+        with tempfile.TemporaryDirectory() as temp:
+            archive = Path(temp) / 'fixture.tar.gz'
+            archive.write_bytes(blob)
+            with patch.dict(os.environ, {'PI_PACKAGE_DIR': '/outside/untrusted-version'}):
+                result = verify_extract_and_probe(
+                    artifact_for(blob), archive, Path(temp) / 'install', allowed_root=temp,
+                )
+            self.assertEqual(result['status'], 'pass')
+            self.assertEqual(result['version'], '0.10.0')
 
     def test_wrong_digest_does_not_extract_or_execute(self):
         with tempfile.TemporaryDirectory() as temp:

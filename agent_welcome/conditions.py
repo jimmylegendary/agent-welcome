@@ -9,6 +9,53 @@ class ConditionError(ValueError):
 
 OPERATORS = {'all', 'any', 'eq', 'in', 'version_gte'}
 _VERSION = re.compile(r'^[0-9]+(?:\.[0-9]+)*$')
+_STRING_FACTS = {'kernel_os', 'host_os', 'architecture', 'runtime_kind'}
+
+
+def validate_observations(observations):
+    """Validate known fact types while leaving absent/null facts unknown."""
+    if not isinstance(observations, dict):
+        raise ConditionError('observations must be an object')
+    for key in _STRING_FACTS:
+        if key in observations and observations[key] is not None and not isinstance(observations[key], str):
+            raise ConditionError(f'observations.{key} must be a string or null')
+    for key in ('libc', 'capabilities', 'auth', 'provenance', 'sandbox'):
+        if key in observations and observations[key] is not None and not isinstance(observations[key], dict):
+            raise ConditionError(f'observations.{key} must be an object or null')
+    libc = observations.get('libc')
+    if isinstance(libc, dict):
+        for key in ('family', 'version'):
+            value = libc.get(key)
+            if value is not None and not isinstance(value, str):
+                raise ConditionError(f'observations.libc.{key} must be a string or null')
+        version = libc.get('version')
+        if version is not None and not _VERSION.fullmatch(version):
+            raise ConditionError('observations.libc.version must be a dotted numeric version')
+    capabilities = observations.get('capabilities')
+    if isinstance(capabilities, dict):
+        for key in ('user_namespace', 'bubblewrap'):
+            value = capabilities.get(key)
+            if value is not None and not isinstance(value, bool):
+                raise ConditionError(f'observations.capabilities.{key} must be a boolean or null')
+    auth = observations.get('auth')
+    if isinstance(auth, dict):
+        stage = auth.get('failure_stage')
+        if stage is not None and not isinstance(stage, str):
+            raise ConditionError('observations.auth.failure_stage must be a string or null')
+        allowed = auth.get('device_code_allowed')
+        if allowed is not None and not isinstance(allowed, bool):
+            raise ConditionError('observations.auth.device_code_allowed must be a boolean or null')
+    sandbox = observations.get('sandbox')
+    if isinstance(sandbox, dict):
+        for key in ('enabled',):
+            value = sandbox.get(key)
+            if value is not None and not isinstance(value, bool):
+                raise ConditionError(f'observations.sandbox.{key} must be a boolean or null')
+        for key in ('backend', 'permission_profile'):
+            value = sandbox.get(key)
+            if value is not None and not isinstance(value, str):
+                raise ConditionError(f'observations.sandbox.{key} must be a string or null')
+    return observations
 
 
 def _version_parts(value):
@@ -71,8 +118,7 @@ def _lookup(observations, path):
 def evaluate_condition(condition, observations):
     """Return status pass/fail/unknown without converting missing facts to false."""
     validate_condition(condition)
-    if not isinstance(observations, dict):
-        raise ConditionError('observations must be an object')
+    validate_observations(observations)
     op = condition['op']
     if op in {'all', 'any'}:
         results = [evaluate_condition(child, observations) for child in condition['conditions']]
@@ -102,7 +148,10 @@ def evaluate_condition(condition, observations):
     elif op == 'in':
         if not any(type(actual) is type(candidate) for candidate in condition['values']):
             raise ConditionError(f'{condition["fact"]} has an unexpected value type')
-        passed = actual in condition['values']
+        passed = any(
+            type(actual) is type(candidate) and actual == candidate
+            for candidate in condition['values']
+        )
     else:
         if not isinstance(actual, str):
             raise ConditionError(f'{condition["fact"]} must be a dotted numeric version')

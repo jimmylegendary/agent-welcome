@@ -8,7 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from agent_welcome.catalog import load_recipe
+from agent_welcome.catalog import CatalogError, load_recipe
 from agent_welcome.runner import (
     RunError,
     record_user_wait,
@@ -244,6 +244,25 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(result['status'], 'NEEDS_DIAGNOSIS')
             self.assertTrue(result['recipe_drift'])
             self.assertEqual(result['attempts']['total'], 0)
+
+    def test_start_rejects_malformed_known_observation_fields_before_state_creation(self):
+        observation = compatible_observation()
+        observation['runtime_kind'] = 123
+        observation['capabilities'] = 'bad'
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'state'
+            with self.assertRaises(RunError):
+                start(self.recipe, state_dir, observation)
+            self.assertFalse(state_dir.exists())
+
+    def test_runner_rejects_unimplemented_required_check_before_any_success_path(self):
+        recipe = json.loads(json.dumps(self.recipe))
+        recipe['required_checks'].append('check_sandbox')
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'state'
+            with self.assertRaises(CatalogError):
+                start(recipe, state_dir, compatible_observation())
+            self.assertFalse(state_dir.exists())
 
     def test_interrupted_install_reconciles_manifest_without_duplicate_probe(self):
         blob = make_counting_archive()

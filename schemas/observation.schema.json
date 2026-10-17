@@ -5,21 +5,30 @@
   "description": "kernel_os identifies the running process kernel environment; host_os is the physical host only when positively identified and otherwise null.",
   "type": "object",
   "properties": {
-    "kernel_os": {"type": "string"},
-    "host_os": {"type": ["string", "null"], "enum": ["android", "ios", "macos", "windows", "linux", null]},
-    "architecture": {"type": "string"},
-    "runtime_kind": {"type": "string", "enum": ["proot", "linux_userland", "native", "utm_guest"]},
+    "kernel_os": {"type": ["string", "null"]},
+    "host_os": {"type": ["string", "null"]},
+    "architecture": {"type": ["string", "null"]},
+    "runtime_kind": {"type": ["string", "null"]},
     "libc": {
-      "type": "object",
+      "type": ["object", "null"],
       "properties": {
         "family": {"type": ["string", "null"], "enum": ["glibc", "musl", "bionic", null]},
         "version": {"type": ["string", "null"], "pattern": "^[0-9]+(\\.[0-9]+)*$"}
       },
       "additionalProperties": true
     },
-    "capabilities": {"type": "object"},
-    "auth": {"type": "object"},
-    "provenance": {"type": "object"}
+    "capabilities": {"type": ["object", "null"]},
+    "auth": {"type": ["object", "null"]},
+    "sandbox": {
+      "type": ["object", "null"],
+      "properties": {
+        "enabled": {"type": ["boolean", "null"]},
+        "backend": {"type": ["string", "null"]},
+        "permission_profile": {"type": ["string", "null"]}
+      },
+      "additionalProperties": true
+    },
+    "provenance": {"type": ["object", "null"]}
   },
   "additionalProperties": true
 }

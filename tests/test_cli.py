@@ -45,6 +45,26 @@ class CliTests(unittest.TestCase):
             self.assertNotEqual(result.returncode, 0)
             self.assertFalse(Path(state).exists())
 
+    def test_diagnose_rejects_wrong_types_for_known_observation_fields(self):
+        observations = {
+            'kernel_os': 'linux',
+            'host_os': 'android',
+            'architecture': 'aarch64',
+            'runtime_kind': 123,
+            'libc': {'family': 'glibc', 'version': '2.35'},
+            'capabilities': 'bad',
+            'auth': {'failure_stage': None},
+            'provenance': {},
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / 'observations.json'
+            path.write_text(json.dumps(observations))
+            result = self.run_cli(
+                'diagnose', '--recipe', 'prime-agent-0.10.0-linux-arm64',
+                '--observations', str(path),
+            )
+            self.assertNotEqual(result.returncode, 0)
+
     def test_start_resume_and_status_use_only_the_explicit_state_directory(self):
         with tempfile.TemporaryDirectory() as temp:
             state_dir = Path(temp) / 'chosen-state'

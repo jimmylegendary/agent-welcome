@@ -18,6 +18,15 @@ ALLOWED_RELATIONS = {
     'recovered_by', 'verified_by', 'supported_by', 'constrained_by',
     'describes', 'precedes', 'claims',
 }
+IMPLEMENTED_RECIPE_CHECKS = {'binary_installation'}
+CODEX_ROUTE_CHECKS = (
+    'check_artifact_integrity',
+    'check_agent_runtime_compatibility',
+    'check_agent_version',
+    'check_login_and_readonly_task',
+    'check_sandbox',
+    'check_permission_profile',
+)
 
 
 class CatalogError(ValueError):
@@ -75,6 +84,18 @@ def validate_recipe(recipe, catalog=None):
     missing = required - set(artifact)
     if missing:
         raise CatalogError(f'artifact is missing fields: {sorted(missing)}')
+    name = artifact['name']
+    if (
+        not isinstance(name, str)
+        or not name
+        or name in {'.', '..'}
+        or '/' in name
+        or '\\' in name
+        or ':' in name
+        or name.endswith((' ', '.'))
+        or PurePosixPath(name).name != name
+    ):
+        raise CatalogError('artifact name must be a safe single filename')
     if not artifact['url'].startswith('https://'):
         raise CatalogError('artifact URL must use HTTPS')
     if not re.fullmatch(r'[0-9a-f]{64}', artifact['published_sha256']):
@@ -134,8 +155,15 @@ def validate_recipe(recipe, catalog=None):
         or retry['total'] < retry['per_step']
     ):
         raise CatalogError('retry_budget requires positive finite per_step and total values')
-    if not isinstance(recipe['required_checks'], list) or 'binary_installation' not in recipe['required_checks']:
+    if (
+        not isinstance(recipe['required_checks'], list)
+        or not recipe['required_checks']
+        or 'binary_installation' not in recipe['required_checks']
+    ):
         raise CatalogError('recipe must require binary_installation verification')
+    unsupported_checks = set(recipe['required_checks']) - IMPLEMENTED_RECIPE_CHECKS
+    if unsupported_checks:
+        raise CatalogError(f'recipe requires unimplemented checks: {sorted(unsupported_checks)}')
     if not isinstance(recipe['not_checked'], list):
         raise CatalogError('not_checked must be a list')
     if catalog is not None:
@@ -161,6 +189,8 @@ def validate_recipe(recipe, catalog=None):
                 'published_size_bytes': artifact['size_bytes'],
                 'libc.family': artifact['libc_family'],
                 'libc.version_gte': artifact['libc_min_version'],
+                'stdout_format': 'product_version_only',
+                'version_resolution': 'packaged_manifest_then_compiled_version',
             }.get(claim['predicate'])
             if expected is not None and claim['value'] != expected:
                 raise CatalogError(f'artifact disagrees with pinned claim {claim_id}')
@@ -172,9 +202,22 @@ def validate_recipe(recipe, catalog=None):
         if not graph_artifact:
             raise CatalogError('recipe artifact has no structured KG artifact node')
         for field in ('version', 'target', 'architecture', 'os', 'libc_family',
-                      'libc_min_version', 'published_sha256', 'size_bytes'):
+                      'libc_min_version', 'published_sha256', 'size_bytes', 'name', 'url'):
             if graph_artifact.get(field) != artifact.get(field):
                 raise CatalogError(f'recipe artifact disagrees with KG field {field}')
+        release_metadata = next(
+            (
+                sources_by_id[source_id].get('snapshot_fields')
+                for source_id in artifact['source_refs']
+                if sources_by_id[source_id].get('snapshot_fields')
+            ),
+            None,
+        )
+        if not release_metadata or (
+            release_metadata.get('name') != artifact['name']
+            or release_metadata.get('browser_download_url') != artifact['url']
+        ):
+            raise CatalogError('artifact name/URL do not match pinned release metadata')
 
 
 def validate_catalog(data):
@@ -310,9 +353,15 @@ def evaluate_route(catalog, route_id, observations, check_results):
     ]})
     applicability = evaluate_condition(condition, observations)
     required = list(route.get('required_check_ids', []))
-    if route.get('agent_id') == 'agent_codex' and observations.get('runtime_kind') == 'proot':
-        if 'check_sandbox' not in required:
-            required.append('check_sandbox')
+    missing_facts = []
+    if route.get('agent_id') == 'agent_codex':
+        for check_id in CODEX_ROUTE_CHECKS:
+            if check_id not in required:
+                required.append(check_id)
+        sandbox = observations.get('sandbox')
+        profile = sandbox.get('permission_profile') if isinstance(sandbox, dict) else None
+        if not isinstance(profile, str) or not profile.strip():
+            missing_facts.append('sandbox.permission_profile')
     missing = []
     failed = []
     for check_id in required:
@@ -324,7 +373,10 @@ def evaluate_route(catalog, route_id, observations, check_results):
             missing.append(check_id)
         elif status != 'pass':
             failed.append(check_id)
-    outcome = 'pass' if applicability['status'] == 'pass' and not missing and not failed else (
+    if 'check_permission_profile' in required and 'sandbox.permission_profile' in missing_facts:
+        if 'check_permission_profile' not in missing:
+            missing.append('check_permission_profile')
+    outcome = 'pass' if applicability['status'] == 'pass' and not missing_facts and not missing and not failed else (
         'fail' if applicability['status'] == 'fail' or failed else 'unknown'
     )
     return {
@@ -332,6 +384,7 @@ def evaluate_route(catalog, route_id, observations, check_results):
         'route_id': route_id,
         'applicability': applicability,
         'required_checks': required,
+        'missing_facts': missing_facts,
         'missing_checks': missing,
         'failed_checks': failed,
     }

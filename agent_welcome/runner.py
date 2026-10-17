@@ -10,7 +10,7 @@ from pathlib import Path
 
 from . import artifacts
 from .catalog import CatalogError, validate_recipe
-from .conditions import evaluate_condition
+from .conditions import ConditionError, evaluate_condition, validate_observations
 from .environment import observe as observe_environment
 
 
@@ -162,6 +162,13 @@ def _eligibility_status(recipe, observation):
     return 'UNSUPPORTED', result
 
 
+def _required_checks_pass(recipe, state):
+    return all(
+        state.get('checks', {}).get(check_id) == 'pass'
+        for check_id in recipe.get('required_checks', [])
+    )
+
+
 def _resolve_artifact(root, artifact, artifact_file, download):
     if artifact_file is not None:
         path = Path(artifact_file).expanduser()
@@ -223,6 +230,16 @@ def _continue_locked(
         )
         if check['valid']:
             if was_succeeded:
+                if _required_checks_pass(recipe, state):
+                    return state
+                state['status'] = 'NEEDS_DIAGNOSIS'
+                state['error'] = 'a required recipe check is not recorded as passed'
+                _save_state(root, state)
+                return state
+            if not _required_checks_pass(recipe, state):
+                state['status'] = 'NEEDS_DIAGNOSIS'
+                state['error'] = 'a required recipe check is not recorded as passed'
+                _save_state(root, state)
                 return state
             state['status'] = 'SUCCEEDED'
             state['completed_steps'] = ['binary_installation']
@@ -282,6 +299,13 @@ def _continue_locked(
     reconciling = state['status'] == 'RUNNING' and state.get('current_step') == step and install_dir.exists()
     attempts = state['attempts']
     step_count = attempts['by_step'].get(step, 0)
+    if step_count:
+        artifacts.cleanup_staging(
+            install_dir.parent,
+            run_id=state['run_id'],
+            attempts=range(1, step_count + 1),
+            allowed_root=root,
+        )
     per_step_max = int(recipe.get('retry_budget', {}).get('per_step', 2))
     total_max = int(recipe.get('retry_budget', {}).get('total', 6))
     if not reconciling and (step_count >= per_step_max or attempts['total'] >= total_max):
@@ -293,6 +317,7 @@ def _continue_locked(
     if not reconciling:
         attempts['total'] += 1
         attempts['by_step'][step] = step_count + 1
+    stage_attempt = step_count if reconciling else step_count + 1
     state['status'] = 'RUNNING'
     state['current_step'] = step
     state['waiting'] = None
@@ -302,12 +327,11 @@ def _continue_locked(
         if install_parent.is_symlink():
             raise RunError('state-local install path became a symbolic link')
         install_parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-        artifacts.cleanup_staging(install_dir.parent)
         if archive is None:
             archive = _resolve_artifact(root, recipe['artifact'], None, True)
         result = artifacts.verify_extract_and_probe(
             recipe['artifact'], archive, install_dir, recipe_sha256=current_recipe_hash,
-            allowed_root=root,
+            allowed_root=root, run_id=state['run_id'], attempt=stage_attempt,
         )
         if after_install is not None:
             after_install(result)
@@ -317,6 +341,18 @@ def _continue_locked(
         state['artifact_source'] = 'download' if download else 'supplied_file'
         state['completed_steps'] = ['binary_installation']
         state['checks']['binary_installation'] = 'pass'
+        if not _required_checks_pass(recipe, state):
+            state['status'] = 'NEEDS_DIAGNOSIS'
+            state['error'] = 'a required recipe check is not recorded as passed'
+            state['current_step'] = step
+            state['install_evidence'] = {
+                'version': result['version'],
+                'payload_path': result['payload_path'],
+                'reused_after_interruption': result['reused'],
+                'success_scope': 'binary_installation',
+            }
+            _save_state(root, state)
+            return state
         state['status'] = 'SUCCEEDED'
         state['current_step'] = None
         state['error'] = None
@@ -352,6 +388,10 @@ def start(
     observation = observation if observation is not None else observe_environment()
     if not isinstance(observation, dict):
         raise RunError('environment observation must be an object')
+    try:
+        validate_observations(observation)
+    except ConditionError as exc:
+        raise RunError(str(exc)) from exc
     with locked_state_dir(state_dir) as root:
         path = _state_path(root)
         if path.exists():
@@ -381,6 +421,10 @@ def resume(
     observation = observation if observation is not None else observe_environment()
     if not isinstance(observation, dict):
         raise RunError('environment observation must be an object')
+    try:
+        validate_observations(observation)
+    except ConditionError as exc:
+        raise RunError(str(exc)) from exc
     with locked_state_dir(state_dir) as root:
         if not _state_path(root).is_file():
             raise RunError(f'no setup state in {root}')

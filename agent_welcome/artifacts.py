@@ -3,7 +3,9 @@
 import hashlib
 import json
 import os
+import re
 import shutil
+import stat
 import subprocess
 import tarfile
 import tempfile
@@ -18,6 +20,12 @@ class InstallError(RuntimeError):
 
 
 MANIFEST_NAME = '.agent-welcome-manifest.json'
+STAGE_OWNER_NAME = '.agent-welcome-stage-owner.json'
+PINNED_ARTIFACT_NAME = 'prime-agent-0.10.0-linux-arm64.tar.gz'
+PINNED_ARTIFACT_URL = (
+    'https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.10.0/'
+    'prime-agent-0.10.0-linux-arm64.tar.gz'
+)
 
 
 def sha256_file(path):
@@ -30,15 +38,28 @@ def sha256_file(path):
 
 def download_artifact(artifact, state_dir, timeout=30):
     """Fetch only the recipe-pinned HTTPS URL into the explicit state directory."""
+    if (
+        artifact.get('name') != PINNED_ARTIFACT_NAME
+        or artifact.get('url') != PINNED_ARTIFACT_URL
+    ):
+        raise InstallError('download name/URL is not the pinned Prime v0.10.0 artifact')
     root = Path(state_dir).resolve()
     target_dir = root / 'downloads'
     if target_dir.is_symlink():
         raise InstallError('state-local downloads directory must not be a symbolic link')
+    try:
+        target_dir.resolve().relative_to(root)
+    except ValueError as exc:
+        raise InstallError('downloads directory is outside the explicit state directory') from exc
     target_dir.mkdir(parents=True, exist_ok=True)
     target = target_dir / artifact['name']
     if target.is_symlink():
-        target.unlink()
-    elif target.exists():
+        raise InstallError('cached artifact path must not be a symbolic link')
+    try:
+        target.resolve().relative_to(root)
+    except ValueError as exc:
+        raise InstallError('final artifact path is outside the explicit state directory') from exc
+    if target.exists():
         if sha256_file(target) == artifact['published_sha256']:
             return target
         target.unlink()
@@ -169,18 +190,40 @@ def _validate_archive(archive_path, artifact):
     return members
 
 
-def cleanup_staging(parent_dir):
-    """Remove abandoned extraction directories created by this adapter only."""
-    parent = Path(parent_dir)
-    if not parent.exists():
+def cleanup_staging(parent_dir, *, run_id, attempts, allowed_root):
+    """Remove only exact, state-local stage paths owned by this run and attempt."""
+    if not isinstance(run_id, str) or not re.fullmatch(r'[0-9a-f]{24}', run_id):
         return
-    for child in parent.glob('.prime-stage-*'):
+    root = Path(allowed_root).resolve()
+    parent = Path(os.path.abspath(parent_dir))
+    try:
+        relative_parent = parent.relative_to(root)
+    except ValueError:
+        return
+    cursor = root
+    for part in relative_parent.parts:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            return
+    if not parent.exists() or not parent.is_dir():
+        return
+    for attempt in attempts:
+        if type(attempt) is not int or attempt < 1:
+            continue
+        child = parent / f'.prime-stage-{run_id}-{attempt}'
         try:
-            if child.is_symlink() or child.is_file():
-                child.unlink()
-            elif child.is_dir():
-                shutil.rmtree(child)
+            if child.parent != parent or child.is_symlink() or not child.is_dir():
+                continue
+            owner_path = child / STAGE_OWNER_NAME
+            if owner_path.is_symlink() or not owner_path.is_file():
+                continue
+            owner = json.loads(owner_path.read_text(encoding='utf-8'))
+            if owner != {'run_id': run_id, 'attempt': attempt}:
+                continue
+            shutil.rmtree(child)
         except FileNotFoundError:
+            continue
+        except (OSError, json.JSONDecodeError):
             continue
 
 
@@ -297,132 +340,202 @@ def _reuse_existing(artifact, archive_digest, destination, recipe_sha256):
     }
 
 
+def _snapshot_archive(source_path, state_root, max_bytes):
+    root = Path(state_root).resolve()
+    snapshot_dir = root / '.archive-snapshots'
+    if snapshot_dir.is_symlink():
+        raise InstallError('state-local archive snapshot path must not be a symbolic link')
+    snapshot_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    try:
+        snapshot_dir.resolve().relative_to(root)
+    except ValueError as exc:
+        raise InstallError('archive snapshot directory is outside the explicit state directory') from exc
+    out_fd, snapshot_name = tempfile.mkstemp(prefix='.archive-', suffix='.tmp', dir=snapshot_dir)
+    snapshot = Path(snapshot_name)
+    source_fd = None
+    out_open = True
+    source_open = False
+    try:
+        flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0)
+        source_fd = os.open(os.fspath(source_path), flags)
+        source_open = True
+        source_stat = os.fstat(source_fd)
+        if not stat.S_ISREG(source_stat.st_mode):
+            raise InstallError('artifact_file must be a regular file')
+        if source_stat.st_size > max_bytes:
+            raise InstallError('archive exceeds configured byte limit')
+        digest = hashlib.sha256()
+        count = 0
+        with os.fdopen(source_fd, 'rb') as source, os.fdopen(out_fd, 'wb') as output:
+            source_open = False
+            out_open = False
+            while True:
+                chunk = source.read(64 * 1024)
+                if not chunk:
+                    break
+                count += len(chunk)
+                if count > max_bytes:
+                    raise InstallError('archive exceeds configured byte limit')
+                digest.update(chunk)
+                output.write(chunk)
+            final_stat = os.fstat(source.fileno())
+            if (
+                final_stat.st_size != source_stat.st_size
+                or final_stat.st_mtime_ns != source_stat.st_mtime_ns
+            ):
+                raise InstallError('artifact_file changed while making a private snapshot')
+            output.flush()
+            os.fsync(output.fileno())
+        return snapshot, digest.hexdigest(), count
+    except BaseException:
+        if source_open and source_fd is not None:
+            os.close(source_fd)
+        if out_open:
+            os.close(out_fd)
+        try:
+            snapshot.unlink()
+        except FileNotFoundError:
+            pass
+        raise
+
+
 def verify_extract_and_probe(
     artifact, archive_path, destination_dir, recipe_sha256=None, allowed_root=None,
+    run_id=None, attempt=None,
 ):
     """Install a verified archive into a private destination and check exact --version output."""
     archive_path = Path(archive_path)
-    destination = Path(destination_dir).absolute()
+    destination = Path(os.path.abspath(destination_dir))
     if destination.is_symlink():
         raise InstallError('install destination must not be a symbolic link')
-    if allowed_root is not None:
-        root = Path(allowed_root).resolve()
-        try:
-            relative_destination = destination.relative_to(root)
-        except ValueError as exc:
-            raise InstallError('install destination is outside the explicit state directory') from exc
-        cursor = root
-        for part in relative_destination.parts[:-1]:
-            cursor = cursor / part
-            if cursor.is_symlink():
-                raise InstallError('install path contains a symbolic link inside the state directory')
+    root = Path(allowed_root).resolve() if allowed_root is not None else destination.parent.resolve()
     try:
-        if not archive_path.is_file():
-            raise InstallError('artifact_file is not a regular file')
-        if archive_path.is_symlink():
-            raise InstallError('artifact_file must not be a symbolic link')
-        archive_bytes = archive_path.stat().st_size
-    except OSError as exc:
-        raise InstallError(f'cannot inspect artifact_file: {exc}') from exc
+        relative_destination = destination.relative_to(root)
+    except ValueError as exc:
+        raise InstallError('install destination is outside the explicit state directory') from exc
+    cursor = root
+    for part in relative_destination.parts[:-1]:
+        cursor = cursor / part
+        if cursor.is_symlink():
+            raise InstallError('install path contains a symbolic link inside the state directory')
     max_archive = int(artifact.get('max_archive_bytes', 64 * 1024 * 1024))
-    if archive_bytes > max_archive:
-        raise InstallError('archive exceeds configured byte limit')
-    observed = sha256_file(archive_path)
-    if observed != artifact['published_sha256']:
-        raise InstallError(
-            'artifact SHA-256 does not match published digest',
-            evidence={
-                'stage': 'published_digest_comparison',
-                'candidate_sha256': observed,
-                'verified': False,
-            },
-        )
-    if destination.exists():
-        return _reuse_existing(artifact, observed, destination, recipe_sha256)
-    members = _validate_archive(archive_path, artifact)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    stage = Path(tempfile.mkdtemp(prefix='.prime-stage-', dir=destination.parent))
+    snapshot, observed, _snapshot_size = _snapshot_archive(archive_path, root, max_archive)
     try:
-        with tarfile.open(archive_path, mode='r:gz') as stream:
-            for original, relative in members:
-                target = stage.joinpath(*relative.parts)
-                if original.isdir():
-                    target.mkdir(parents=True, exist_ok=True)
-                    continue
-                target.parent.mkdir(parents=True, exist_ok=True)
-                source = stream.extractfile(original)
-                if source is None:
-                    raise InstallError(f'cannot read archive member: {relative.as_posix()}')
-                remaining = original.size
-                with source, target.open('xb') as output:
-                    while remaining:
-                        chunk = source.read(min(64 * 1024, remaining))
-                        if not chunk:
-                            raise InstallError(f'truncated archive member: {relative.as_posix()}')
-                        output.write(chunk)
-                        remaining -= len(chunk)
-                    if source.read(1):
-                        raise InstallError(f'archive member size mismatch: {relative.as_posix()}')
-                mode = original.mode & 0o777 & ~0o6000
-                os.chmod(target, mode)
-        payload = stage.joinpath(*PurePosixPath(artifact['payload_path']).parts)
-        if not payload.is_file():
-            raise InstallError(f'archive does not contain payload {artifact["payload_path"]!r}')
-        timeout = int(artifact.get('probe_timeout_seconds', 10))
-        try:
-            probe = subprocess.run(
-                [str(payload), '--version'],
-                cwd=stage,
-                env={
-                    'PATH': os.defpath,
-                    'HOME': str(stage),
-                    'LANG': 'C',
-                    'TMPDIR': str(stage),
-                    'TMP': str(stage),
-                    'TEMP': str(stage),
-                },
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                check=False,
-                shell=False,
-                close_fds=True,
-            )
-        except (OSError, subprocess.TimeoutExpired) as exc:
-            raise InstallError(f'owned payload version probe failed: {exc}') from exc
-        version_output = probe.stdout.strip()
-        if probe.returncode != 0 or version_output != artifact['version']:
+        if observed != artifact['published_sha256']:
             raise InstallError(
-                f'owned payload version mismatch: exit={probe.returncode}, '
-                f'stdout={version_output!r}, expected={artifact["version"]!r}'
+                'artifact SHA-256 does not match published digest',
+                evidence={
+                    'stage': 'published_digest_comparison',
+                    'candidate_sha256': observed,
+                    'verified': False,
+                },
             )
-        inventory = _inventory(stage)
-        manifest = {
-            'artifact_id': artifact['id'],
-            'version': artifact['version'],
-            'observed_sha256': observed,
-            'published_sha256': artifact['published_sha256'],
-            'recipe_sha256': recipe_sha256,
-            'payload_path': artifact['payload_path'],
-            'payload_sha256': sha256_file(payload),
-            'version_output': version_output,
-            'success_scope': 'binary_installation',
-            'files': inventory['files'],
-            'directories': inventory['directories'],
-        }
-        (stage / MANIFEST_NAME).write_text(
-            json.dumps(manifest, sort_keys=True) + '\n', encoding='utf-8'
-        )
-        with (stage / MANIFEST_NAME).open('rb') as stream:
-            os.fsync(stream.fileno())
-        os.replace(stage, destination)
-        return {
-            'status': 'pass',
-            'version': version_output,
-            'observed_sha256': observed,
-            'payload_path': artifact['payload_path'],
-            'reused': False,
-        }
-    except BaseException:
-        shutil.rmtree(stage, ignore_errors=True)
-        raise
+        if destination.exists():
+            return _reuse_existing(artifact, observed, destination, recipe_sha256)
+        members = _validate_archive(snapshot, artifact)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if run_id is None and attempt is None:
+            stage = Path(tempfile.mkdtemp(prefix='.prime-stage-', dir=destination.parent))
+        elif (
+            isinstance(run_id, str)
+            and re.fullmatch(r'[0-9a-f]{24}', run_id)
+            and type(attempt) is int
+            and attempt > 0
+        ):
+            stage = destination.parent / f'.prime-stage-{run_id}-{attempt}'
+            stage.mkdir(mode=0o700)
+            (stage / STAGE_OWNER_NAME).write_text(
+                json.dumps({'run_id': run_id, 'attempt': attempt}, sort_keys=True) + '\n',
+                encoding='utf-8',
+            )
+        else:
+            raise InstallError('staging ownership requires a valid run id and attempt')
+        try:
+            with tarfile.open(snapshot, mode='r:gz') as stream:
+                for original, relative in members:
+                    target = stage.joinpath(*relative.parts)
+                    if original.isdir():
+                        target.mkdir(parents=True, exist_ok=True)
+                        continue
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    source = stream.extractfile(original)
+                    if source is None:
+                        raise InstallError(f'cannot read archive member: {relative.as_posix()}')
+                    remaining = original.size
+                    with source, target.open('xb') as output:
+                        while remaining:
+                            chunk = source.read(min(64 * 1024, remaining))
+                            if not chunk:
+                                raise InstallError(f'truncated archive member: {relative.as_posix()}')
+                            output.write(chunk)
+                            remaining -= len(chunk)
+                        if source.read(1):
+                            raise InstallError(f'archive member size mismatch: {relative.as_posix()}')
+                    mode = original.mode & 0o777 & ~0o6000
+                    os.chmod(target, mode)
+            payload = stage.joinpath(*PurePosixPath(artifact['payload_path']).parts)
+            if not payload.is_file():
+                raise InstallError(f'archive does not contain payload {artifact["payload_path"]!r}')
+            timeout = int(artifact.get('probe_timeout_seconds', 10))
+            try:
+                probe = subprocess.run(
+                    [str(payload), '--version'],
+                    cwd=stage,
+                    env={
+                        'PATH': os.defpath,
+                        'HOME': str(stage),
+                        'LANG': 'C',
+                        'TMPDIR': str(stage),
+                        'TMP': str(stage),
+                        'TEMP': str(stage),
+                    },
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout,
+                    check=False,
+                    shell=False,
+                    close_fds=True,
+                )
+            except (OSError, subprocess.TimeoutExpired) as exc:
+                raise InstallError(f'owned payload version probe failed: {exc}') from exc
+            version_output = probe.stdout.strip()
+            if probe.returncode != 0 or version_output != artifact['version']:
+                raise InstallError(
+                    f'owned payload version mismatch: exit={probe.returncode}, '
+                    f'stdout={version_output!r}, expected={artifact["version"]!r}'
+                )
+            inventory = _inventory(stage)
+            manifest = {
+                'artifact_id': artifact['id'],
+                'version': artifact['version'],
+                'observed_sha256': observed,
+                'published_sha256': artifact['published_sha256'],
+                'recipe_sha256': recipe_sha256,
+                'payload_path': artifact['payload_path'],
+                'payload_sha256': sha256_file(payload),
+                'version_output': version_output,
+                'success_scope': 'binary_installation',
+                'files': inventory['files'],
+                'directories': inventory['directories'],
+            }
+            (stage / MANIFEST_NAME).write_text(
+                json.dumps(manifest, sort_keys=True) + '\n', encoding='utf-8'
+            )
+            with (stage / MANIFEST_NAME).open('rb') as stream:
+                os.fsync(stream.fileno())
+            os.replace(stage, destination)
+            return {
+                'status': 'pass',
+                'version': version_output,
+                'observed_sha256': observed,
+                'payload_path': artifact['payload_path'],
+                'reused': False,
+            }
+        except BaseException:
+            shutil.rmtree(stage, ignore_errors=True)
+            raise
+    finally:
+        try:
+            snapshot.unlink()
+        except FileNotFoundError:
+            pass
