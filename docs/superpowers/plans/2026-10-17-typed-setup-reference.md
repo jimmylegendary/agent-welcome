@@ -70,7 +70,9 @@
 - [x] reviewer가 spec와 code를 대조하고 중요 결함을 구현 worker에게 돌려준다.
 - [x] 수정한 범위 재검토 후 master가 전체 suite와 실제 CLI를 실행한다.
 - [x] 12개 OS/agent 목표와 구현·실증 상태를 혼동하지 않도록 README/결과 기록 갱신.
-- [ ] source links, JSON references, whitespace, Git 상태를 검증하고 commit/push 후 원격 SHA 확인.
+- [x] source links, JSON references, whitespace, Git 상태를 검증하고 commit/push 후 원격 SHA 확인.
+
+실행 결과: [implementation-results.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/docs/implementation-results.md). GitHub 제출: [PR #1](https://github.com/jimmylegendary/agent-welcome/pull/1). 첫 제출 commit `20d760c6ef5d0745e99395d344166d153554be34`는 로컬과 원격 SHA 일치를 확인했다.
 
 ## Preflight interface scan
 
