@@ -1,5 +1,7 @@
 # AI agent 환영 제품: workflow·skill 생태계 조사
 
+> 현행 제품 결정은 [DECISIONS.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/DECISIONS.md)를 우선한다. 4개 OS 각각에서 세 agent 모두가 목표이며, 이 문서의 조사 제안은 확정 결정과 구분한다.
+
 **조사일:** 2026-10-17
 
 **범위:** 웹·모바일·데스크톱 개발, 로컬 및 예약 자동화, 브라우저·소셜 워크플로, 온라인 마케팅·리테일, 데이터베이스·인프라, 후보 skill과 연동 도구. 조사 결과만 작성했으며 소프트웨어 설치·설정·게시를 하지 않았다.

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-welcome.local/schemas/condition.schema.json",
+  "title": "Typed setup condition",
+  "$ref": "#/$defs/condition",
+  "$defs": {
+    "condition": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "conditions"],
+          "properties": {
+            "op": {"const": "all"},
+            "conditions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/condition"}}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "conditions"],
+          "properties": {
+            "op": {"const": "any"},
+            "conditions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/condition"}}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "fact", "value"],
+          "properties": {
+            "op": {"const": "eq"},
+            "fact": {"type": "string", "minLength": 1},
+            "value": {"type": ["string", "number", "integer", "boolean", "null"]}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "fact", "values"],
+          "properties": {
+            "op": {"const": "in"},
+            "fact": {"type": "string", "minLength": 1},
+            "values": {"type": "array", "minItems": 1, "items": {"type": ["string", "number", "integer", "boolean", "null"]}}
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["op", "fact", "value"],
+          "properties": {
+            "op": {"const": "version_gte"},
+            "fact": {"type": "string", "minLength": 1},
+            "value": {"type": "string", "pattern": "^[0-9]+(\\.[0-9]+)*$"}
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "decision_id": "D-001",
+  "goal": "all_three_agents_on_each_of_four_independent_hosts",
+  "gui_and_capability_constraints": "tracked_separately_per_combination",
+  "evidence_dimensions": [
+    "easy_install_implemented",
+    "fixture_verified",
+    "actual_os_verified",
+    "upstream_binary_verified",
+    "authentication_verified",
+    "first_task_verified"
+  ],
+  "targets": [
+    {"os":"macos","agent":"claude-code","required":true,"runtime_verified":false},
+    {"os":"macos","agent":"codex","required":true,"runtime_verified":false},
+    {"os":"macos","agent":"prime-agent","required":true,"runtime_verified":false},
+    {"os":"windows","agent":"claude-code","required":true,"runtime_verified":false},
+    {"os":"windows","agent":"codex","required":true,"runtime_verified":false},
+    {"os":"windows","agent":"prime-agent","required":true,"runtime_verified":false},
+    {"os":"ios","agent":"claude-code","required":true,"runtime_verified":false},
+    {"os":"ios","agent":"codex","required":true,"runtime_verified":false},
+    {"os":"ios","agent":"prime-agent","required":true,"runtime_verified":false},
+    {"os":"android","agent":"claude-code","required":true,"runtime_verified":false},
+    {"os":"android","agent":"codex","required":true,"runtime_verified":false},
+    {"os":"android","agent":"prime-agent","required":true,"runtime_verified":false}
+  ]
+}

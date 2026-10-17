@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "id": "prime-agent-0.10.0-linux-arm64",
+  "version": "0.10.0",
+  "agent_id": "agent_prime",
+  "success_scope": "binary_installation",
+  "applicability": {
+    "op": "all",
+    "conditions": [
+      {"op": "eq", "fact": "kernel_os", "value": "linux"},
+      {"op": "eq", "fact": "architecture", "value": "aarch64"},
+      {"op": "eq", "fact": "libc.family", "value": "glibc"},
+      {"op": "version_gte", "fact": "libc.version", "value": "2.35"}
+    ]
+  },
+  "artifact": {
+    "id": "prime-agent-0.10.0-linux-arm64",
+    "name": "prime-agent-0.10.0-linux-arm64.tar.gz",
+    "version": "0.10.0",
+    "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.10.0/prime-agent-0.10.0-linux-arm64.tar.gz",
+    "target": "linux-arm64-gnu",
+    "architecture": "aarch64",
+    "os": "linux",
+    "libc_family": "glibc",
+    "libc_min_version": "2.35",
+    "published_sha256": "f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
+    "size_bytes": 21858488,
+    "payload_path": "prime-agent",
+    "source_refs": [
+      "src_prime_release",
+      "src_prime_installer",
+      "src_prime_version_cli",
+      "src_prime_version_config"
+    ],
+    "claim_refs": [
+      "claim_prime_glibc_min",
+      "claim_prime_libc_family",
+      "claim_prime_archive_digest",
+      "claim_prime_archive_size",
+      "claim_prime_version_stdout",
+      "claim_prime_version_resolution"
+    ],
+    "observed_sha256": null,
+    "download_verified": false,
+    "max_archive_bytes": 67108864,
+    "max_expanded_bytes": 134217728,
+    "max_members": 2048,
+    "probe_timeout_seconds": 10
+  },
+  "required_checks": ["binary_installation"],
+  "not_checked": ["api_authentication", "python_kernel", "model_task"],
+  "retry_budget": {
+    "per_step": 2,
+    "total": 6
+  }
+}

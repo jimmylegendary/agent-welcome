@@ -1,5 +1,7 @@
 # 비개발자를 위한 AI Agent Welcome Package 조사와 논의안
 
+> 현행 제품 결정은 [DECISIONS.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/DECISIONS.md)를 우선한다. 4개 OS 각각에서 세 agent 모두가 목표이며, 이 문서의 조사 제안은 확정 결정과 구분한다.
+
 2026-10-17 · 기획 초안 · 설치·배포·구현 전
 
 **후속 결정:** 모바일에서도 기존 Claude Code·Codex·Prime Agent의 실행 경로를 우선한다. 별도 자체 agent 앱으로 바꾸는 방향은 채택하지 않았다. 공식 가이드·블로그·GitHub의 설치 지식과 오류 대응을 KG로 연결하고, 사용자의 환경에 맞는 경로 선택·진단·복구·성공 확인을 자동화하는 구조를 설계한다. 상세 설계는 [SETUP-KG-PLAN.md](https://github.com/jimmylegendary/agent-welcome/blob/main/SETUP-KG-PLAN.md)에 이어서 기록한다.

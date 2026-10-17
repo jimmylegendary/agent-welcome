@@ -10,3 +10,5 @@ node_modules/
 **/credentials.json
 *.pem
 *.key
+.superpowers/
+.agent-welcome/

@@ -1,0 +1,34 @@
+{
+  "schema_version": "bootstrap-1.0",
+  "repository": {
+    "revision": "ceb6d3803b12d41d429dc3188e9a20ac8f220780",
+    "archive_url": "https://codeload.github.com/jimmylegendary/agent-welcome/zip/ceb6d3803b12d41d429dc3188e9a20ac8f220780",
+    "archive_sha256": "38d359aa0b05ae6bed5214a1b845e67477332c17cc291fc1727969aff648891d",
+    "archive_prefix": "agent-welcome-ceb6d3803b12d41d429dc3188e9a20ac8f220780"
+  },
+  "windows_runtime": {
+    "version": "3.13.5",
+    "architecture": "amd64",
+    "archive_url": "https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip",
+    "archive_sha256": "7d2650fd9d1b9d002d4a315d5f354247fd6a44f30517c7ef577b08f57a0fb6d9"
+  },
+  "unix_runtime": {
+    "minimum_version": "3.11",
+    "supported_package_manager_plans": {
+      "termux-pkg": ["pkg", "install", "-y", "python", "curl", "unzip"],
+      "apt-get": ["sudo", "apt-get", "install", "-y", "python3", "curl", "unzip"],
+      "dnf": ["sudo", "dnf", "install", "-y", "python3", "curl", "unzip"],
+      "pacman": ["sudo", "pacman", "-S", "--needed", "python", "curl", "unzip"],
+      "apk": ["sudo", "apk", "add", "python3", "curl", "unzip"],
+      "homebrew": ["brew", "install", "python@3.13"]
+    },
+    "macos_official_installer": {
+      "version": "3.13.5",
+      "architecture": "universal2",
+      "archive_url": "https://www.python.org/ftp/python/3.13.5/python-3.13.5-macos11.pkg",
+      "archive_sha256": "e754d6cae3f2810dd1818c1395a7ff50ce79ade3ec4887f7ce23ad581cc12e3a",
+      "signature_check": ["pkgutil", "--check-signature"],
+      "installer_argv": ["sudo", "installer", "-pkg", "STATE_DIR/runtime-downloads/python-3.13.5-macos11.pkg", "-target", "/"]
+    }
+  }
+}

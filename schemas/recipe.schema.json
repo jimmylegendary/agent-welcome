@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-welcome.local/schemas/recipe.schema.json",
+  "title": "Agent Welcome setup recipe 1.0",
+  "type": "object",
+  "required": ["schema_version", "id", "version", "agent_id", "success_scope", "applicability", "artifact", "required_checks", "not_checked", "retry_budget"],
+  "properties": {
+    "schema_version": {"const": "1.0"},
+    "id": {"type": "string"},
+    "version": {"type": "string"},
+    "agent_id": {"type": "string"},
+    "success_scope": {"const": "binary_installation"},
+    "applicability": {"$ref": "condition.schema.json#/$defs/condition"},
+    "artifact": {"type": "object"},
+    "required_checks": {"type": "array", "items": {"type": "string"}},
+    "not_checked": {"type": "array", "items": {"type": "string"}},
+    "retry_budget": {"type": "object", "required": ["per_step", "total"]}
+  },
+  "additionalProperties": true
+}

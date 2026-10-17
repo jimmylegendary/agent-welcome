@@ -1,5 +1,7 @@
 # 설치 지식 KG와 자동 복구 설계
 
+> 현행 제품 결정은 [DECISIONS.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/DECISIONS.md)를 우선한다. 4개 OS 각각에서 세 agent 모두가 목표이며, 이 문서의 조사 제안은 확정 결정과 구분한다.
+
 2026-10-17 · 후속 논의안 · 기존 agent 실행 경로 우선
 
 이 제품의 중심을 **설치 방법을 알고, 현재 환경을 읽고, 실패 이유에 맞는 다음 단계를 고르는 설치 서비스**로 잡는다. 웹사이트의 가이드, GitHub의 skill·설치 정의, 실제 설치기가 하나의 지식을 사용하도록 설계한다.
