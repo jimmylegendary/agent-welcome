@@ -2,6 +2,7 @@ import io
 import json
 import os
 import re
+import subprocess
 import tempfile
 import urllib.error
 import unittest
@@ -11,7 +12,10 @@ from unittest import mock
 
 from agent_welcome.easy_install import (
     EasyInstallError,
+    FIRST_TASK_TIMEOUT_SECONDS,
+    _first_task_adapter,
     _run,
+    _verify_first_task_proof,
     easy_resume,
     easy_start,
     easy_status,
@@ -75,8 +79,11 @@ class EasyInstallTests(unittest.TestCase):
     @staticmethod
     def task_runner(argv, **kwargs):
         assert kwargs['shell'] is False
+        assert kwargs['stdin'] is subprocess.DEVNULL
         if argv[1:] == ['--version']:
+            assert kwargs['timeout'] == 30
             return SimpleNamespace(returncode=0, stdout='1.2.3', stderr='')
+        assert kwargs['timeout'] == FIRST_TASK_TIMEOUT_SECONDS
         prompt = argv[-1]
         match = re.search(r'(agent-welcome-proof-([0-9a-f]+)\.txt).*exactly ([0-9a-f]+)', prompt)
         if match is None or match.group(2) != match.group(3):
@@ -144,6 +151,11 @@ class EasyInstallTests(unittest.TestCase):
             )
             self.assertEqual(completed['status'], 'COMPLETED_UNVERIFIED_PROVENANCE')
             self.assertEqual(completed['first_task_evidence']['kind'], 'fixture_fixed_adapter')
+            self.assertEqual(completed['first_task_evidence']['timeout_seconds'], FIRST_TASK_TIMEOUT_SECONDS)
+            self.assertEqual(completed['first_task_evidence']['argv'][1:-1], [
+                '-p', '--bare', '--tools', 'Write', '--allowedTools', 'Write',
+                '--permission-prompts', 'none',
+            ])
             self.assertEqual(completed['evidence']['authentication'], 'fixture_fixed_agent_task')
             self.assertFalse(completed['evidence']['actual_os'])
             self.assertFalse(completed['evidence']['upstream_binary'])
@@ -219,6 +231,63 @@ class EasyInstallTests(unittest.TestCase):
         self.assertEqual(seen['USERPROFILE'], r'C:\\Users\\fixture')
         self.assertEqual(seen['CODEX_HOME'], r'C:\\Users\\fixture\\.codex')
         self.assertNotIn('OPENAI_API_KEY', seen)
+
+    def test_first_task_adapters_use_minimum_noninteractive_write_contracts(self):
+        catalog = load_targets()['targets']
+        targets = {target['agent']: target for target in catalog if target['os'] == 'macos'}
+        expected = {
+            'claude-code': [
+                '/agents/claude', '-p', '--bare', '--tools', 'Write',
+                '--allowedTools', 'Write', '--permission-prompts', 'none',
+            ],
+            'codex': [
+                '/agents/codex', 'exec', '--sandbox', 'workspace-write',
+                '--ask-for-approval', 'never', '--skip-git-repo-check',
+            ],
+            'prime-agent': ['/agents/prime-agent', '--print'],
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            for agent, prefix in expected.items():
+                with self.subTest(agent=agent):
+                    state_root = Path(temp) / agent
+                    state_root.mkdir()
+                    _workspace, _marker, nonce, argv = _first_task_adapter(
+                        targets[agent], {'agent_executable': prefix[0]}, state_root,
+                    )
+                    self.assertEqual(argv[:-1], prefix)
+                    self.assertIn(nonce, argv[-1])
+                    self.assertNotIn('--dangerously-skip-permissions', argv)
+                    self.assertNotIn('--dangerously-bypass-approvals-and-sandbox', argv)
+
+    def test_first_task_rejects_stdout_that_is_not_exactly_the_nonce(self):
+        with tempfile.TemporaryDirectory() as temp:
+            marker = Path(temp) / 'proof.txt'
+            marker.write_text('nonce', encoding='utf-8')
+            with self.assertRaisesRegex(EasyInstallError, 'exactly match'):
+                _verify_first_task_proof(marker, 'nonce', 'nonce with extra output')
+
+    @unittest.skipIf(os.name == 'nt', 'creating the Unix Claude installer symlink layout requires Unix semantics')
+    def test_claude_official_user_local_symlink_preserves_invocation_and_binary_paths(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            home = root / 'home'
+            launcher = home / '.local' / 'bin' / 'claude'
+            binary = home / '.local' / 'share' / 'claude' / 'versions' / '1.2.3'
+            launcher.parent.mkdir(parents=True)
+            binary.parent.mkdir(parents=True)
+            binary.write_text('fixture', encoding='utf-8')
+            launcher.symlink_to(binary)
+            with mock.patch.dict(os.environ, {'HOME': str(home)}, clear=False):
+                state = easy_start(
+                    'macos-claude-code', root / 'state', mac_observation(),
+                    agent_executable=str(launcher), runner=self.runner('Claude Code 1.2.3'),
+                )
+            self.assertEqual(state['status'], 'WAITING_USER')
+            self.assertEqual(state['agent_executable'], str(launcher))
+            self.assertEqual(state['agent_invocation_path'], str(launcher))
+            self.assertEqual(state['agent_resolved_path'], str(binary))
+            self.assertEqual(state['installation_evidence']['invocation_path'], str(launcher))
+            self.assertEqual(state['installation_evidence']['resolved_path'], str(binary))
 
     def test_interrupted_installer_is_not_automatically_replayed(self):
         with tempfile.TemporaryDirectory() as temp:

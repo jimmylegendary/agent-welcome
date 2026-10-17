@@ -22,11 +22,21 @@ On Windows:
 ```
 
 The launchers locate this checkout automatically, so they work from another
-current directory and do not require a manual `PYTHONPATH` or `cd`. They require
-an existing Python 3.11+ runtime; bootstrap installation of Python is not
-automated because it would be an external installer outside the explicit state
-directory. Use `easy-plan --target ID` to view a route without changing the
-machine and `easy-status --state-dir DIR` to inspect durable progress.
+current directory and do not require a manual `PYTHONPATH` or `cd`.
+
+### Bootstrap constraint — unimplemented blocker
+
+Easy Install still requires both this checkout and an existing Python 3.11+
+runtime. This is an **unimplemented bootstrap**, not an execution result: the
+entry point cannot run before Python exists, and the current catalog does not
+provide platform-specific Python installers, verified hashes, or a consented
+installation scope. Automatically installing Python would also write outside
+the explicit state directory, which this product contract forbids. Do not
+interpret an unsupported bootstrap as a failed or unverified agent route.
+
+After those prerequisites have been supplied through the platform's own
+approved process, use `easy-plan --target ID` to view a route without changing
+the machine and `easy-status --state-dir DIR` to inspect durable progress.
 
 ## Consent-gated installer adapter
 
@@ -60,9 +70,20 @@ same device, records hashed output, then waits for the user to enter that guest
 before continuing. An interruption is never rerun automatically. iOS cannot
 create/import/boot a UTM guest through an iOS guest API. The concrete iOS path
 is to create a UTM Linux VM, attach an Ubuntu Server ARM64 installer ISO, boot
-and install a glibc-based guest with Python 3.11+, then copy this repository
-into the guest. Those app-owned steps remain specific manual checkpoints; setup
-resumes only inside the observed UTM guest.
+and install a glibc-based guest with Python 3.11+, then obtain this checkout in
+that guest by an approved transfer or, where its network policy permits it:
+
+```sh
+git clone https://github.com/jimmylegendary/agent-welcome.git ~/agent-welcome
+cd ~/agent-welcome
+export AGENT_WELCOME_IOS_GUEST=1
+./easy-install.sh --target ios-codex --state-dir "$HOME/.agent-welcome/easy"
+# After a user checkpoint, resume the same durable state:
+./easy-resume.sh --state-dir "$HOME/.agent-welcome/easy"
+```
+
+The UTM app-owned steps and the bootstrap prerequisite above remain manual
+checkpoints; setup resumes only inside the observed UTM guest.
 
 ## Login and first work
 
@@ -71,21 +92,35 @@ attestation path. After the user completes login outside Agent Welcome, the
 user must explicitly pass `--approve-first-task`. The program then runs a
 fixed, per-agent adapter with a fresh nonce and requires both exact response
 text and a state-local proof file. It never accepts an arbitrary argv, or a
-`--help`, `--version`, or no-op command as a first task. A mock runner is
-recorded only as fixture evidence. `SUCCEEDED` additionally requires a direct
-process observation and a direct official-installer-to-binary provenance chain;
-otherwise the terminal result is `COMPLETED_UNVERIFIED_PROVENANCE`.
+`--help`, `--version`, or no-op command as a first task. It runs with a
+120-second timeout, `stdin` closed, and captured stdout. The per-agent commands
+have the following deliberately narrow write capability:
+
+- Claude Code uses `-p --bare --tools Write --allowedTools Write
+  --permission-prompts none`; unresolved permissions fail rather than opening
+  an interactive or broad-permission flow.
+- Codex uses `exec --sandbox workspace-write --ask-for-approval never`; it does
+  not use any sandbox or approval bypass.
+- Prime Agent uses `--print`, so it cannot select its interactive TTY mode.
+
+The prompt confines the write to the current state-local proof workspace. The
+Claude adapter exposes only `Write`; Codex relies on its workspace-write
+sandbox; and the Prime adapter is only asserted to be noninteractive. A mock
+runner is recorded only as fixture evidence, not proof of provider-agent tool
+isolation. `SUCCEEDED` additionally requires a direct process observation and a
+direct official-installer-to-binary provenance chain; otherwise the terminal
+result is `COMPLETED_UNVERIFIED_PROVENANCE`.
 
 ## 12-target implementation matrix
 
 | Target | State-machine route | Official installer / remaining user step | Current evidence |
 |---|---|---|---|
-| macOS × Claude Code | Native macOS | `claude.ai/install.sh`; browser login and read-only task | implementation only |
-| macOS × Codex | Native macOS | `chatgpt.com/codex/install.sh`; login and read-only task | implementation only |
-| macOS × Prime Agent | Native macOS | Prime `install.sh`; `/login` and read-only task | implementation only |
-| Windows × Claude Code | Native Windows | `claude.ai/install.ps1`; browser login and read-only task | implementation only |
-| Windows × Codex | Native Windows | `chatgpt.com/codex/install.ps1`; login and read-only task | implementation only |
-| Windows × Prime Agent | Native Windows | Prime `install.ps1`; `/login` and read-only task | implementation only |
+| macOS × Claude Code | Native macOS | `claude.ai/install.sh`; browser login and state-local proof task | implementation only |
+| macOS × Codex | Native macOS | `chatgpt.com/codex/install.sh`; login and state-local proof task | implementation only |
+| macOS × Prime Agent | Native macOS | Prime `install.sh`; `/login` and state-local proof task | implementation only |
+| Windows × Claude Code | Native Windows | `claude.ai/install.ps1`; browser login and state-local proof task | implementation only |
+| Windows × Codex | Native Windows | `chatgpt.com/codex/install.ps1`; login and state-local proof task | implementation only |
+| Windows × Prime Agent | Native Windows | Prime `install.ps1`; `/login` and state-local proof task | implementation only |
 | Android × Claude Code | Same-device Termux + PRoot Linux userland | prepare and enter guest, then Linux installer; login/task in guest | implementation only |
 | Android × Codex | Same-device Termux + PRoot Linux userland | prepare and enter guest, then Linux installer; login/task in guest | implementation only |
 | Android × Prime Agent | Same-device Termux + glibc >= 2.35 PRoot guest | prepare guest, Linux installer, `/login`, task | implementation only |
@@ -106,7 +141,8 @@ conditions, not success. No remote PC or cloud run is accepted as mobile evidenc
 ## Official source basis
 
 - [Claude Code setup](https://code.claude.com/docs/en/setup) and [quickstart](https://code.claude.com/docs/en/quickstart)
-- [Codex CLI quickstart](https://learn.chatgpt.com/docs/codex/cli) and [Windows installer source](https://releases.openai.com/codex/install.ps1)
+- [Claude Code CLI reference](https://code.claude.com/docs/en/cli-reference), [headless mode](https://code.claude.com/docs/en/headless), and [official user-local launcher layout report](https://github.com/anthropics/claude-code/issues/101084)
+- [Codex CLI quickstart](https://learn.chatgpt.com/docs/codex/cli), [developer commands](https://learn.chatgpt.com/docs/developer-commands), and [Windows installer source](https://releases.openai.com/codex/install.ps1)
 - [Prime Agent README](https://github.com/PrimeIntellect-ai/prime-agent) and [installer](https://app.primeintellect.ai/prime-agent/install.sh)
 - [Termux](https://github.com/termux/termux-app), [PRoot-Distro](https://github.com/termux/proot-distro), and [UTM iOS](https://docs.getutm.app/installation/ios/)
 

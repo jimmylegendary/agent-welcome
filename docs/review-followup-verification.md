@@ -145,7 +145,7 @@ global PATH on the connected machine.
 |---|---|---|
 | Arbitrary executable, short output, manual JSON, or arbitrary argv could reach success. | The adapter now requires an agent-specific executable filename, a semantic version, and a fixed per-agent nonce challenge that writes an exact state-local proof and returns the nonce. JSON attestations and custom first-task argv were removed. | `test_arbitrary_executable_and_short_output_cannot_pass_identity_probe`; `test_fixed_task_requires_consent_and_fixture_success_is_unverified`. |
 | Mocked subprocesses could claim upstream/direct success. | Fixture runners are labelled `fixture_*`; only a direct process observation plus a direct official-installer-to-binary chain can set `upstream_binary` and permit `SUCCEEDED`. Other completions are `COMPLETED_UNVERIFIED_PROVENANCE`. | `test_fixture_installer_never_creates_upstream_or_direct_evidence`. |
-| Codex Windows redirect was rejected. | The Windows adapter uses `https://releases.openai.com/codex/install.ps1` and only the narrow documented vendor host allowlist. | `test_windows_codex_official_release_host_is_allowed`; `test_cross_host_installer_redirect_is_rejected_before_execution`. |
+| Codex Windows redirect was rejected. | The Windows adapter uses `https://releases.openai.com/codex/install.ps1` and only the narrow documented vendor host allowlist. | `test_windows_codex_approved_release_redirect_is_allowed`; `test_cross_host_installer_redirect_is_rejected_before_execution`. |
 | Windows installer lacked profile/config variables. | `_run` now preserves a documented allowlist including `USERPROFILE` and `CODEX_HOME`, without passing arbitrary credential variables. | `test_run_keeps_required_windows_profile_variables_without_secrets`. |
 | Android PRoot used an image tag as an alias and did not durably record failure/interruption. | It installs/logs into the `ubuntu` alias, uses a 900-second command bound, stores ordinary failure, and leaves an interrupted process pending for manual reconciliation rather than replay. | `test_android_prerequisites_are_consent_gated_and_resume_in_same_device_guest`; `test_android_prerequisite_failure_and_interrupt_are_durable`. |
 | Cache/Windows state paths had unsafe or incompatible boundaries. | Cached files remain nonblocking regular-file checks; canonical containment accepts a DOS 8.3 spelling only when every lexical component remains link-free. Manifest sync now uses a write handle on Windows. | Linux bounded FIFO tests; `test_windows_dos_alias_is_accepted_inside_the_same_state_root`. |
@@ -179,3 +179,33 @@ virtualization feature, container engine, emulator, package, account, or
 credential was changed to compensate. The iOS route now describes the concrete
 manual bootstrap (UTM Linux VM, Ubuntu Server ARM64 ISO, glibc guest, Python,
 repository copy), but remains a user-owned checkpoint until observed on-device.
+
+## Latest repair pass: noninteractive first-task contracts and Claude launcher
+
+This pass retains the `binary_installation` reference scope. It did not install
+an agent, execute a vendor installer, authenticate, or run an agent task on the
+connected computer.
+
+| Review item | Correction | Regression evidence |
+|---|---|---|
+| Codex `exec` can default to read-only and Prime selects an interactive path when stdin is a TTY. | Codex is invoked with the narrow `--sandbox workspace-write --ask-for-approval never` pair; Prime always receives `--print`; every adapter process receives `stdin=DEVNULL`, captured stdout, and a 120-second timeout. | `test_first_task_adapters_use_minimum_noninteractive_write_contracts`; fixture first-task test records the timeout. |
+| Claude `-p` had no explicit narrow write permission. | The fixed adapter uses `-p --bare --tools Write --allowedTools Write --permission-prompts none`; it has no shell/read/network tool or broad permission bypass. | Exact argv assertions reject the known broad-bypass flags. |
+| Claude's official `~/.local/bin/claude` launcher resolves to a version-named target and was rejected by basename validation. | State records both `agent_invocation_path` and `agent_resolved_path`. The only version-named target accepted is the official `~/.local/share/claude/versions/<version>` layout, whose directory must match `--version`; other resolved names remain rejected. | `test_claude_official_user_local_symlink_preserves_invocation_and_binary_paths` uses a real Unix symlink. |
+| First-task output could include arbitrary text despite the fixed prompt requiring an exact nonce. | The proof file and captured stdout must both exactly equal the fresh nonce. | `test_first_task_rejects_stdout_that_is_not_exactly_the_nonce`. |
+| A repository/Python-less environment could sound merely unverified. | Documentation labels the state-local-safe bootstrap as an **unimplemented blocker**, explains why Python installation cannot be performed by this entry point, and gives a concrete iOS guest clone/resume sequence after user-supplied Python/guest setup. | Documentation review; no bootstrap success claim. |
+
+### Latest commands and results
+
+| Environment | Command | Result |
+|---|---|---|
+| Windows 11, Python 3.13.5 | `python -m unittest discover -s tests -v` | `Ran 78 tests ... OK (skipped=11)`; POSIX FIFO/Unix-symlink and privileged Windows-symlink cases are correctly scoped skips. |
+| Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m unittest discover -s tests -v` | `Ran 78 tests ... OK (skipped=1)`; includes the real Claude launcher symlink layout and Linux fixture suite. |
+| Ubuntu 24.04 WSL2 | `sh -n easy-install.sh easy-resume.sh` | Passed. |
+| Ubuntu 24.04 WSL2 | `python3 -m agent_welcome validate` | `VALID`; 12 Easy Install targets, schema 0.2, 88 nodes, 145 links. |
+| Ubuntu 24.04 WSL2 | `python3 -m agent_welcome diagnose --recipe prime-agent-0.10.0-linux-arm64` | `NOT_APPLICABLE`; this observed WSL host is x86_64, not the ARM64 recipe runtime. |
+
+The available environment still supplies only Windows and Ubuntu WSL. No macOS,
+Android device/emulator, iOS device/UTM guest, or original provider agent is
+attached, so the 12-target matrix remains implementation/fixture evidence only;
+there is no OS execution, upstream-agent binary, authentication, or first-task
+evidence to promote.

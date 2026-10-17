@@ -34,6 +34,11 @@ EASY_STATES = {
 }
 STEPS = ('environment', 'prerequisites', 'agent_installation', 'path_config',
          'provider_authentication', 'minimal_first_task')
+
+# A first task is deliberately bounded: it is only allowed to make the
+# nonce-bound proof file in the state-local workspace.  It must never inherit
+# an interactive terminal or wait indefinitely for a provider prompt.
+FIRST_TASK_TIMEOUT_SECONDS = 120
 SECRET_KEY_RE = re.compile(r'(token|secret|password|authorization|cookie|api[_-]?key|code)', re.I)
 SECRET_VALUE_RE = re.compile(r'(bearer\s+|sk-[A-Za-z0-9_-]{8,}|eyJ[A-Za-z0-9_-]{8,})', re.I)
 
@@ -225,6 +230,12 @@ def _new_state(target, observation):
         'failure_evidence': None,
         'failure_history': [],
         'agent_executable': None,
+        # `agent_executable` remains the backwards-compatible invocation path.
+        # Keep the link/launcher and its resolved binary distinct so that an
+        # official user-local launcher is not misidentified as an arbitrary
+        # versioned executable.
+        'agent_invocation_path': None,
+        'agent_resolved_path': None,
         'launcher_path': None,
         'evidence': {
             'implementation': 'local_code',
@@ -340,7 +351,7 @@ def _run(argv, root, runner=subprocess.run, timeout=30):
     try:
         completed = runner(
             argv, cwd=str(root), env=safe_env, shell=False, text=True,
-            capture_output=True, timeout=timeout,
+            stdin=subprocess.DEVNULL, capture_output=True, timeout=timeout,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise EasyInstallError(_safe_message(exc)) from exc
@@ -467,15 +478,25 @@ def _execute_installer(installer, root, runner=subprocess.run):
     return _run([*installer['argv_prefix'], installer['path']], root, runner=runner)
 
 
+def _executable_paths(candidate):
+    """Return the invocation path and final binary without losing a symlink."""
+    invocation = candidate.absolute()
+    try:
+        resolved = candidate.resolve(strict=True)
+    except OSError as exc:
+        raise EasyInstallError(f'cannot resolve agent executable: {exc}') from exc
+    return {'invocation_path': str(invocation), 'resolved_path': str(resolved)}
+
+
 def _resolve_executable(command, explicit=None):
     candidate = Path(explicit).expanduser() if explicit else None
     if candidate is not None:
         if not candidate.is_absolute() or not candidate.is_file():
             raise EasyInstallError('agent executable must be an existing absolute file')
-        return str(candidate.resolve())
+        return _executable_paths(candidate)
     discovered = shutil.which(command)
     if discovered:
-        return str(Path(discovered).resolve())
+        return _executable_paths(Path(discovered))
     # Official installers can update a user-local bin directory without
     # changing the current process PATH.  Check deterministic, read-only
     # locations before asking the user for an absolute path; never search a
@@ -496,8 +517,8 @@ def _resolve_executable(command, explicit=None):
         ))
     for candidate in candidates:
         try:
-            if candidate.is_file() and not candidate.is_symlink():
-                return str(candidate.resolve())
+            if candidate.is_file():
+                return _executable_paths(candidate)
         except OSError:
             continue
     return None
@@ -537,18 +558,52 @@ AGENT_IDENTITY = {
 }
 
 
-def _validate_agent_identity(target, executable, version_output):
+def _is_official_claude_user_local_layout(invocation_path, resolved_path):
+    """Recognize the documented Claude installer launcher without broad trust.
+
+    Claude Code's Unix installer exposes ``~/.local/bin/claude`` as a symlink
+    to ``~/.local/share/claude/versions/<version>``.  Its resolved basename is
+    consequently a version string, not ``claude``.  Accept only that exact
+    user-local layout; all other versioned symlink targets remain rejected.
+    """
+    if os.name == 'nt':
+        return False
+    home = Path(os.environ.get('HOME') or os.environ.get('USERPROFILE') or '~').expanduser()
+    expected_launcher = home / '.local' / 'bin' / 'claude'
+    versions_root = home / '.local' / 'share' / 'claude' / 'versions'
+    try:
+        if Path(invocation_path) != expected_launcher.absolute():
+            return False
+        relative = Path(resolved_path).relative_to(versions_root.resolve(strict=False))
+    except (OSError, ValueError):
+        return False
+    return len(relative.parts) == 1
+
+
+def _validate_agent_identity(target, invocation_path, resolved_path, version_output):
     policy = AGENT_IDENTITY[target['agent']]
-    if Path(executable).name.lower() not in policy['filenames']:
+    if Path(invocation_path).name.lower() not in policy['filenames']:
         raise EasyInstallError(
-            f'agent executable name does not identify {target["agent"]}: {Path(executable).name}'
+            f'agent executable name does not identify {target["agent"]}: {Path(invocation_path).name}'
+        )
+    resolved_name_matches = Path(resolved_path).name.lower() in policy['filenames']
+    official_claude_layout = (
+        target['agent'] == 'claude-code'
+        and _is_official_claude_user_local_layout(invocation_path, resolved_path)
+    )
+    if not resolved_name_matches and not official_claude_layout:
+        raise EasyInstallError(
+            f'resolved agent executable does not identify {target["agent"]}: {Path(resolved_path).name}'
         )
     if not version_output or len(version_output) > 200:
         raise EasyInstallError('agent --version output is empty or implausibly long')
     match = policy['version_pattern'].search(version_output)
     if not match:
         raise EasyInstallError('agent --version output does not contain a semantic version')
-    return match.group(1)
+    version = match.group(1)
+    if official_claude_layout and Path(resolved_path).name != version:
+        raise EasyInstallError('Claude launcher version directory does not match its --version output')
+    return version
 
 
 def _first_task_adapter(target, state, root):
@@ -567,15 +622,26 @@ def _first_task_adapter(target, state, root):
         f'Create the file {marker.name} in the current directory containing exactly {nonce}. '
         f'Then reply with exactly {nonce}. Do not read, modify, or execute anything outside the current directory.'
     )
-    executable = state['agent_executable']
+    executable = state.get('agent_invocation_path') or state['agent_executable']
     if target['agent'] == 'claude-code':
-        argv = [executable, '-p', prompt]
+        # The only available and auto-approved capability is Write.  Unresolved
+        # prompts are denied, preventing a headless run from falling back to an
+        # interactive broad-permission flow.
+        argv = [
+            executable, '-p', '--bare', '--tools', 'Write',
+            '--allowedTools', 'Write', '--permission-prompts', 'none', prompt,
+        ]
     elif target['agent'] == 'codex':
-        argv = [executable, 'exec', '--skip-git-repo-check', prompt]
+        # Codex receives the narrow state-local write sandbox, never a bypass.
+        argv = [
+            executable, 'exec', '--sandbox', 'workspace-write',
+            '--ask-for-approval', 'never', '--skip-git-repo-check', prompt,
+        ]
     else:
-        # Prime Agent routes positional text into its initial-message path;
-        # this is intentionally a task, never --help/--version/status.
-        argv = [executable, prompt]
+        # Prime enters interactive mode when stdin is a TTY unless --print is
+        # supplied.  _run also supplies DEVNULL, but retain the explicit CLI
+        # contract rather than relying on a caller's stdin state.
+        argv = [executable, '--print', prompt]
     return workspace, marker, nonce, argv
 
 
@@ -588,8 +654,8 @@ def _verify_first_task_proof(marker, nonce, output):
         raise EasyInstallError(f'cannot read fixed first-task proof: {exc}') from exc
     if content != nonce:
         raise EasyInstallError('fixed first-task proof content did not match its nonce')
-    if nonce not in output:
-        raise EasyInstallError('fixed first-task response did not contain its nonce')
+    if output != nonce:
+        raise EasyInstallError('fixed first-task response did not exactly match its nonce')
 
 
 def _record_fixture_execution(state, kind):
@@ -763,8 +829,11 @@ def _continue(target, root, observation, state, agent_executable=None,
             _save(root, state)
             return state
         try:
-            executable = _resolve_executable(target['command'], agent_executable or state.get('agent_executable'))
-            if not executable:
+            executable_paths = _resolve_executable(
+                target['command'],
+                agent_executable or state.get('agent_invocation_path') or state.get('agent_executable'),
+            )
+            if not executable_paths:
                 if state.get('installer_execution_pending'):
                     _wait(state, 'installer_outcome_unknown', 'agent_installation', {
                         'safety': 'The prior installer process may have completed before its response was recorded. It will not be run again automatically.',
@@ -820,8 +889,8 @@ def _continue(target, root, observation, state, agent_executable=None,
                     _record_direct_execution(state, 'official_installer')
                 else:
                     _record_fixture_execution(state, 'official_installer')
-                executable = _resolve_executable(target['command'], None)
-                if not executable:
+                executable_paths = _resolve_executable(target['command'], None)
+                if not executable_paths:
                     _wait(state, 'locate_installed_agent', 'agent_installation', {
                         'instruction': 'The official installer exited, but the executable is not on this process PATH. Resume with --agent-executable ABSOLUTE_PATH.',
                         'recovery': target['recovery'],
@@ -831,15 +900,21 @@ def _continue(target, root, observation, state, agent_executable=None,
             if not state['attempts']['by_step'].get('agent_installation'):
                 state['attempts']['total'] += 1
                 state['attempts']['by_step']['agent_installation'] = 1
-            version = _run([executable, '--version'], root, runner=runner)
-            version_value = _validate_agent_identity(target, executable, version)
-            state['agent_executable'] = executable
+            invocation_path = executable_paths['invocation_path']
+            resolved_path = executable_paths['resolved_path']
+            version = _run([invocation_path, '--version'], root, runner=runner)
+            version_value = _validate_agent_identity(target, invocation_path, resolved_path, version)
+            state['agent_executable'] = invocation_path
+            state['agent_invocation_path'] = invocation_path
+            state['agent_resolved_path'] = resolved_path
             state['installation_evidence'] = {
                 'kind': (
                     'direct_version_probe' if _is_direct_execution(runner, observation)
                     else 'fixture_version_probe'
                 ),
-                'argv': [executable, '--version'],
+                'argv': [invocation_path, '--version'],
+                'invocation_path': invocation_path,
+                'resolved_path': resolved_path,
                 'agent': target['agent'],
                 'version': version_value,
                 'version_sha256': hashlib.sha256(version.encode('utf-8')).hexdigest(),
@@ -911,7 +986,10 @@ def _continue(target, root, observation, state, agent_executable=None,
             state['waiting'] = None
             state['first_task_execution_pending'] = True
             _save(root, state)
-            output = _run(argv, workspace, runner=runner)
+            output = _run(
+                argv, workspace, runner=runner,
+                timeout=FIRST_TASK_TIMEOUT_SECONDS,
+            )
             _verify_first_task_proof(marker, nonce, output)
             state['first_task_execution_pending'] = False
             direct_task = _is_direct_execution(runner, observation)
@@ -921,6 +999,7 @@ def _continue(target, root, observation, state, agent_executable=None,
                 'argv': argv,
                 'workspace': str(workspace),
                 'proof_file': marker.name,
+                'timeout_seconds': FIRST_TASK_TIMEOUT_SECONDS,
                 'stdout_sha256': hashlib.sha256(output.encode('utf-8')).hexdigest(),
             }
             if direct_task:
