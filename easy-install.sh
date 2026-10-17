@@ -8,12 +8,12 @@ set -eu
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 export PYTHONPATH="$script_dir${PYTHONPATH:+:$PYTHONPATH}"
 
-if command -v python3 >/dev/null 2>&1; then
+if command -v python3 >/dev/null 2>&1 && python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)'; then
   python_cmd=python3
-elif command -v python >/dev/null 2>&1; then
+elif command -v python >/dev/null 2>&1 && python -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)'; then
   python_cmd=python
 else
-  echo "Python 3.11+ is required. Install it using your OS package source, then rerun this script." >&2
+  echo "Python 3.11+ is required. Run ./easy-bootstrap.sh with an explicit state directory to record the supported package-manager plan and prepare the pinned checkout, then rerun this script." >&2
   exit 2
 fi
 

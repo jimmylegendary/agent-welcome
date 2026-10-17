@@ -1,0 +1,24 @@
+{
+  "schema_version": "bootstrap-1.0",
+  "repository": {
+    "revision": "ceb6d3803b12d41d429dc3188e9a20ac8f220780",
+    "archive_url": "https://codeload.github.com/jimmylegendary/agent-welcome/zip/ceb6d3803b12d41d429dc3188e9a20ac8f220780",
+    "archive_sha256": "38d359aa0b05ae6bed5214a1b845e67477332c17cc291fc1727969aff648891d",
+    "archive_prefix": "agent-welcome-ceb6d3803b12d41d429dc3188e9a20ac8f220780"
+  },
+  "windows_runtime": {
+    "version": "3.13.5",
+    "architecture": "amd64",
+    "archive_url": "https://www.python.org/ftp/python/3.13.5/python-3.13.5-embed-amd64.zip",
+    "archive_sha256": "7d2650fd9d1b9d002d4a315d5f354247fd6a44f30517c7ef577b08f57a0fb6d9"
+  },
+  "unix_runtime": {
+    "minimum_version": "3.11",
+    "supported_package_manager_plans": {
+      "apt-get": ["sudo", "apt-get", "install", "-y", "python3"],
+      "dnf": ["sudo", "dnf", "install", "-y", "python3"],
+      "pacman": ["sudo", "pacman", "-S", "--needed", "python"],
+      "apk": ["sudo", "apk", "add", "python3"]
+    }
+  }
+}

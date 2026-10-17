@@ -192,15 +192,15 @@ connected computer.
 | Claude `-p` had no explicit narrow write permission. | The fixed adapter uses `-p --tools Write --allowedTools Write --permission-prompts none`, preserving the browser/OAuth/keychain login described by the catalog. It deliberately does not select `--bare` or an API-key mode; API secrets remain excluded from process evidence and persisted state. | Exact argv assertions require the catalog's browser-login instruction and reject `--bare`, API-key, and known broad-bypass flags. |
 | Claude's official `~/.local/bin/claude` launcher resolves to a version-named target and was rejected by basename validation. | State records both `agent_invocation_path` and `agent_resolved_path`. The only version-named target accepted is the official `~/.local/share/claude/versions/<version>` layout, whose directory must match `--version`; other resolved names remain rejected. | `test_claude_official_user_local_symlink_preserves_invocation_and_binary_paths` uses a real Unix symlink. |
 | First-task output could include arbitrary text despite the fixed prompt requiring an exact nonce. | The proof file and captured stdout must both exactly equal the fresh nonce. | `test_first_task_rejects_stdout_that_is_not_exactly_the_nonce`. |
-| A repository/Python-less environment could sound merely unverified. | Documentation labels the state-local-safe bootstrap as an **unimplemented blocker**, explains why Python installation cannot be performed by this entry point, and gives a concrete iOS guest clone/resume sequence after user-supplied Python/guest setup. | Documentation review; no bootstrap success claim. |
+| A repository/Python-less environment could sound merely unverified. | Standalone PowerShell and POSIX bootstraps now discover an existing 3.11+ runtime and prepare a SHA-256-pinned, ZIP-slip/symlink-checked fixed repository archive under the explicit state directory. Windows can additionally unpack a pinned official embeddable Python runtime there after separate consent. Unix records, but does not execute, a user-owned package-manager plan because global package writes remain outside this product contract. | `test_bootstrap`; injected downloader/process tests cover hash failure, network failure, existing-directory preservation, idempotency, and ZIP traversal/root rejection. |
 
 ### Latest commands and results
 
 | Environment | Command | Result |
 |---|---|---|
-| Windows 11, Python 3.13.5 | `python -m unittest discover -s tests -v` | `Ran 78 tests ... OK (skipped=11)`; POSIX FIFO/Unix-symlink and privileged Windows-symlink cases are correctly scoped skips. |
-| Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m unittest discover -s tests -v` | `Ran 78 tests ... OK (skipped=1)`; includes the real Claude launcher symlink layout and Linux fixture suite. |
-| Ubuntu 24.04 WSL2 | `sh -n easy-install.sh easy-resume.sh` | Passed. |
+| Windows 11, Python 3.13.5 | `python -m unittest discover -s tests -v` | `Ran 86 tests ... OK (skipped=12)`; includes injected PowerShell bootstrap repository/runtime tests. POSIX FIFO/Unix-symlink and privileged Windows-symlink cases are correctly scoped skips. |
+| Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m unittest discover -s tests -v` | `Ran 86 tests ... OK (skipped=3)`; includes the real Claude launcher symlink layout, Linux fixture suite, and bootstrap archive tests. The two Windows PowerShell tests are correctly skipped. |
+| Ubuntu 24.04 WSL2 | `sh -n easy-bootstrap.sh easy-install.sh` | Passed. |
 | Ubuntu 24.04 WSL2 | `python3 -m agent_welcome validate` | `VALID`; 12 Easy Install targets, schema 0.2, 88 nodes, 145 links. |
 | Ubuntu 24.04 WSL2 | `python3 -m agent_welcome diagnose --recipe prime-agent-0.10.0-linux-arm64` | `NOT_APPLICABLE`; this observed WSL host is x86_64, not the ARM64 recipe runtime. |
 

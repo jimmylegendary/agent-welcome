@@ -24,19 +24,47 @@ On Windows:
 The launchers locate this checkout automatically, so they work from another
 current directory and do not require a manual `PYTHONPATH` or `cd`.
 
-### Bootstrap constraint — unimplemented blocker
+### Standalone bootstrap
 
-Easy Install still requires both this checkout and an existing Python 3.11+
-runtime. This is an **unimplemented bootstrap**, not an execution result: the
-entry point cannot run before Python exists, and the current catalog does not
-provide platform-specific Python installers, verified hashes, or a consented
-installation scope. Automatically installing Python would also write outside
-the explicit state directory, which this product contract forbids. Do not
-interpret an unsupported bootstrap as a failed or unverified agent route.
+When Python or a checkout is absent, use the standalone bootstrap script first.
+It records all work beneath the explicit bootstrap state directory and does not
+start an agent installer, modify PATH, or sign in:
 
-After those prerequisites have been supplied through the platform's own
-approved process, use `easy-plan --target ID` to view a route without changing
-the machine and `easy-status --state-dir DIR` to inspect durable progress.
+```powershell
+& .\easy-bootstrap.ps1 -Target windows-codex -StateDir C:\agent-welcome-bootstrap
+# Review the recorded plan, then explicitly allow only the needed downloads:
+& .\easy-bootstrap.ps1 -Target windows-codex -StateDir C:\agent-welcome-bootstrap `
+  -ApproveRuntimeDownload -ApproveRepositoryDownload
+```
+
+Windows first probes `py -3` and `python` for Python 3.11+. If neither is
+suitable, the approved path downloads the pinned official CPython embeddable
+archive and unpacks it under `StateDir\runtime`; it does not run a global
+installer or edit PATH. The fixed repository ZIP is downloaded only with its
+separate approval, SHA-256 verified, ZIP-slip/symlink checked, and atomically
+placed at `StateDir\repository`. An unrelated existing runtime or repository
+directory is preserved rather than overwritten.
+
+On Unix:
+
+```sh
+./easy-bootstrap.sh --target macos-codex --state-dir "$HOME/.agent-welcome/bootstrap"
+# After reviewing the pinned repository plan:
+./easy-bootstrap.sh --target macos-codex --state-dir "$HOME/.agent-welcome/bootstrap" \
+  --approve-repository-download
+```
+
+The Unix script probes `python3`/`python` for 3.11+. If none exists, it records
+a supported `apt-get`, `dnf`, `pacman`, or `apk` command as a user-owned,
+consented runtime plan. It intentionally does not execute that global
+package-manager command: the product contract permits runtime writes only in
+the declared state directory. After the user completes that external step,
+rerun the same bootstrap state. The pinned archive details are committed in
+[`bootstrap-manifest.json`](../bootstrap-manifest.json); network failure or a
+bad hash leaves the existing repository untouched.
+
+Use `easy-plan --target ID` to view an agent route without changing the
+machine and `easy-status --state-dir DIR` to inspect durable agent progress.
 
 ## Consent-gated installer adapter
 
@@ -70,16 +98,21 @@ same device, records hashed output, then waits for the user to enter that guest
 before continuing. An interruption is never rerun automatically. iOS cannot
 create/import/boot a UTM guest through an iOS guest API. The concrete iOS path
 is to create a UTM Linux VM, attach an Ubuntu Server ARM64 installer ISO, boot
-and install a glibc-based guest with Python 3.11+, then obtain this checkout in
-that guest by an approved transfer or, where its network policy permits it:
+and install a glibc-based guest. After Python is available through its
+user-owned guest package plan, copy the single standalone `easy-bootstrap.sh`
+file into the guest through the UTM/user-approved transfer, then obtain the
+fixed checkout with the same state-local bootstrap:
 
 ```sh
-git clone https://github.com/jimmylegendary/agent-welcome.git ~/agent-welcome
-cd ~/agent-welcome
 export AGENT_WELCOME_IOS_GUEST=1
-./easy-install.sh --target ios-codex --state-dir "$HOME/.agent-welcome/easy"
+./easy-bootstrap.sh --target ios-codex --state-dir "$HOME/.agent-welcome/bootstrap" \
+  --approve-repository-download
+# The resulting repository is fixed and verified under the bootstrap state:
+PYTHONPATH="$HOME/.agent-welcome/bootstrap/repository" python3 -m agent_welcome easy-start \
+  --target ios-codex --state-dir "$HOME/.agent-welcome/bootstrap/easy-state"
 # After a user checkpoint, resume the same durable state:
-./easy-resume.sh --state-dir "$HOME/.agent-welcome/easy"
+PYTHONPATH="$HOME/.agent-welcome/bootstrap/repository" python3 -m agent_welcome easy-resume \
+  --state-dir "$HOME/.agent-welcome/bootstrap/easy-state"
 ```
 
 The UTM app-owned steps and the bootstrap prerequisite above remain manual
@@ -144,6 +177,7 @@ conditions, not success. No remote PC or cloud run is accepted as mobile evidenc
 - [Claude Code setup](https://code.claude.com/docs/en/setup) and [quickstart](https://code.claude.com/docs/en/quickstart)
 - [Claude Code CLI reference](https://code.claude.com/docs/en/cli-reference), [headless mode](https://code.claude.com/docs/en/headless), and [official user-local launcher layout report](https://github.com/anthropics/claude-code/issues/101084)
 - [Codex CLI quickstart](https://learn.chatgpt.com/docs/codex/cli), [developer commands](https://learn.chatgpt.com/docs/developer-commands), and [Windows installer source](https://releases.openai.com/codex/install.ps1)
+- [CPython 3.13.5 release files](https://www.python.org/downloads/release/python-3135/), used only for the state-local Windows embeddable-runtime pin
 - [Prime Agent README](https://github.com/PrimeIntellect-ai/prime-agent) and [installer](https://app.primeintellect.ai/prime-agent/install.sh)
 - [Termux](https://github.com/termux/termux-app), [PRoot-Distro](https://github.com/termux/proot-distro), and [UTM iOS](https://docs.getutm.app/installation/ios/)
 

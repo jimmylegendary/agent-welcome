@@ -15,24 +15,32 @@ param(
 $env:PYTHONPATH = $PSScriptRoot
 $python = Get-Command py -ErrorAction SilentlyContinue
 if ($null -ne $python) {
-    $pythonArgs = @('-3', '-m', 'agent_welcome', 'easy-start', '--target', $Target, '--state-dir', $StateDir)
-    if ($AgentExecutable) { $pythonArgs += @('--agent-executable', $AgentExecutable) }
-    if ($ApproveInstall) { $pythonArgs += '--approve-install' }
-    if ($ApprovePrerequisites) { $pythonArgs += '--approve-prerequisites' }
-    if ($ApproveFirstTask) { $pythonArgs += '--approve-first-task' }
-    & py @pythonArgs
-    exit $LASTEXITCODE
+    & py -3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)'
+    if ($LASTEXITCODE -eq 0) {
+        $pythonArgs = @('-3', '-m', 'agent_welcome', 'easy-start', '--target', $Target, '--state-dir', $StateDir)
+        if ($AgentExecutable) { $pythonArgs += @('--agent-executable', $AgentExecutable) }
+        if ($ApproveInstall) { $pythonArgs += '--approve-install' }
+        if ($ApprovePrerequisites) { $pythonArgs += '--approve-prerequisites' }
+        if ($ApproveFirstTask) { $pythonArgs += '--approve-first-task' }
+        & py @pythonArgs
+        exit $LASTEXITCODE
+    }
 }
 
 $python = Get-Command python -ErrorAction SilentlyContinue
-if ($null -eq $python) {
-    Write-Error 'Python 3.11+ is required. Install it through a user-approved Windows source, then rerun this launcher.'
+if ($null -ne $python) {
+    & python -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)'
+    if ($LASTEXITCODE -eq 0) {
+        $pythonArgs = @('-m', 'agent_welcome', 'easy-start', '--target', $Target, '--state-dir', $StateDir)
+        if ($AgentExecutable) { $pythonArgs += @('--agent-executable', $AgentExecutable) }
+        if ($ApproveInstall) { $pythonArgs += '--approve-install' }
+        if ($ApprovePrerequisites) { $pythonArgs += '--approve-prerequisites' }
+        if ($ApproveFirstTask) { $pythonArgs += '--approve-first-task' }
+        & python @pythonArgs
+        exit $LASTEXITCODE
+    }
+}
+if ($null -eq $python -or $LASTEXITCODE -ne 0) {
+    Write-Error 'Python 3.11+ is required. Run .\easy-bootstrap.ps1 with an explicit state directory to prepare or use a state-local pinned runtime, then rerun this launcher.'
     exit 2
 }
-$pythonArgs = @('-m', 'agent_welcome', 'easy-start', '--target', $Target, '--state-dir', $StateDir)
-if ($AgentExecutable) { $pythonArgs += @('--agent-executable', $AgentExecutable) }
-if ($ApproveInstall) { $pythonArgs += '--approve-install' }
-if ($ApprovePrerequisites) { $pythonArgs += '--approve-prerequisites' }
-if ($ApproveFirstTask) { $pythonArgs += '--approve-first-task' }
-& python @pythonArgs
-exit $LASTEXITCODE
