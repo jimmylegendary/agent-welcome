@@ -15,10 +15,20 @@
   "unix_runtime": {
     "minimum_version": "3.11",
     "supported_package_manager_plans": {
-      "apt-get": ["sudo", "apt-get", "install", "-y", "python3"],
-      "dnf": ["sudo", "dnf", "install", "-y", "python3"],
-      "pacman": ["sudo", "pacman", "-S", "--needed", "python"],
-      "apk": ["sudo", "apk", "add", "python3"]
+      "termux-pkg": ["pkg", "install", "-y", "python", "curl", "unzip"],
+      "apt-get": ["sudo", "apt-get", "install", "-y", "python3", "curl", "unzip"],
+      "dnf": ["sudo", "dnf", "install", "-y", "python3", "curl", "unzip"],
+      "pacman": ["sudo", "pacman", "-S", "--needed", "python", "curl", "unzip"],
+      "apk": ["sudo", "apk", "add", "python3", "curl", "unzip"],
+      "homebrew": ["brew", "install", "python@3.13"]
+    },
+    "macos_official_installer": {
+      "version": "3.13.5",
+      "architecture": "universal2",
+      "archive_url": "https://www.python.org/ftp/python/3.13.5/python-3.13.5-macos11.pkg",
+      "archive_sha256": "e754d6cae3f2810dd1818c1395a7ff50ce79ade3ec4887f7ce23ad581cc12e3a",
+      "signature_check": ["pkgutil", "--check-signature"],
+      "installer_argv": ["sudo", "installer", "-pkg", "STATE_DIR/runtime-downloads/python-3.13.5-macos11.pkg", "-target", "/"]
     }
   }
 }

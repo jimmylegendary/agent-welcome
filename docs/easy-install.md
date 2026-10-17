@@ -49,19 +49,35 @@ On Unix:
 
 ```sh
 ./easy-bootstrap.sh --target macos-codex --state-dir "$HOME/.agent-welcome/bootstrap"
-# After reviewing the pinned repository plan:
+# After reviewing both explicit operations (this may ask for OS/admin approval):
 ./easy-bootstrap.sh --target macos-codex --state-dir "$HOME/.agent-welcome/bootstrap" \
-  --approve-repository-download
+  --approve-runtime-install --approve-repository-download --start-easy-install
 ```
 
-The Unix script probes `python3`/`python` for 3.11+. If none exists, it records
-a supported `apt-get`, `dnf`, `pacman`, or `apk` command as a user-owned,
-consented runtime plan. It intentionally does not execute that global
-package-manager command: the product contract permits runtime writes only in
-the declared state directory. After the user completes that external step,
-rerun the same bootstrap state. The pinned archive details are committed in
-[`bootstrap-manifest.json`](../bootstrap-manifest.json); network failure or a
-bad hash leaves the existing repository untouched.
+The Unix script probes `python3`/`python` for 3.11+. If it is absent, it first
+records a precise runtime plan and waits. `--approve-runtime-install` is a
+separate, explicit consent to run only that plan, then re-probe for Python
+3.11+. It never installs a package manager or bypasses elevation. On Ubuntu
+guests it invokes `sudo apt-get install -y python3 curl unzip`; on Termux it
+invokes `pkg install -y python curl unzip`; `dnf`, `pacman`, and `apk` have
+equivalent argv-only paths. An unsupported manager, architecture, missing
+`sudo`, or a package that still provides Python below 3.11 remains a structured
+blocker rather than a false success.
+
+On macOS, an existing Homebrew is used with `brew install python@3.13`; the
+bootstrap does **not** install Homebrew. Without Homebrew, it downloads the
+pinned official CPython 3.13.5 universal2 package beneath `StateDir`, verifies
+its SHA-256 against CPython's official Sigstore bundle, checks its package
+signature with `pkgutil --check-signature`, then invokes `sudo installer` only
+under the same explicit flag. The normal macOS administrator/OS approval prompt
+is retained. The pinned archive details and exact argv are committed in
+[`bootstrap-manifest.json`](../bootstrap-manifest.json). Network failure or a
+bad hash leaves an existing repository untouched.
+
+When the bootstrap is launched from a folder other than the state-local
+checkout, its immediate `--start-easy-install` process receives a
+process-scoped `PYTHONPATH` pointing at that verified checkout. It does not
+persistently modify the caller's shell, PATH, or Python configuration.
 
 Use `easy-plan --target ID` to view an agent route without changing the
 machine and `easy-status --state-dir DIR` to inspect durable agent progress.

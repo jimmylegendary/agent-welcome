@@ -133,10 +133,25 @@ function Prepare-Repository([string]$Root, [hashtable]$Manifest) {
     return @{ kind = 'prepared'; repository = $repository; revision = $Manifest.Revision }
 }
 
-function Invoke-BootstrapProcess([string]$FilePath, [string[]]$ArgumentList) {
+function Invoke-BootstrapProcess([string]$FilePath, [string[]]$ArgumentList, [string]$RepositoryPath = '') {
     if ($null -ne $ProcessRunner) { return & $ProcessRunner $FilePath $ArgumentList }
-    $output = & $FilePath @ArgumentList 2>&1
-    return @{ returncode = $LASTEXITCODE; stdout = ($output -join "`n") }
+    # An existing Python installation does not know about the state-local
+    # checkout.  Do not mutate the caller's environment: inject it only while
+    # starting this one CLI process (embedded Python also accepts this safely).
+    $previousPythonPath = [Environment]::GetEnvironmentVariable('PYTHONPATH', 'Process')
+    try {
+        if ($RepositoryPath) {
+            $effectivePythonPath = [IO.Path]::GetFullPath($RepositoryPath)
+            if ($previousPythonPath) {
+                $effectivePythonPath += [IO.Path]::PathSeparator + $previousPythonPath
+            }
+            [Environment]::SetEnvironmentVariable('PYTHONPATH', $effectivePythonPath, 'Process')
+        }
+        $output = & $FilePath @ArgumentList 2>&1
+        return @{ returncode = $LASTEXITCODE; stdout = ($output -join "`n") }
+    } finally {
+        [Environment]::SetEnvironmentVariable('PYTHONPATH', $previousPythonPath, 'Process')
+    }
 }
 
 function Find-PythonRuntime {
@@ -244,10 +259,19 @@ function Invoke-EasyBootstrap {
     if ($runtime.kind -eq 'state_local_embedded') { Enable-EmbeddedRepository $runtime.executable $repository.repository }
     $easyState = Join-Path $root 'easy-state'
     $command = @($runtime.prefix) + @('-m', 'agent_welcome', 'easy-start', '--target', $Target, '--state-dir', $easyState)
-    $result = @{ status = 'READY'; state_dir = $root; runtime = $runtime; repository = $repository; next_argv = @($runtime.executable) + $command }
+    $result = @{
+        status = 'READY'
+        state_dir = $root
+        runtime = $runtime
+        repository = $repository
+        # This is deliberately process-scoped.  It lets an existing Python
+        # import the pinned checkout when the caller is outside that checkout.
+        next_environment = @{ PYTHONPATH = [IO.Path]::GetFullPath($repository.repository) }
+        next_argv = @($runtime.executable) + $command
+    }
     Write-JsonAtomically (Join-Path $root 'bootstrap-state.json') $result
     if ($StartEasyInstall) {
-        $started = Invoke-BootstrapProcess $runtime.executable $command
+        $started = Invoke-BootstrapProcess $runtime.executable $command $repository.repository
         if ($started.returncode -ne 0) { throw "easy-start failed after bootstrap: $($started.stdout)" }
         $result.easy_start_stdout = $started.stdout
     }
