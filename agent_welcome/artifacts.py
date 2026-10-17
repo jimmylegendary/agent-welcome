@@ -36,6 +36,34 @@ def sha256_file(path):
     return digest.hexdigest()
 
 
+def _sha256_regular_file_nonblocking(path):
+    """Hash an existing cache entry without opening a FIFO or device."""
+    descriptor = None
+    try:
+        flags = (
+            os.O_RDONLY
+            | getattr(os, 'O_NOFOLLOW', 0)
+            | getattr(os, 'O_NONBLOCK', 0)
+        )
+        descriptor = os.open(os.fspath(path), flags)
+        file_stat = os.fstat(descriptor)
+        if not stat.S_ISREG(file_stat.st_mode):
+            raise InstallError('cached artifact path must be a regular file')
+        digest = hashlib.sha256()
+        with os.fdopen(descriptor, 'rb') as stream:
+            descriptor = None
+            for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                digest.update(chunk)
+        return digest.hexdigest(), file_stat
+    except InstallError:
+        raise
+    except OSError as exc:
+        raise InstallError(f'cannot read cached artifact safely: {exc}') from exc
+    finally:
+        if descriptor is not None:
+            os.close(descriptor)
+
+
 def download_artifact(artifact, state_dir, timeout=30):
     """Fetch only the recipe-pinned HTTPS URL into the explicit state directory."""
     if (
@@ -60,8 +88,19 @@ def download_artifact(artifact, state_dir, timeout=30):
     except ValueError as exc:
         raise InstallError('final artifact path is outside the explicit state directory') from exc
     if target.exists():
-        if sha256_file(target) == artifact['published_sha256']:
+        observed, cache_stat = _sha256_regular_file_nonblocking(target)
+        if observed == artifact['published_sha256']:
             return target
+        try:
+            current_stat = os.stat(target, follow_symlinks=False)
+        except OSError as exc:
+            raise InstallError(f'cached artifact changed before replacement: {exc}') from exc
+        if (
+            not stat.S_ISREG(current_stat.st_mode)
+            or (current_stat.st_dev, current_stat.st_ino)
+            != (cache_stat.st_dev, cache_stat.st_ino)
+        ):
+            raise InstallError('cached artifact changed before replacement')
         target.unlink()
     limit = int(artifact.get('max_archive_bytes', artifact['size_bytes']))
     fd, temp_name = tempfile.mkstemp(prefix='.download-', dir=target_dir)

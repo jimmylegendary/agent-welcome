@@ -157,6 +157,10 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(second['attempts']['by_step']['binary_installation'], 2)
             self.assertTrue(third.get('retry_exhausted'))
             self.assertEqual(third['attempts']['total'], 2)
+            no_artifact = resume(recipe, state_dir, compatible_observation())
+            self.assertEqual(no_artifact['status'], 'FAILED')
+            self.assertTrue(no_artifact['retry_exhausted'])
+            self.assertNotEqual(no_artifact['status'], 'WAITING_USER')
 
     def test_digest_failure_can_resume_with_correct_archive_without_stale_success_record(self):
         blob = make_archive()
@@ -180,6 +184,8 @@ class RunnerTests(unittest.TestCase):
                 recovered['failure_history'][0]['candidate_sha256'],
                 hashlib.sha256(b'corrupted or unrelated artifact').hexdigest(),
             )
+            self.assertIsNone(recovered['failure_evidence'])
+            self.assertEqual(len(recovered['failure_history']), 1)
 
     def test_modified_installed_payload_invalidates_success_and_can_be_repaired(self):
         blob = make_archive()
@@ -203,6 +209,57 @@ class RunnerTests(unittest.TestCase):
             )
             self.assertEqual(repaired['status'], 'SUCCEEDED')
             self.assertEqual(repaired['attempts']['total'], 2)
+
+    def test_invalid_recovery_input_preserves_owned_installation(self):
+        blob = make_archive()
+        recipe = recipe_for(blob)
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'state'
+            archive = Path(temp) / 'provided.tar.gz'
+            archive.write_bytes(blob)
+            start(recipe, state_dir, compatible_observation())
+            installed = resume(
+                recipe, state_dir, compatible_observation(), artifact_file=archive,
+            )
+            payload = state_dir / 'install' / recipe['artifact']['id'] / 'prime-agent'
+            payload.write_bytes(b'changed after the successful install')
+            invalidated = resume(recipe, state_dir, compatible_observation())
+            self.assertEqual(invalidated['status'], 'FAILED')
+            missing = Path(temp) / 'does-not-exist.tar.gz'
+            with self.assertRaises(RunError):
+                resume(
+                    recipe, state_dir, compatible_observation(), artifact_file=missing,
+                )
+            self.assertTrue(payload.exists())
+            self.assertEqual(payload.read_bytes(), b'changed after the successful install')
+            self.assertTrue((state_dir / 'install' / recipe['artifact']['id']).exists())
+
+    def test_exhausted_repair_budget_preserves_owned_installation(self):
+        blob = make_archive()
+        recipe = recipe_for(blob)
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'state'
+            archive = Path(temp) / 'provided.tar.gz'
+            archive.write_bytes(blob)
+            start(recipe, state_dir, compatible_observation())
+            resume(recipe, state_dir, compatible_observation(), artifact_file=archive)
+            payload = state_dir / 'install' / recipe['artifact']['id'] / 'prime-agent'
+            payload.write_bytes(b'changed after the successful install')
+            invalidated = resume(recipe, state_dir, compatible_observation())
+            self.assertEqual(invalidated['status'], 'FAILED')
+            invalidated['attempts'] = {
+                'total': 2,
+                'by_step': {'binary_installation': 2},
+            }
+            from agent_welcome.runner import _save_state
+            _save_state(state_dir, invalidated)
+            exhausted = resume(
+                recipe, state_dir, compatible_observation(), artifact_file=archive,
+            )
+            self.assertEqual(exhausted['status'], 'FAILED')
+            self.assertTrue(exhausted['retry_exhausted'])
+            self.assertTrue(payload.exists())
+            self.assertEqual(payload.read_bytes(), b'changed after the successful install')
 
     def test_recipe_rejects_glibc_231_and_writes_only_under_state_dir(self):
         wrong = compatible_observation()

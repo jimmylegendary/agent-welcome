@@ -32,15 +32,15 @@ def observe():
         kernel_os = 'windows'
         host_os = 'windows'
         host_method = 'windows_kernel'
-    elif system == 'linux':
+    elif system in {'linux', 'android'}:
         kernel_os = 'linux'
         android_api = getattr(sys, 'getandroidapilevel', None)
         if os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER'):
             host_os = None
             host_method = 'guest_host_unknown'
-        elif callable(android_api):
+        elif system == 'android' or callable(android_api):
             host_os = 'android'
-            host_method = 'android_api_level'
+            host_method = 'android_system' if system == 'android' else 'android_api_level'
         elif 'microsoft' in platform.release().lower():
             host_os = None
             host_method = 'wsl_host_unknown'
@@ -57,9 +57,14 @@ def observe():
     )
     if libc_version and not re.fullmatch(r'[0-9]+(?:\.[0-9]+)*', libc_version):
         libc_version = None
-    runtime_kind = 'proot' if os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER') else (
-        'linux_userland' if kernel_os == 'linux' else 'native'
-    )
+    if os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER'):
+        runtime_kind = 'proot'
+    elif host_os == 'android':
+        # Android API/process observations describe the native Android
+        # userspace, not a generic Linux userland or a PRoot guest.
+        runtime_kind = 'native'
+    else:
+        runtime_kind = 'linux_userland' if kernel_os == 'linux' else 'native'
     return {
         'kernel_os': kernel_os,
         'host_os': host_os,

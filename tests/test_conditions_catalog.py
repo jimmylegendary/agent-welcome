@@ -1,7 +1,10 @@
 import json
+import os
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
+from agent_welcome import environment
 from agent_welcome.catalog import (
     CatalogError,
     evaluate_condition,
@@ -11,9 +14,6 @@ from agent_welcome.catalog import (
     validate_catalog,
     validate_recipe,
 )
-from agent_welcome.environment import observe
-
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -221,7 +221,12 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual(result['applicability']['status'], 'unknown')
 
     def test_codex_auth_route_accepts_observed_linux_userland_but_unknown_runtime_stays_unknown(self):
-        observation = observe()
+        with patch.dict(os.environ, {}, clear=True), patch.object(
+            environment.platform, 'system', return_value='Linux',
+        ), patch.object(environment.platform, 'release', return_value='6.8.0'), patch.object(
+            environment.platform, 'machine', return_value='x86_64',
+        ), patch.object(environment.platform, 'libc_ver', return_value=('glibc', '2.39')):
+            observation = environment.observe()
         observation['auth'] = {'failure_stage': 'headless'}
         observation['sandbox'] = {
             'enabled': True,
@@ -252,6 +257,21 @@ class CatalogTests(unittest.TestCase):
         )
         self.assertEqual(unknown['status'], 'unknown')
         self.assertIn('runtime_kind', unknown['applicability']['missing_facts'])
+
+    def test_native_android_observation_matches_claude_candidates_without_promotion(self):
+        observation = {
+            'kernel_os': 'linux',
+            'host_os': 'android',
+            'architecture': 'aarch64',
+            'runtime_kind': 'native',
+        }
+        nodes = {node['id']: node for node in self.graph['nodes']}
+        for route_id in ('route_patched_elf', 'route_claude_musl_community'):
+            with self.subTest(route=route_id):
+                result = evaluate_route(self.graph, route_id, observation, {})
+                self.assertEqual(result['applicability']['status'], 'pass')
+                self.assertNotEqual(result['status'], 'pass')
+                self.assertFalse(nodes[route_id]['runtime_tested'])
 
     def test_proot_does_not_infer_android_host_from_linux_kernel(self):
         result = evaluate_route(

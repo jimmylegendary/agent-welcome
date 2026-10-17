@@ -220,6 +220,12 @@ def _continue_locked(
         _save_state(root, state)
         return state
     install_dir = install_parent / recipe['artifact']['id']
+    archive = None
+    step = 'binary_installation'
+    attempts = state['attempts']
+    step_count = attempts['by_step'].get(step, 0)
+    per_step_max = int(recipe.get('retry_budget', {}).get('per_step', 2))
+    total_max = int(recipe.get('retry_budget', {}).get('total', 6))
     needs_install_reconciliation = (
         state['status'] == 'SUCCEEDED'
         or (state['status'] == 'FAILED' and state.get('install_evidence_invalidated'))
@@ -245,6 +251,7 @@ def _continue_locked(
             state['status'] = 'SUCCEEDED'
             state['completed_steps'] = ['binary_installation']
             state['checks']['binary_installation'] = 'pass'
+            state['failure_evidence'] = None
             state['error'] = None
             _save_state(root, state)
             return state
@@ -261,6 +268,17 @@ def _continue_locked(
         if artifact_file is None and not download:
             _save_state(root, state)
             return state
+        if step_count >= per_step_max or attempts['total'] >= total_max:
+            state['retry_exhausted'] = True
+            state['error'] = 'retry budget exhausted'
+            _save_state(root, state)
+            return state
+        # Resolve the recovery input before deleting a managed installation.  A
+        # missing file or failed download is not an executable recovery attempt.
+        _save_state(root, state)
+        archive = _resolve_artifact(
+            root, recipe['artifact'], artifact_file, download,
+        )
         if check['owned']:
             try:
                 artifacts.remove_owned_installation(
@@ -288,18 +306,25 @@ def _continue_locked(
         )
         _save_state(root, state)
         return state
-    archive = None
+    # Exhaustion takes precedence over a new artifact wait: a supplied archive
+    # would be rejected on the next resume, so advertising that wait is false.
+    reconciling = (
+        state['status'] == 'RUNNING'
+        and state.get('current_step') == step
+        and install_dir.exists()
+    )
+    if not reconciling and (step_count >= per_step_max or attempts['total'] >= total_max):
+        state['status'] = 'FAILED'
+        state['retry_exhausted'] = True
+        state['error'] = 'retry budget exhausted'
+        _save_state(root, state)
+        return state
     if artifact_file is None and not download:
         _set_waiting(state, 'artifact_file', 'binary_installation')
         _save_state(root, state)
         return state
-    if artifact_file is not None:
+    if artifact_file is not None and archive is None:
         archive = _resolve_artifact(root, recipe['artifact'], artifact_file, False)
-    step = 'binary_installation'
-    install_dir = root / 'install' / recipe['artifact']['id']
-    reconciling = state['status'] == 'RUNNING' and state.get('current_step') == step and install_dir.exists()
-    attempts = state['attempts']
-    step_count = attempts['by_step'].get(step, 0)
     if step_count:
         artifacts.cleanup_staging(
             install_dir.parent,
@@ -307,14 +332,6 @@ def _continue_locked(
             attempts=range(1, step_count + 1),
             allowed_root=root,
         )
-    per_step_max = int(recipe.get('retry_budget', {}).get('per_step', 2))
-    total_max = int(recipe.get('retry_budget', {}).get('total', 6))
-    if not reconciling and (step_count >= per_step_max or attempts['total'] >= total_max):
-        state['status'] = 'FAILED'
-        state['retry_exhausted'] = True
-        state['error'] = 'retry budget exhausted'
-        _save_state(root, state)
-        return state
     if not reconciling:
         attempts['total'] += 1
         attempts['by_step'][step] = step_count + 1
@@ -356,6 +373,7 @@ def _continue_locked(
             return state
         state['status'] = 'SUCCEEDED'
         state['current_step'] = None
+        state['failure_evidence'] = None
         state['error'] = None
         state['waiting'] = None
         state['install_evidence'] = {

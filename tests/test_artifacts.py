@@ -183,6 +183,37 @@ class ArtifactTests(unittest.TestCase):
                     download_artifact(artifact, temp)
             self.assertEqual(list((Path(temp) / 'downloads').iterdir()), [])
 
+    @unittest.skipUnless(hasattr(os, 'mkfifo'), 'requires POSIX FIFO support')
+    def test_cached_fifo_is_rejected_without_blocking(self):
+        script = (
+            'import os, sys\n'
+            'from pathlib import Path\n'
+            'from agent_welcome.artifacts import (InstallError, PINNED_ARTIFACT_NAME, '
+            'PINNED_ARTIFACT_URL, download_artifact)\n'
+            'root = Path(sys.argv[1])\n'
+            'fifo = root / "downloads" / PINNED_ARTIFACT_NAME\n'
+            'fifo.parent.mkdir(parents=True)\n'
+            'os.mkfifo(fifo)\n'
+            'artifact = {"name": PINNED_ARTIFACT_NAME, "url": PINNED_ARTIFACT_URL, '
+            '"published_sha256": "0" * 64, "size_bytes": 1, "max_archive_bytes": 1}\n'
+            'try:\n'
+            '    download_artifact(artifact, root)\n'
+            'except InstallError:\n'
+            '    print("rejected")\n'
+            'else:\n'
+            '    raise SystemExit("FIFO cache was accepted")\n'
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            try:
+                result = subprocess.run(
+                    [sys.executable, '-c', script, temp],
+                    capture_output=True, text=True, timeout=2,
+                )
+            except subprocess.TimeoutExpired:
+                self.fail('cached FIFO open blocked instead of rejecting the non-regular cache')
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), 'rejected')
+
     def test_valid_fixture_extracts_and_requires_exact_version_output(self):
         blob = archive_bytes([('prime-agent', 'file', VERSION_SCRIPT)])
         with tempfile.TemporaryDirectory() as temp:
