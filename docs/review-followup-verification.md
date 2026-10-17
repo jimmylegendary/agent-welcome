@@ -74,7 +74,7 @@ task.  A dash is intentionally not a support claim.
 - No account sign-in was attempted.  Authentication and a first task remain
   explicitly unverified for every target and are not implied by this reference.
 
-### ARM64/Android emulation prerequisites (not performed)
+### ARM64/Android emulation prerequisites
 
 - The available Ubuntu 24.04 WSL2 package metadata lists
   `qemu-user-static` 1:8.2.2+ds-0ubuntu1.18 as a 14,709,858-byte download and
@@ -94,9 +94,9 @@ task.  A dash is intentionally not a support claim.
   acceleration configuration.  A physical Android device instead requires an
   attached device plus explicit USB-debugging authorization.
 
-### Minimal explicit-QEMU alternative (not performed)
+### Minimal explicit-QEMU alternative (validated in WSL)
 
-The smallest current plan avoids a global `binfmt_misc` registration and an
+The validated path avoids a global `binfmt_misc` registration and an
 administrator install: download the native WSL `qemu-user-static` package into
 an isolated directory, unpack it with the already-present `dpkg-deb`, extract
 an ARM64 rootfs beside it, then invoke its `qemu-aarch64-static` explicitly
@@ -105,17 +105,27 @@ with `-L ROOTFS` for `prime-agent --version`.  It does not require
 
 | Required input | Current exact size / state |
 |---|---|
-| `qemu-user-static` 1:8.2.2+ds-0ubuntu1.18 | 14,709,858-byte download; 133,302 KiB when installed system-wide; not installed. |
-| Official `ubuntu-base-24.04.5-base-arm64.tar.gz` rootfs | 29,936,675-byte download (Canonical header, 2026-09-08); not cached. |
-| Pinned Prime archive | 21,858,488-byte download; previously SHA-256 verified, but not retained. |
+| `qemu-user-static` 1:8.2.2+ds-0ubuntu1.18 | 14,709,858-byte download; SHA-256 `5bb397f66063efa349f6fd5cb3b68cd96f29edd0994e4ba5115cf0859a716bf0`; extracted only in the temporary test directory. |
+| Official `ubuntu-base-24.04.5-base-arm64.tar.gz` rootfs | 29,936,675-byte download (Canonical header, 2026-09-08); SHA-256 `a91d5a93010193712d346d761372b7c9db6dfcf093893161c64ca107f05914f2`; verified against Canonical `SHA256SUMS`. |
+| Pinned Prime archive | 21,858,488-byte download; SHA-256 `f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4`. |
 | `debootstrap` | Optional for an alternate rootfs construction; 48,190-byte package, not needed for the explicit-rootfs path. |
 
-That isolated proof therefore needs at least 66,505,021 bytes of downloads
-before extraction, plus temporary expanded-rootfs space.  It must remain
-approval-gated because it downloads a new rootfs and an emulator.  The command
-would prove only the pinned binary's `--version` under user-mode emulation; it
-would not establish Android execution, provider authentication, or a first
-task.
+The isolated proof uses at least 66,505,021 bytes of downloads before
+extraction, plus temporary expanded-rootfs space.  With explicit approval, the
+following completed in Ubuntu 24.04 WSL2 with the temporary root removed at
+exit:
+
+```text
+qemu-aarch64-static -L ROOTFS prime-agent --version
+0.10.0
+binfmt_changed=false
+admin_install=false
+temporary_root_cleaned=true
+```
+
+This proves only the pinned Linux ARM64 binary's `--version` under user-mode
+emulation.  It does not establish Android or macOS execution, provider
+authentication, or a first task.
 
 ## Remote delivery status
 
