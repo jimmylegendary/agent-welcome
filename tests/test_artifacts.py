@@ -2,6 +2,8 @@ import hashlib
 import io
 import json
 import os
+import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -210,6 +212,42 @@ class ArtifactTests(unittest.TestCase):
                 )
             self.assertEqual(result['status'], 'pass')
             self.assertEqual(result['version'], '0.10.0')
+
+    @unittest.skipUnless(hasattr(os, 'mkfifo') and os.name != 'nt', 'requires POSIX FIFO support')
+    def test_fifo_artifact_is_rejected_without_blocking_and_snapshot_is_cleaned(self):
+        script = (
+            'import sys\n'
+            'from pathlib import Path\n'
+            'from agent_welcome.artifacts import InstallError, verify_extract_and_probe\n'
+            'artifact = {"id":"fifo-fixture","version":"0.10.0",'
+            '"published_sha256":"' + ('0' * 64) + '",'
+            '"payload_path":"prime-agent","max_archive_bytes":1024,'
+            '"max_expanded_bytes":1024,"max_members":4}\n'
+            'try:\n'
+            ' verify_extract_and_probe(artifact, Path(sys.argv[2]), '
+            'Path(sys.argv[1]) / "install", allowed_root=sys.argv[1])\n'
+            'except InstallError:\n'
+            ' print("rejected")\n'
+            'else:\n'
+            ' raise SystemExit("FIFO was accepted")\n'
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'state'
+            state_dir.mkdir()
+            fifo = Path(temp) / 'artifact.fifo'
+            os.mkfifo(fifo)
+            try:
+                result = subprocess.run(
+                    [sys.executable, '-c', script, str(state_dir), str(fifo)],
+                    capture_output=True, text=True, timeout=2,
+                )
+            except subprocess.TimeoutExpired:
+                self.fail('FIFO open blocked instead of rejecting the non-regular source')
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(result.stdout.strip(), 'rejected')
+            snapshots = state_dir / '.archive-snapshots'
+            self.assertTrue(snapshots.is_dir())
+            self.assertEqual(list(snapshots.iterdir()), [])
 
     def test_wrong_digest_does_not_extract_or_execute(self):
         with tempfile.TemporaryDirectory() as temp:

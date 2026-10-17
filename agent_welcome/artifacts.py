@@ -356,7 +356,11 @@ def _snapshot_archive(source_path, state_root, max_bytes):
     out_open = True
     source_open = False
     try:
-        flags = os.O_RDONLY | getattr(os, 'O_NOFOLLOW', 0)
+        flags = (
+            os.O_RDONLY
+            | getattr(os, 'O_NOFOLLOW', 0)
+            | getattr(os, 'O_NONBLOCK', 0)
+        )
         source_fd = os.open(os.fspath(source_path), flags)
         source_open = True
         source_stat = os.fstat(source_fd)

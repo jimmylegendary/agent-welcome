@@ -114,6 +114,7 @@ def status(state_dir):
 
 
 def _new_state(recipe, observation):
+    provenance = observation.get('provenance')
     return {
         'schema_version': '1.0',
         'run_id': hashlib.sha256(os.urandom(32)).hexdigest()[:24],
@@ -145,7 +146,7 @@ def _new_state(recipe, observation):
         'recipe_drift': False,
         'environment_drift': False,
         'retry_exhausted': False,
-        'fixture_or_device_evidence': observation.get('provenance', {}).get('kind'),
+        'fixture_or_device_evidence': provenance.get('kind') if isinstance(provenance, dict) else None,
     }
 
 

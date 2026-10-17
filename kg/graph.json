@@ -526,6 +526,7 @@
             "fact": "runtime_kind",
             "values": [
               "native",
+              "linux_userland",
               "proot",
               "utm_guest"
             ]

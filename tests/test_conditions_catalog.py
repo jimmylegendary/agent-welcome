@@ -11,6 +11,7 @@ from agent_welcome.catalog import (
     validate_catalog,
     validate_recipe,
 )
+from agent_welcome.environment import observe
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -218,6 +219,39 @@ class CatalogTests(unittest.TestCase):
         self.assertNotEqual(result['status'], 'pass')
         self.assertIn('check_permission_profile', result['missing_checks'])
         self.assertEqual(result['applicability']['status'], 'unknown')
+
+    def test_codex_auth_route_accepts_observed_linux_userland_but_unknown_runtime_stays_unknown(self):
+        observation = observe()
+        observation['auth'] = {'failure_stage': 'headless'}
+        observation['sandbox'] = {
+            'enabled': True,
+            'permission_profile': 'workspace-write',
+        }
+        check_results = {
+            check_id: True for check_id in (
+                'check_artifact_integrity',
+                'check_agent_runtime_compatibility',
+                'check_agent_version',
+                'check_login_and_readonly_task',
+                'check_sandbox',
+                'check_permission_profile',
+                'check_account_permission',
+            )
+        }
+        passing = evaluate_route(
+            self.graph, 'route_codex_device_auth_beta', observation, check_results,
+        )
+        self.assertEqual(observation['runtime_kind'], 'linux_userland')
+        self.assertEqual(passing['status'], 'pass')
+
+        unknown_observation = dict(observation)
+        unknown_observation['runtime_kind'] = None
+        unknown = evaluate_route(
+            self.graph, 'route_codex_device_auth_beta',
+            unknown_observation, check_results,
+        )
+        self.assertEqual(unknown['status'], 'unknown')
+        self.assertIn('runtime_kind', unknown['applicability']['missing_facts'])
 
     def test_proot_does_not_infer_android_host_from_linux_kernel(self):
         result = evaluate_route(

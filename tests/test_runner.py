@@ -255,6 +255,16 @@ class RunnerTests(unittest.TestCase):
                 start(self.recipe, state_dir, observation)
             self.assertFalse(state_dir.exists())
 
+    def test_null_provenance_is_unobserved_and_waits_for_artifact(self):
+        observation = compatible_observation()
+        observation['provenance'] = None
+        with tempfile.TemporaryDirectory() as temp:
+            state = start(
+                self.recipe, Path(temp) / 'state', observation,
+            )
+            self.assertEqual(state['status'], 'WAITING_USER')
+            self.assertIsNone(state['fixture_or_device_evidence'])
+
     def test_runner_rejects_unimplemented_required_check_before_any_success_path(self):
         recipe = json.loads(json.dumps(self.recipe))
         recipe['required_checks'].append('check_sandbox')
