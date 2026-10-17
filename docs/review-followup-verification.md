@@ -93,3 +93,34 @@ task.  A dash is intentionally not a support claim.
   size is not available locally, and installing/starting it may require VM or
   acceleration configuration.  A physical Android device instead requires an
   attached device plus explicit USB-debugging authorization.
+
+### Minimal explicit-QEMU alternative (not performed)
+
+The smallest current plan avoids a global `binfmt_misc` registration and an
+administrator install: download the native WSL `qemu-user-static` package into
+an isolated directory, unpack it with the already-present `dpkg-deb`, extract
+an ARM64 rootfs beside it, then invoke its `qemu-aarch64-static` explicitly
+with `-L ROOTFS` for `prime-agent --version`.  It does not require
+`dpkg --add-architecture`, an Android emulator, or a system service change.
+
+| Required input | Current exact size / state |
+|---|---|
+| `qemu-user-static` 1:8.2.2+ds-0ubuntu1.18 | 14,709,858-byte download; 133,302 KiB when installed system-wide; not installed. |
+| Official `ubuntu-base-24.04.5-base-arm64.tar.gz` rootfs | 29,936,675-byte download (Canonical header, 2026-09-08); not cached. |
+| Pinned Prime archive | 21,858,488-byte download; previously SHA-256 verified, but not retained. |
+| `debootstrap` | Optional for an alternate rootfs construction; 48,190-byte package, not needed for the explicit-rootfs path. |
+
+That isolated proof therefore needs at least 66,505,021 bytes of downloads
+before extraction, plus temporary expanded-rootfs space.  It must remain
+approval-gated because it downloads a new rootfs and an emulator.  The command
+would prove only the pinned binary's `--version` under user-mode emulation; it
+would not establish Android execution, provider authentication, or a first
+task.
+
+## Remote delivery status
+
+The final head was published to PR #1 with an expected-SHA lease.  Its Git tree
+matches the locally tested tree.  GitHub reports the branch as mergeable and
+ahead of `main` with no commits behind.  There is no `.github/workflows` entry
+in either ref, and the head has zero GitHub Actions workflow runs and zero
+commit-status checks; no CI result is pending.
