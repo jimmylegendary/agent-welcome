@@ -35,7 +35,18 @@ def observe():
     elif system in {'linux', 'android'}:
         kernel_os = 'linux'
         android_api = getattr(sys, 'getandroidapilevel', None)
-        if os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER'):
+        ios_guest_marker = os.environ.get('AGENT_WELCOME_IOS_GUEST') == '1'
+        termux = bool(os.environ.get('TERMUX_VERSION'))
+        if ios_guest_marker:
+            # A Linux guest cannot directly inspect the iOS host.  This is an
+            # explicit user-supplied marker, retained in provenance rather
+            # than promoted to direct device verification.
+            host_os = 'ios'
+            host_method = 'explicit_ios_guest_marker'
+        elif termux:
+            host_os = 'android'
+            host_method = 'termux_environment'
+        elif os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER'):
             host_os = None
             host_method = 'guest_host_unknown'
         elif system == 'android' or callable(android_api):
@@ -57,7 +68,13 @@ def observe():
     )
     if libc_version and not re.fullmatch(r'[0-9]+(?:\.[0-9]+)*', libc_version):
         libc_version = None
-    if os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER'):
+    if os.environ.get('AGENT_WELCOME_IOS_GUEST') == '1':
+        runtime_kind = 'linux_guest'
+    elif os.environ.get('TERMUX_VERSION') and not (
+        os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER')
+    ):
+        runtime_kind = 'linux_userland'
+    elif os.environ.get('PROOT_TMP_DIR') or os.environ.get('PROOT_LOADER'):
         runtime_kind = 'proot'
     elif host_os == 'android':
         # Android API/process observations describe the native Android
@@ -78,6 +95,9 @@ def observe():
             'python': platform.python_version(),
             'platform': platform.platform(),
             'host_os_method': host_method,
+            'host_os_evidence': (
+                'user_marker' if host_method == 'explicit_ios_guest_marker' else 'process_observation'
+            ),
             'runtime_tested': False,
         },
     }

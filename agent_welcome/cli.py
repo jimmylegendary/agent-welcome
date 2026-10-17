@@ -14,6 +14,14 @@ from .catalog import (
     validate_recipe,
 )
 from .environment import observe
+from .easy_install import (
+    EasyInstallError,
+    easy_resume,
+    easy_start,
+    easy_status,
+    get_target,
+    load_targets,
+)
 from .runner import RunError, _eligibility_status, resume, start, status
 
 
@@ -49,6 +57,25 @@ def _parser():
     parser = argparse.ArgumentParser(prog='python -m agent_welcome')
     commands = parser.add_subparsers(dest='command', required=True)
     commands.add_parser('validate', help='validate the local graph and recipe data')
+    easy_plan = commands.add_parser('easy-plan', help='show one official Easy Install route without changing the machine')
+    easy_plan.add_argument('--target', required=True)
+    easy_start_parser = commands.add_parser('easy-start', help='begin a state-local Easy Install run')
+    easy_start_parser.add_argument('--target', required=True)
+    easy_start_parser.add_argument('--state-dir', required=True)
+    easy_start_parser.add_argument('--agent-executable')
+    easy_start_parser.add_argument('--approve-install', action='store_true', help='execute the target official installer after showing its recorded plan')
+    easy_start_parser.add_argument('--approve-prerequisites', action='store_true', help='execute the displayed same-device prerequisite plan')
+    easy_resume_parser = commands.add_parser('easy-resume', help='continue a state-local Easy Install run')
+    easy_resume_parser.add_argument('--state-dir', required=True)
+    easy_resume_parser.add_argument('--agent-executable')
+    easy_resume_parser.add_argument('--approve-install', action='store_true', help='execute the target official installer after showing its recorded plan')
+    easy_resume_parser.add_argument('--approve-prerequisites', action='store_true', help='execute the displayed same-device prerequisite plan')
+    easy_resume_parser.add_argument('--auth-evidence')
+    easy_resume_parser.add_argument('--first-task-evidence')
+    easy_resume_parser.add_argument('--first-task-command', help='JSON argv; requires --allow-billable-first-task')
+    easy_resume_parser.add_argument('--allow-billable-first-task', action='store_true')
+    easy_status_parser = commands.add_parser('easy-status', help='read a saved Easy Install state')
+    easy_status_parser.add_argument('--state-dir', required=True)
     diagnose = commands.add_parser('diagnose', help='evaluate a recipe against observations')
     diagnose.add_argument('--recipe', required=True)
     diagnose.add_argument('--observations', help='JSON observation file; diagnose only')
@@ -82,6 +109,7 @@ def main(argv=None):
             recipe_path = ROOT / 'recipes' / 'prime-agent-0.10.0-linux-arm64.json'
             recipe = load_recipe(recipe_path)
             validate_recipe(recipe, graph)
+            easy_catalog = load_targets()
             print(_json({
                 'status': 'VALID',
                 'schema_version': graph['schema_version'],
@@ -89,7 +117,40 @@ def main(argv=None):
                 'links': len(graph['links']),
                 'playbooks': len(graph['recovery_playbooks']),
                 'recipes': [recipe['id']],
+                'easy_install_targets': len(easy_catalog['targets']),
             }))
+            return 0
+        if args.command == 'easy-plan':
+            target = get_target(args.target)
+            print(_json({
+                'target': target,
+                'safety': 'No provider installer, global PATH, service, or account setting is executed by this command.',
+                'resume_entrypoint': 'python3 -m agent_welcome easy-resume --state-dir DIR',
+            }))
+            return 0
+        if args.command == 'easy-start':
+            result = easy_start(
+                args.target, args.state_dir, observe(),
+                agent_executable=args.agent_executable,
+                approve_install=args.approve_install,
+                approve_prerequisites=args.approve_prerequisites,
+            )
+            print(_json(result))
+            return 0
+        if args.command == 'easy-resume':
+            result = easy_resume(
+                args.state_dir, observe(), agent_executable=args.agent_executable,
+                auth_evidence=args.auth_evidence,
+                first_task_evidence=args.first_task_evidence,
+                first_task_command=args.first_task_command,
+                allow_billable_first_task=args.allow_billable_first_task,
+                approve_install=args.approve_install,
+                approve_prerequisites=args.approve_prerequisites,
+            )
+            print(_json(result))
+            return 0
+        if args.command == 'easy-status':
+            print(_json(easy_status(args.state_dir)))
             return 0
         if args.command == 'diagnose':
             recipe = _load_bound_recipe(args.recipe)
@@ -122,7 +183,7 @@ def main(argv=None):
         if args.command == 'status':
             print(_json(status(args.state_dir)))
             return 0
-    except (CatalogError, RunError, OSError, json.JSONDecodeError, ValueError) as exc:
+    except (CatalogError, EasyInstallError, RunError, OSError, json.JSONDecodeError, ValueError) as exc:
         print(_json({'error': str(exc)}), file=sys.stderr)
         return 2
     return 2

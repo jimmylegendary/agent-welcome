@@ -1,0 +1,169 @@
+{
+  "schema_version": "1.0",
+  "purpose": "State-local Easy Install orchestration.  It deliberately does not make a provider or mobile platform support claim.",
+  "evidence_policy": {
+    "implementation": "local_code",
+    "fixture": "isolated_mock_or_subprocess",
+    "actual_os": "direct_machine_execution",
+    "upstream_binary": "direct_official_binary_execution",
+    "authentication": "user_or_direct_evidence",
+    "first_task": "user_or_direct_evidence"
+  },
+  "sources": {
+    "claude_setup": {
+      "url": "https://code.claude.com/docs/en/setup",
+      "kind": "official_documentation",
+      "captured_at": "2026-10-17"
+    },
+    "claude_quickstart": {
+      "url": "https://code.claude.com/docs/en/quickstart",
+      "kind": "official_documentation",
+      "captured_at": "2026-10-17"
+    },
+    "codex_quickstart": {
+      "url": "https://learn.chatgpt.com/docs/codex/cli",
+      "kind": "official_documentation",
+      "captured_at": "2026-10-17"
+    },
+    "codex_windows_installer": {
+      "url": "https://releases.openai.com/codex/install.ps1",
+      "kind": "official_installer_source",
+      "captured_at": "2026-10-17"
+    },
+    "prime_readme": {
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent",
+      "kind": "official_repository",
+      "captured_at": "2026-10-17"
+    },
+    "prime_installer": {
+      "url": "https://app.primeintellect.ai/prime-agent/install.sh",
+      "kind": "official_installer",
+      "captured_at": "2026-10-17"
+    },
+    "termux": {
+      "url": "https://github.com/termux/termux-app",
+      "kind": "official_repository",
+      "captured_at": "2026-10-17"
+    },
+    "termux_proot": {
+      "url": "https://github.com/termux/proot-distro",
+      "kind": "official_repository",
+      "captured_at": "2026-10-17"
+    },
+    "utm_ios": {
+      "url": "https://docs.getutm.app/installation/ios/",
+      "kind": "official_documentation",
+      "captured_at": "2026-10-17"
+    }
+  },
+  "targets": [
+    {
+      "id": "macos-claude-code", "os": "macos", "agent": "claude-code", "command": "claude",
+      "host": {"kernel_os": "darwin", "host_os": "macos", "same_device_route": "native"},
+      "source_refs": ["claude_setup", "claude_quickstart"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "curl -fsSL https://claude.ai/install.sh | bash",
+      "login_instruction": "Run claude in the intended project and complete the browser login.",
+      "first_task_instruction": "Ask Claude Code one read-only question about the current project, then supply evidence or an explicitly approved command.",
+      "recovery": ["claude doctor", "re-run easy-resume with the absolute agent executable"]
+    },
+    {
+      "id": "macos-codex", "os": "macos", "agent": "codex", "command": "codex",
+      "host": {"kernel_os": "darwin", "host_os": "macos", "same_device_route": "native"},
+      "source_refs": ["codex_quickstart"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "curl -fsSL https://chatgpt.com/codex/install.sh | sh",
+      "login_instruction": "Run codex in the intended project and choose a supported sign-in method.",
+      "first_task_instruction": "Ask Codex a read-only question such as 'Tell me about this project', then supply evidence or an explicitly approved command.",
+      "recovery": ["Re-run the official installer manually", "re-run easy-resume with the absolute agent executable"]
+    },
+    {
+      "id": "macos-prime-agent", "os": "macos", "agent": "prime-agent", "command": "prime-agent",
+      "host": {"kernel_os": "darwin", "host_os": "macos", "same_device_route": "native"},
+      "source_refs": ["prime_readme", "prime_installer"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh",
+      "login_instruction": "Run prime-agent and use /login to select an allowed provider or subscription.",
+      "first_task_instruction": "Complete a minimal read-only Prime Agent interaction, then supply evidence or an explicitly approved command.",
+      "recovery": ["prime-agent doctor", "prime-agent status", "re-run easy-resume with the absolute agent executable"]
+    },
+    {
+      "id": "windows-claude-code", "os": "windows", "agent": "claude-code", "command": "claude",
+      "host": {"kernel_os": "windows", "host_os": "windows", "same_device_route": "native"},
+      "source_refs": ["claude_setup", "claude_quickstart"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "irm https://claude.ai/install.ps1 | iex",
+      "login_instruction": "Run claude in the intended project and complete the browser login.",
+      "first_task_instruction": "Ask Claude Code one read-only question about the current project, then supply evidence or an explicitly approved command.",
+      "recovery": ["claude doctor", "Use the official WSL route if native Windows constraints block the required feature"]
+    },
+    {
+      "id": "windows-codex", "os": "windows", "agent": "codex", "command": "codex",
+      "host": {"kernel_os": "windows", "host_os": "windows", "same_device_route": "native"},
+      "source_refs": ["codex_quickstart", "codex_windows_installer"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "irm https://chatgpt.com/codex/install.ps1 | iex",
+      "login_instruction": "Run codex in the intended project and choose a supported sign-in method.",
+      "first_task_instruction": "Ask Codex a read-only question such as 'Tell me about this project', then supply evidence or an explicitly approved command.",
+      "recovery": ["Re-run the official Windows installer manually", "Use the official WSL route if native Windows constraints block the required feature"]
+    },
+    {
+      "id": "windows-prime-agent", "os": "windows", "agent": "prime-agent", "command": "prime-agent",
+      "host": {"kernel_os": "windows", "host_os": "windows", "same_device_route": "native"},
+      "source_refs": ["prime_readme"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "irm https://app.primeintellect.ai/prime-agent/install.ps1 | iex",
+      "login_instruction": "Run prime-agent and use /login to select an allowed provider or subscription.",
+      "first_task_instruction": "Complete a minimal read-only Prime Agent interaction, then supply evidence or an explicitly approved command.",
+      "recovery": ["prime-agent doctor", "prime-agent status", "re-run easy-resume with the absolute agent executable"]
+    },
+    {
+      "id": "android-claude-code", "os": "android", "agent": "claude-code", "command": "claude",
+      "host": {"kernel_os": "linux", "host_os": "android", "same_device_route": "termux_proot_linux_userland", "requires_mobile_guest": true},
+      "source_refs": ["claude_setup", "termux", "termux_proot"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "Inside the same-device Ubuntu guest: curl -fsSL https://claude.ai/install.sh | bash",
+      "login_instruction": "Inside the guest, run claude and complete the browser/device login without recording credentials in Agent Welcome.",
+      "first_task_instruction": "Inside the guest, ask Claude Code one read-only project question and supply non-secret evidence.",
+      "recovery": ["Termux Android 12+ may stop background processes; reopen the same guest and run easy-resume", "claude doctor"]
+    },
+    {
+      "id": "android-codex", "os": "android", "agent": "codex", "command": "codex",
+      "host": {"kernel_os": "linux", "host_os": "android", "same_device_route": "termux_proot_linux_userland", "requires_mobile_guest": true},
+      "source_refs": ["codex_quickstart", "termux", "termux_proot"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "Inside the same-device Ubuntu guest: curl -fsSL https://chatgpt.com/codex/install.sh | sh",
+      "login_instruction": "Inside the guest, run codex and choose a supported sign-in method.",
+      "first_task_instruction": "Inside the guest, ask Codex a read-only project question and supply non-secret evidence.",
+      "recovery": ["Termux Android 12+ may stop background processes; reopen the same guest and run easy-resume", "Re-run the official installer manually"]
+    },
+    {
+      "id": "android-prime-agent", "os": "android", "agent": "prime-agent", "command": "prime-agent",
+      "host": {"kernel_os": "linux", "host_os": "android", "same_device_route": "termux_proot_linux_userland", "requires_mobile_guest": true},
+      "source_refs": ["prime_readme", "prime_installer", "termux", "termux_proot"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "Inside the same-device Ubuntu 24.04 glibc guest: curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh",
+      "login_instruction": "Inside the guest, run prime-agent and use /login without recording credentials in Agent Welcome.",
+      "first_task_instruction": "Inside the guest, complete a minimal read-only Prime Agent interaction and supply non-secret evidence.",
+      "recovery": ["Use a glibc >= 2.35 guest; musl is not a supported Prime release target", "prime-agent doctor", "reopen after Android process kill and run easy-resume"]
+    },
+    {
+      "id": "ios-claude-code", "os": "ios", "agent": "claude-code", "command": "claude",
+      "host": {"kernel_os": "linux", "host_os": "ios", "same_device_route": "utm_linux_guest", "requires_mobile_guest": true},
+      "source_refs": ["claude_setup", "utm_ios"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "Inside the same-device UTM Linux guest: curl -fsSL https://claude.ai/install.sh | bash",
+      "login_instruction": "Inside the guest, run claude and complete browser/device login.",
+      "first_task_instruction": "Inside the guest, ask Claude Code one read-only project question and supply non-secret evidence.",
+      "recovery": ["Install/open UTM and import/boot the Linux guest before resuming", "UTM SE may be slow without JIT; do not mistake this for agent success"]
+    },
+    {
+      "id": "ios-codex", "os": "ios", "agent": "codex", "command": "codex",
+      "host": {"kernel_os": "linux", "host_os": "ios", "same_device_route": "utm_linux_guest", "requires_mobile_guest": true},
+      "source_refs": ["codex_quickstart", "utm_ios"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "Inside the same-device UTM Linux guest: curl -fsSL https://chatgpt.com/codex/install.sh | sh",
+      "login_instruction": "Inside the guest, run codex and choose a supported sign-in method.",
+      "first_task_instruction": "Inside the guest, ask Codex a read-only project question and supply non-secret evidence.",
+      "recovery": ["Install/open UTM and import/boot the Linux guest before resuming", "UTM SE may be slow without JIT; do not mistake this for agent success"]
+    },
+    {
+      "id": "ios-prime-agent", "os": "ios", "agent": "prime-agent", "command": "prime-agent",
+      "host": {"kernel_os": "linux", "host_os": "ios", "same_device_route": "utm_linux_guest", "requires_mobile_guest": true},
+      "source_refs": ["prime_readme", "prime_installer", "utm_ios"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
+      "manual_install": "Inside the same-device UTM Linux guest with glibc >= 2.35: curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh",
+      "login_instruction": "Inside the guest, run prime-agent and use /login without recording credentials in Agent Welcome.",
+      "first_task_instruction": "Inside the guest, complete a minimal read-only Prime Agent interaction and supply non-secret evidence.",
+      "recovery": ["Install/open UTM and import/boot the Linux guest before resuming", "Use a glibc >= 2.35 guest; musl is not a supported Prime release target", "prime-agent doctor"]
+    }
+  ]
+}

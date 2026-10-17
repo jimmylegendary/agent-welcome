@@ -1,5 +1,16 @@
 # Agent Welcome
 
+## Easy Install
+
+The approved 12-target Easy Install implementation is in
+[docs/easy-install.md](docs/easy-install.md), with the contract addendum in
+[docs/easy-install-decision.md](docs/easy-install-decision.md). Start with
+`./easy-install.sh --target macos-codex` or
+`.\easy-install.ps1 -Target windows-codex`. The first run records a concrete
+official-installer plan; it executes only after explicit
+`--approve-install` / `-ApproveInstall` consent. Runtime/device/auth evidence
+is intentionally separate from implementation and fixture coverage.
+
 왕초보·비개발자가 자기 기기에서 AI agent를 준비하고 첫 결과물까지 만들도록 돕는 웹사이트, skill 저장소, 쉬운 설치 서비스 프로젝트입니다.
 
 현재는 **조사 자료, 정형 KG·catalog, 단일 설치 recipe의 reference implementation**이 있습니다. 웹사이트·배포용 설치 앱·인증 연결·첫 결과물 팩은 후속 개발 범위입니다.
