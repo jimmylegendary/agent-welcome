@@ -153,7 +153,7 @@ class EasyInstallTests(unittest.TestCase):
             self.assertEqual(completed['first_task_evidence']['kind'], 'fixture_fixed_adapter')
             self.assertEqual(completed['first_task_evidence']['timeout_seconds'], FIRST_TASK_TIMEOUT_SECONDS)
             self.assertEqual(completed['first_task_evidence']['argv'][1:-1], [
-                '-p', '--bare', '--tools', 'Write', '--allowedTools', 'Write',
+                '-p', '--tools', 'Write', '--allowedTools', 'Write',
                 '--permission-prompts', 'none',
             ])
             self.assertEqual(completed['evidence']['authentication'], 'fixture_fixed_agent_task')
@@ -237,7 +237,7 @@ class EasyInstallTests(unittest.TestCase):
         targets = {target['agent']: target for target in catalog if target['os'] == 'macos'}
         expected = {
             'claude-code': [
-                '/agents/claude', '-p', '--bare', '--tools', 'Write',
+                '/agents/claude', '-p', '--tools', 'Write',
                 '--allowedTools', 'Write', '--permission-prompts', 'none',
             ],
             'codex': [
@@ -256,6 +256,10 @@ class EasyInstallTests(unittest.TestCase):
                     )
                     self.assertEqual(argv[:-1], prefix)
                     self.assertIn(nonce, argv[-1])
+                    if agent == 'claude-code':
+                        self.assertIn('browser login', targets[agent]['login_instruction'].lower())
+                        self.assertNotIn('--bare', argv)
+                        self.assertNotIn('--api-key', argv)
                     self.assertNotIn('--dangerously-skip-permissions', argv)
                     self.assertNotIn('--dangerously-bypass-approvals-and-sandbox', argv)
 

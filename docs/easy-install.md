@@ -96,9 +96,10 @@ text and a state-local proof file. It never accepts an arbitrary argv, or a
 120-second timeout, `stdin` closed, and captured stdout. The per-agent commands
 have the following deliberately narrow write capability:
 
-- Claude Code uses `-p --bare --tools Write --allowedTools Write
-  --permission-prompts none`; unresolved permissions fail rather than opening
-  an interactive or broad-permission flow.
+- Claude Code uses `-p --tools Write --allowedTools Write --permission-prompts
+  none`; it preserves the browser/OAuth or keychain login completed in the
+  stated login step. It does not select `--bare` or API-key mode. Unresolved
+  permissions fail rather than opening an interactive or broad-permission flow.
 - Codex uses `exec --sandbox workspace-write --ask-for-approval never`; it does
   not use any sandbox or approval bypass.
 - Prime Agent uses `--print`, so it cannot select its interactive TTY mode.

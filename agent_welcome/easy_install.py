@@ -624,11 +624,12 @@ def _first_task_adapter(target, state, root):
     )
     executable = state.get('agent_invocation_path') or state['agent_executable']
     if target['agent'] == 'claude-code':
-        # The only available and auto-approved capability is Write.  Unresolved
-        # prompts are denied, preventing a headless run from falling back to an
-        # interactive broad-permission flow.
+        # Do not use --bare: it bypasses the user's persisted Claude Code
+        # subscription/OAuth login and would require a separately selected API
+        # credential mode.  The only available and auto-approved tool remains
+        # Write; unresolved prompts are denied instead of becoming interactive.
         argv = [
-            executable, '-p', '--bare', '--tools', 'Write',
+            executable, '-p', '--tools', 'Write',
             '--allowedTools', 'Write', '--permission-prompts', 'none', prompt,
         ]
     elif target['agent'] == 'codex':
