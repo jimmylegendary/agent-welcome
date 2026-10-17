@@ -28,6 +28,7 @@ agent installation, account, credential, or external service was changed.
 | Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m agent_welcome validate` | `VALID`; same catalog counts. |
 | Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m agent_welcome diagnose --recipe prime-agent-0.10.0-linux-arm64` | `NOT_APPLICABLE` (x86_64, not the ARM64 recipe). |
 | Ubuntu 24.04 WSL2, Python 3.12.3 | `python3 -m unittest discover -s tests -v` | `Ran 57 tests ... OK`, including the bounded FIFO-cache test. |
+| Ubuntu 24.04 WSL2, temporary directory | `download_artifact(...)` for the pinned official URL | Downloaded 21,858,488 bytes and verified SHA-256 `f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4`; the temporary archive was then removed without execution. |
 
 The Windows test runner can validate the catalog and Android observation
 normalization, but it cannot execute the POSIX shell fixture used as the
@@ -55,7 +56,7 @@ task.  A dash is intentionally not a support claim.
 | iOS | Prime Agent | — | — | — | — | — | — | No iOS device/simulator attached. |
 | iOS | Claude Code | — | — | — | — | — | — | No iOS device/simulator attached. |
 | Android | Codex CLI | ✓ gate fixture | — | — | — | — | — | Candidate retains integrity, sandbox/profile, auth, and read-only-task gates. |
-| Android | Prime Agent | ✓ compatible observation | ✓ archive + exact-version fixture | — | — | — | — | WSL full suite verifies only a synthetic payload; host ISA is x86_64. |
+| Android | Prime Agent | ✓ compatible observation | ✓ archive + exact-version fixture | — | — | ✓ download + SHA only | — | WSL full suite verifies a synthetic payload; the official ARM64 archive was verified but not executed on x86_64. |
 | Android | Claude Code | ✓ native-route contract | — | — | — | — | — | Both native candidate routes remain untested and cannot pass without checks. |
 
 ## Available-environment assessment and remaining constraints
@@ -65,11 +66,11 @@ task.  A dash is intentionally not a support claim.
   Linux x86_64, so it is not an ARM64 emulator or an Android device.
 - Docker CLI 28.0.4 was present but the Docker Desktop Linux engine was not
   running.  QEMU user-mode and Android `adb` were absent.
-- No real upstream archive was downloaded or executed.  The pinned release is
-  21,858,488 bytes and requires an ARM64 execution environment for meaningful
-  verification; downloading it without that environment would not establish
-  runtime compatibility.  Enabling/installing QEMU, starting Docker, or adding
-  an Android device would require separate approval.
+- The official pinned archive was downloaded into an automatically cleaned
+  temporary directory and verified against its 21,858,488-byte size and pinned
+  SHA-256.  It was not installed or executed: an ARM64 execution environment
+  is still required for runtime compatibility.  Enabling/installing QEMU,
+  starting Docker, or adding an Android device would require separate approval.
 - No account sign-in was attempted.  Authentication and a first task remain
   explicitly unverified for every target and are not implied by this reference.
 
