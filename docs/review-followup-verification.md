@@ -27,7 +27,7 @@ agent installation, account, credential, or external service was changed.
 | Windows 11, Python 3.13.5 | `python -m agent_welcome diagnose --recipe prime-agent-0.10.0-linux-arm64` | `NOT_APPLICABLE` (no ARM64/glibc recipe match). |
 | Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m agent_welcome validate` | `VALID`; same catalog counts. |
 | Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m agent_welcome diagnose --recipe prime-agent-0.10.0-linux-arm64` | `NOT_APPLICABLE` (x86_64, not the ARM64 recipe). |
-| Ubuntu 24.04 WSL2, Python 3.12.3 | `python3 -m unittest discover -s tests -v` | `Ran 56 tests ... OK`, including the bounded FIFO-cache test. |
+| Ubuntu 24.04 WSL2, Python 3.12.3 | `python3 -m unittest discover -s tests -v` | `Ran 57 tests ... OK`, including the bounded FIFO-cache test. |
 
 The Windows test runner can validate the catalog and Android observation
 normalization, but it cannot execute the POSIX shell fixture used as the
@@ -72,3 +72,23 @@ task.  A dash is intentionally not a support claim.
   an Android device would require separate approval.
 - No account sign-in was attempted.  Authentication and a first task remain
   explicitly unverified for every target and are not implied by this reference.
+
+### ARM64/Android emulation prerequisites (not performed)
+
+- The available Ubuntu 24.04 WSL2 package metadata lists
+  `qemu-user-static` 1:8.2.2+ds-0ubuntu1.18 as a 14,709,858-byte download and
+  133,302 KiB installed.  It is not installed.  Installing it requires a WSL
+  system-package change and administrator authority.
+- That package alone is insufficient for this glibc ARM64 artifact: an ARM64
+  glibc userland/rootfs and loader are also required.  No foreign architecture
+  is configured in the current WSL and no suitable rootfs is cached, so its
+  download size cannot be measured locally.  `binfmt_misc` is mounted read/write,
+  but registering a handler is another system-level configuration change.
+- The Docker alternative requires starting the stopped Docker Desktop Linux
+  engine, then pulling an ARM64 image (image-dependent size) and confirming its
+  emulation support.  This changes a local service and downloads an image.
+- A full Android emulator alternative requires Android SDK platform tools,
+  emulator binaries, and an ARM64 system image; none is installed.  Its image
+  size is not available locally, and installing/starting it may require VM or
+  acceleration configuration.  A physical Android device instead requires an
+  attached device plus explicit USB-debugging authorization.
