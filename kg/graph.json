@@ -1,8 +1,8 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "directed": true,
   "multigraph": true,
-  "stage": "research_seed",
+  "stage": "typed_research_seed",
   "automatic_execution_enabled": false,
   "runtime_tested": false,
   "direct_reproduction": false,
@@ -20,140 +20,238 @@
   ],
   "sources": [
     {
-      "id": "src_plan",
+      "id": "legacy_src_plan",
       "file_path": "SETUP-KG-PLAN.md",
       "title": "설치 지식 KG와 자동 복구 설계",
       "source_kind": "local_plan",
       "checked_at": "2026-10-17",
-      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/SETUP-KG-PLAN.md"
+      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/SETUP-KG-PLAN.md",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_android_report",
+      "id": "legacy_src_android_report",
       "file_path": "android-original-agent-validation.md",
       "title": "Android 원본 agent 검증 조사",
       "source_kind": "local_validation_report",
       "checked_at": "2026-10-17",
-      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/android-original-agent-validation.md"
+      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/android-original-agent-validation.md",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_ios_report",
+      "id": "legacy_src_ios_report",
       "file_path": "ios-original-agent-validation.md",
       "title": "iOS 원본 agent 검증 조사",
       "source_kind": "local_validation_report",
       "checked_at": "2026-10-17",
-      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/ios-original-agent-validation.md"
+      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/ios-original-agent-validation.md",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_termux_execution",
+      "id": "legacy_src_termux_execution",
       "url": "https://github.com/termux/termux-packages/wiki/Termux-execution-environment",
       "title": "Termux execution environment",
       "source_kind": "official_project_documentation",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_proot_readme",
+      "id": "legacy_src_proot_readme",
       "url": "https://github.com/termux/proot-distro/blob/master/README.md",
       "title": "PRoot-Distro README and limitations",
       "source_kind": "official_repository",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_codux_readme",
+      "id": "legacy_src_codux_readme",
       "url": "https://github.com/Clock-Skew/Codux",
       "title": "Codux community installer README",
       "source_kind": "community_repository",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_codux_script",
+      "id": "legacy_src_codux_script",
       "url": "https://github.com/Clock-Skew/Codux/blob/main/codux.sh",
       "title": "Codux installer script",
       "source_kind": "community_installer",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_codex_release",
+      "id": "legacy_src_codex_release",
       "url": "https://github.com/openai/codex/releases/tag/rust-v0.159.1",
       "title": "Codex Linux artifact release",
       "source_kind": "official_release",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_codex_checksums",
+      "id": "legacy_src_codex_checksums",
       "url": "https://github.com/openai/codex/releases/expanded_assets/rust-v0.159.1",
       "title": "Codex release assets and published checksums",
       "source_kind": "official_release_assets",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_codex_targets",
+      "id": "legacy_src_codex_targets",
       "url": "https://github.com/openai/codex/blob/main/scripts/codex_package/targets.py",
       "title": "Codex package target map",
       "source_kind": "official_repository",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_codex_sandbox",
+      "id": "legacy_src_codex_sandbox",
       "url": "https://github.com/openai/codex/blob/main/codex-rs/linux-sandbox/README.md",
       "title": "Codex Linux sandbox design",
       "source_kind": "official_repository_documentation",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_codex_oauth_issue",
+      "id": "legacy_src_codex_oauth_issue",
       "url": "https://github.com/openai/codex/issues/36318",
       "title": "Codex localhost callback followed by token-exchange failure report",
       "source_kind": "upstream_issue_report",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_device_auth",
+      "id": "legacy_src_device_auth",
       "url": "https://learn.chatgpt.com/docs/auth#login-on-headless-devices",
       "title": "Official device-code authentication guidance",
       "source_kind": "official_documentation",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_prime_release",
+      "id": "legacy_src_prime_release",
       "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/tag/v0.10.0",
       "title": "Prime Agent Linux release",
       "source_kind": "official_release",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_prime_installer",
+      "id": "legacy_src_prime_installer",
       "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/main/install-rust.sh",
       "title": "Prime Agent Linux installer source",
       "source_kind": "official_repository",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_ish_readme",
+      "id": "legacy_src_ish_readme",
       "url": "https://github.com/ish-app/ish",
       "title": "iSH project README",
       "source_kind": "project_repository",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_utm_ios",
+      "id": "legacy_src_utm_ios",
       "url": "https://docs.getutm.app/installation/ios/",
       "title": "UTM iOS installation documentation",
       "source_kind": "official_project_documentation",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_utm_repo",
+      "id": "legacy_src_utm_repo",
       "url": "https://github.com/utmapp/UTM",
       "title": "UTM architectures and project documentation",
       "source_kind": "official_repository",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
     },
     {
-      "id": "src_claude_musl_community",
+      "id": "legacy_src_claude_musl_community",
       "url": "https://github.com/Aarstad/claude-code-termux-musl",
       "title": "Community Claude Code musl shim guide",
       "source_kind": "community_repository",
-      "checked_at": "2026-10-17"
+      "checked_at": "2026-10-17",
+      "legacy": true,
+      "evidence_status": "legacy_unresolved"
+    },
+    {
+      "id": "src_prime_installer",
+      "kind": "official_repository",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/install-rust.sh",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "release_tag": "v0.10.0",
+      "content_sha256": "82afa854760ad8a088372b94307e59d1e32dadf5e1838c5fc1dcf53eea4fca29",
+      "locator": "lines 808-831; staged payload layout around lines 2247-2252",
+      "legacy": false,
+      "evidence_status": "pinned_source"
+    },
+    {
+      "id": "src_prime_release",
+      "kind": "official_release_metadata",
+      "url": "https://api.github.com/repos/PrimeIntellect-ai/prime-agent/releases/tags/v0.10.0",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "release_tag": "v0.10.0",
+      "locator": "assets[name=prime-agent-0.10.0-linux-arm64.tar.gz]",
+      "snapshot_fields": {
+        "name": "prime-agent-0.10.0-linux-arm64.tar.gz",
+        "size": 21858488,
+        "digest": "sha256:f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
+        "browser_download_url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.10.0/prime-agent-0.10.0-linux-arm64.tar.gz"
+      },
+      "download_bytes_verified": false,
+      "legacy": false,
+      "evidence_status": "pinned_source"
+    },
+    {
+      "id": "src_codex_parser_main",
+      "kind": "official_repository",
+      "url": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/main.rs",
+      "revision": "8e68a98ef03cdde76d2e6800791ebdf1b3b95b24",
+      "release_tag": "rust-v0.159.1",
+      "content_sha256": "dc0356a131108ace0f63f7e9f5040b1f0fc19a71057eeeb4108e04623267c502",
+      "locator": "lines 459-464: HostSandboxArgs target_os aliases",
+      "legacy": false,
+      "evidence_status": "pinned_source"
+    },
+    {
+      "id": "src_codex_parser_args",
+      "kind": "official_repository",
+      "url": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/lib.rs",
+      "revision": "8e68a98ef03cdde76d2e6800791ebdf1b3b95b24",
+      "release_tag": "rust-v0.159.1",
+      "content_sha256": "cf24032f801314033b2ff21e6c5a85ad8c2898012e9fba279f3a5c91439c1ab6",
+      "locator": "lines 106-147: LandlockCommand, permission-profile and trailing_var_arg command",
+      "legacy": false,
+      "evidence_status": "pinned_source"
+    },
+    {
+      "id": "src_codux_readme",
+      "kind": "community_repository",
+      "url": "https://github.com/Clock-Skew/Codux/blob/bf85202aebffed078b6835413d7e651ec274bd9c/README.md",
+      "revision": "bf85202aebffed078b6835413d7e651ec274bd9c",
+      "content_sha256": "c902330943197b0fa81eea659c8ab03830893a9bc66ad9f5d46decf5b8cee097",
+      "locator": "README body, 199 lines; setup/screenshots/troubleshooting sections",
+      "legacy": false,
+      "evidence_status": "pinned_source"
     }
   ],
   "nodes": [
@@ -164,9 +262,9 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_plan",
-        "src_android_report",
-        "src_ios_report"
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_ios_report"
       ]
     },
     {
@@ -176,7 +274,7 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_plan"
+        "legacy_src_plan"
       ]
     },
     {
@@ -186,8 +284,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_plan",
-        "src_ios_report"
+        "legacy_src_plan",
+        "legacy_src_ios_report"
       ]
     },
     {
@@ -197,7 +295,7 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report"
+        "legacy_src_android_report"
       ]
     },
     {
@@ -207,7 +305,7 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_ios_report"
+        "legacy_src_ios_report"
       ]
     },
     {
@@ -217,10 +315,10 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_codex_release",
-        "src_codex_targets"
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_codex_release",
+        "legacy_src_codex_targets"
       ]
     },
     {
@@ -230,9 +328,9 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_prime_release"
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_prime_release"
       ]
     },
     {
@@ -242,9 +340,9 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_claude_musl_community"
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_claude_musl_community"
       ]
     },
     {
@@ -254,8 +352,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_termux_execution"
+        "legacy_src_android_report",
+        "legacy_src_termux_execution"
       ]
     },
     {
@@ -265,8 +363,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme"
+        "legacy_src_android_report",
+        "legacy_src_proot_readme"
       ]
     },
     {
@@ -276,10 +374,40 @@
       "evidence_status": "community_claim_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_codux_readme",
-        "src_codux_script"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "architecture",
+            "value": "aarch64"
+          },
+          {
+            "op": "eq",
+            "fact": "runtime_kind",
+            "value": "proot"
+          }
+        ]
+      },
+      "required_check_ids": [
+        "check_agent_version",
+        "check_sandbox"
+      ],
+      "agent_id": "agent_codex"
     },
     {
       "id": "artifact_codex_arm64_musl",
@@ -288,33 +416,37 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_codex_release",
-        "src_codex_targets"
+        "legacy_src_android_report",
+        "legacy_src_codex_release",
+        "legacy_src_codex_targets"
       ]
     },
     {
       "id": "claim_codux_checksum_absent",
       "type": "installer_property",
       "label": "조사 보고서는 Codux 설치기에서 checksum 검사를 찾지 못함",
-      "evidence_status": "documented_in_input",
+      "evidence_status": "legacy_unresolved",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_codux_script"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codux_script"
+      ],
+      "legacy_evidence_status": "documented_in_input",
+      "legacy": true
     },
     {
       "id": "claim_download_not_verified",
       "type": "evidence_limit",
       "label": "공개 checksum은 실제 내려받은 파일의 독립 검증을 뜻하지 않음",
-      "evidence_status": "documented_in_input",
+      "evidence_status": "legacy_unresolved",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_codex_checksums"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_codex_checksums"
+      ],
+      "legacy_evidence_status": "documented_in_input",
+      "legacy": true
     },
     {
       "id": "symptom_codex_context_mismatch",
@@ -323,8 +455,8 @@
       "evidence_status": "ambiguous_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_codux_readme"
+        "legacy_src_android_report",
+        "legacy_src_codux_readme"
       ]
     },
     {
@@ -334,8 +466,8 @@
       "evidence_status": "reported_incident",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_codex_oauth_issue"
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue"
       ],
       "unproven_remedies": [
         "route_codex_device_auth_beta"
@@ -348,9 +480,29 @@
       "evidence_status": "documented_candidate_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_device_auth"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "in",
+            "fact": "auth.failure_stage",
+            "values": [
+              "headless",
+              "browser_open",
+              "localhost_callback"
+            ]
+          }
+        ]
+      },
+      "required_check_ids": [
+        "check_agent_version",
+        "check_account_permission",
+        "check_login_and_readonly_task"
+      ],
+      "agent_id": "agent_codex"
     },
     {
       "id": "constraint_account_org_permission",
@@ -359,8 +511,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_device_auth"
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
       ]
     },
     {
@@ -370,10 +522,27 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_prime_release"
-      ]
+        "src_prime_release",
+        "src_prime_installer"
+      ],
+      "artifact_id": "prime-agent-0.10.0-linux-arm64",
+      "version": "0.10.0",
+      "target": "linux-arm64-gnu",
+      "architecture": "aarch64",
+      "os": "linux",
+      "libc_family": "glibc",
+      "libc_min_version": "2.35",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.10.0/prime-agent-0.10.0-linux-arm64.tar.gz",
+      "published_sha256": "f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
+      "size_bytes": 21858488,
+      "claim_refs": [
+        "claim_prime_glibc_min",
+        "claim_prime_libc_family",
+        "claim_prime_archive_digest",
+        "claim_prime_archive_size"
+      ],
+      "observed_sha256": null,
+      "download_verified": false
     },
     {
       "id": "symptom_prime_glibc_mismatch",
@@ -382,8 +551,8 @@
       "evidence_status": "inferred_from_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_prime_release"
+        "legacy_src_android_report",
+        "legacy_src_prime_release"
       ]
     },
     {
@@ -393,10 +562,46 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_prime_release",
-        "src_prime_installer"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer"
+      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "architecture",
+            "value": "aarch64"
+          },
+          {
+            "op": "eq",
+            "fact": "libc.family",
+            "value": "glibc"
+          },
+          {
+            "op": "version_gte",
+            "fact": "libc.version",
+            "value": "2.35"
+          }
+        ]
+      },
+      "required_check_ids": [
+        "check_artifact_integrity",
+        "check_runtime_compatibility",
+        "check_agent_version"
+      ],
+      "agent_id": "agent_prime"
     },
     {
       "id": "runtime_ish_i386",
@@ -405,8 +610,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_ios_report",
-        "src_ish_readme"
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme"
       ]
     },
     {
@@ -416,9 +621,9 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_ios_report",
-        "src_codex_targets",
-        "src_prime_release"
+        "legacy_src_ios_report",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
       ]
     },
     {
@@ -428,9 +633,9 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_ios_report",
-        "src_ish_readme",
-        "src_codex_targets"
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_codex_targets"
       ]
     },
     {
@@ -440,10 +645,35 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_ios_report",
-        "src_utm_ios",
-        "src_utm_repo"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "ios"
+          },
+          {
+            "op": "eq",
+            "fact": "runtime_kind",
+            "value": "utm_guest"
+          }
+        ]
+      },
+      "required_check_ids": [
+        "check_agent_version",
+        "check_sandbox"
+      ],
+      "agent_id": "agent_codex"
     },
     {
       "id": "runtime_utm_x86_64",
@@ -452,9 +682,9 @@
       "evidence_status": "candidate_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_ios_report",
-        "src_utm_ios",
-        "src_utm_repo"
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
       ]
     },
     {
@@ -464,8 +694,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme"
+        "legacy_src_android_report",
+        "legacy_src_proot_readme"
       ]
     },
     {
@@ -475,8 +705,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_codex_sandbox"
+        "legacy_src_android_report",
+        "legacy_src_codex_sandbox"
       ]
     },
     {
@@ -486,9 +716,9 @@
       "evidence_status": "inferred_from_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme",
-        "src_codex_sandbox"
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
       ]
     },
     {
@@ -498,21 +728,23 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme",
-        "src_codex_sandbox"
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
       ]
     },
     {
       "id": "claim_musl_target_scope",
       "type": "evidence_limit",
       "label": "musl target label만으로 static/dynamic 상태나 Alpine 전용을 결론내리지 않음",
-      "evidence_status": "documented_limit_in_input",
+      "evidence_status": "legacy_unresolved",
       "runtime_tested": false,
       "source_refs": [
-        "src_ios_report",
-        "src_codex_targets"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_codex_targets"
+      ],
+      "legacy_evidence_status": "documented_limit_in_input",
+      "legacy": true
     },
     {
       "id": "unknown_elf_interpreter",
@@ -521,9 +753,9 @@
       "evidence_status": "unknown_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_codex_release"
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_codex_release"
       ]
     },
     {
@@ -533,10 +765,23 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_plan",
-        "src_android_report",
-        "src_ios_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_ios_report"
+      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "route.selected",
+            "value": "route_original_artifact"
+          }
+        ]
+      },
+      "required_check_ids": [],
+      "abstract": true,
+      "abstract_reason": "전략적 보존 개념; agent와 실행 조건이 특정되지 않은 concrete route가 아님"
     },
     {
       "id": "route_patched_elf",
@@ -545,10 +790,34 @@
       "evidence_status": "documented_route_distinction",
       "runtime_tested": false,
       "source_refs": [
-        "src_plan",
-        "src_android_report",
-        "src_claude_musl_community"
-      ]
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_claude_musl_community"
+      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "runtime_kind",
+            "value": "native"
+          }
+        ]
+      },
+      "required_check_ids": [
+        "check_agent_version"
+      ],
+      "agent_id": "agent_claude"
     },
     {
       "id": "diagnostics_context_abi",
@@ -557,9 +826,9 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_termux_execution"
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_termux_execution"
       ]
     },
     {
@@ -569,9 +838,9 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_codex_release"
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_codex_release"
       ]
     },
     {
@@ -581,9 +850,9 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_prime_release"
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_prime_release"
       ]
     },
     {
@@ -593,9 +862,9 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_plan",
-        "src_android_report",
-        "src_ios_report"
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_ios_report"
       ]
     },
     {
@@ -605,8 +874,8 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_codex_sandbox"
+        "legacy_src_android_report",
+        "legacy_src_codex_sandbox"
       ]
     },
     {
@@ -616,9 +885,9 @@
       "evidence_status": "design_proposal",
       "runtime_tested": false,
       "source_refs": [
-        "src_android_report",
-        "src_device_auth",
-        "src_codex_oauth_issue"
+        "legacy_src_android_report",
+        "legacy_src_device_auth",
+        "legacy_src_codex_oauth_issue"
       ]
     },
     {
@@ -628,8 +897,8 @@
       "evidence_status": "documented_in_input",
       "runtime_tested": false,
       "source_refs": [
-        "src_device_auth",
-        "src_android_report"
+        "legacy_src_device_auth",
+        "legacy_src_android_report"
       ]
     },
     {
@@ -640,8 +909,750 @@
       "runtime_tested": false,
       "required_for_initial_smoke": false,
       "source_refs": [
-        "src_plan",
-        "src_ios_report"
+        "legacy_src_plan",
+        "legacy_src_ios_report"
+      ]
+    },
+    {
+      "id": "source_legacy_src_plan",
+      "type": "source",
+      "label": "설치 지식 KG와 자동 복구 설계",
+      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/SETUP-KG-PLAN.md",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_plan"
+      ]
+    },
+    {
+      "id": "source_legacy_src_android_report",
+      "type": "source",
+      "label": "Android 원본 agent 검증 조사",
+      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/android-original-agent-validation.md",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_android_report"
+      ]
+    },
+    {
+      "id": "source_legacy_src_ios_report",
+      "type": "source",
+      "label": "iOS 원본 agent 검증 조사",
+      "url": "https://github.com/jimmylegendary/agent-welcome/blob/main/ios-original-agent-validation.md",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_ios_report"
+      ]
+    },
+    {
+      "id": "source_legacy_src_termux_execution",
+      "type": "source",
+      "label": "Termux execution environment",
+      "url": "https://github.com/termux/termux-packages/wiki/Termux-execution-environment",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_termux_execution"
+      ]
+    },
+    {
+      "id": "source_legacy_src_proot_readme",
+      "type": "source",
+      "label": "PRoot-Distro README and limitations",
+      "url": "https://github.com/termux/proot-distro/blob/master/README.md",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_proot_readme"
+      ]
+    },
+    {
+      "id": "source_legacy_src_codux_readme",
+      "type": "source",
+      "label": "Codux community installer README",
+      "url": "https://github.com/Clock-Skew/Codux",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codux_readme"
+      ]
+    },
+    {
+      "id": "source_legacy_src_codux_script",
+      "type": "source",
+      "label": "Codux installer script",
+      "url": "https://github.com/Clock-Skew/Codux/blob/main/codux.sh",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codux_script"
+      ]
+    },
+    {
+      "id": "source_legacy_src_codex_release",
+      "type": "source",
+      "label": "Codex Linux artifact release",
+      "url": "https://github.com/openai/codex/releases/tag/rust-v0.159.1",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codex_release"
+      ]
+    },
+    {
+      "id": "source_legacy_src_codex_checksums",
+      "type": "source",
+      "label": "Codex release assets and published checksums",
+      "url": "https://github.com/openai/codex/releases/expanded_assets/rust-v0.159.1",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codex_checksums"
+      ]
+    },
+    {
+      "id": "source_legacy_src_codex_targets",
+      "type": "source",
+      "label": "Codex package target map",
+      "url": "https://github.com/openai/codex/blob/main/scripts/codex_package/targets.py",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codex_targets"
+      ]
+    },
+    {
+      "id": "source_legacy_src_codex_sandbox",
+      "type": "source",
+      "label": "Codex Linux sandbox design",
+      "url": "https://github.com/openai/codex/blob/main/codex-rs/linux-sandbox/README.md",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codex_sandbox"
+      ]
+    },
+    {
+      "id": "source_legacy_src_codex_oauth_issue",
+      "type": "source",
+      "label": "Codex localhost callback followed by token-exchange failure report",
+      "url": "https://github.com/openai/codex/issues/36318",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_codex_oauth_issue"
+      ]
+    },
+    {
+      "id": "source_legacy_src_device_auth",
+      "type": "source",
+      "label": "Official device-code authentication guidance",
+      "url": "https://learn.chatgpt.com/docs/auth#login-on-headless-devices",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_device_auth"
+      ]
+    },
+    {
+      "id": "source_legacy_src_prime_release",
+      "type": "source",
+      "label": "Prime Agent Linux release",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/tag/v0.10.0",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_prime_release"
+      ]
+    },
+    {
+      "id": "source_legacy_src_prime_installer",
+      "type": "source",
+      "label": "Prime Agent Linux installer source",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/main/install-rust.sh",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_prime_installer"
+      ]
+    },
+    {
+      "id": "source_legacy_src_ish_readme",
+      "type": "source",
+      "label": "iSH project README",
+      "url": "https://github.com/ish-app/ish",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_ish_readme"
+      ]
+    },
+    {
+      "id": "source_legacy_src_utm_ios",
+      "type": "source",
+      "label": "UTM iOS installation documentation",
+      "url": "https://docs.getutm.app/installation/ios/",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_utm_ios"
+      ]
+    },
+    {
+      "id": "source_legacy_src_utm_repo",
+      "type": "source",
+      "label": "UTM architectures and project documentation",
+      "url": "https://github.com/utmapp/UTM",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_utm_repo"
+      ]
+    },
+    {
+      "id": "source_legacy_src_claude_musl_community",
+      "type": "source",
+      "label": "Community Claude Code musl shim guide",
+      "url": "https://github.com/Aarstad/claude-code-termux-musl",
+      "revision": null,
+      "content_sha256": null,
+      "evidence_status": "legacy_unresolved",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_claude_musl_community"
+      ]
+    },
+    {
+      "id": "source_src_prime_installer",
+      "type": "source",
+      "label": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/install-rust.sh",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/install-rust.sh",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "content_sha256": "82afa854760ad8a088372b94307e59d1e32dadf5e1838c5fc1dcf53eea4fca29",
+      "evidence_status": "pinned_source",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_prime_installer"
+      ]
+    },
+    {
+      "id": "source_src_prime_release",
+      "type": "source",
+      "label": "https://api.github.com/repos/PrimeIntellect-ai/prime-agent/releases/tags/v0.10.0",
+      "url": "https://api.github.com/repos/PrimeIntellect-ai/prime-agent/releases/tags/v0.10.0",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "content_sha256": null,
+      "evidence_status": "pinned_source",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_prime_release"
+      ]
+    },
+    {
+      "id": "source_src_codex_parser_main",
+      "type": "source",
+      "label": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/main.rs",
+      "url": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/main.rs",
+      "revision": "8e68a98ef03cdde76d2e6800791ebdf1b3b95b24",
+      "content_sha256": "dc0356a131108ace0f63f7e9f5040b1f0fc19a71057eeeb4108e04623267c502",
+      "evidence_status": "pinned_source",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_codex_parser_main"
+      ]
+    },
+    {
+      "id": "source_src_codex_parser_args",
+      "type": "source",
+      "label": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/lib.rs",
+      "url": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/lib.rs",
+      "revision": "8e68a98ef03cdde76d2e6800791ebdf1b3b95b24",
+      "content_sha256": "cf24032f801314033b2ff21e6c5a85ad8c2898012e9fba279f3a5c91439c1ab6",
+      "evidence_status": "pinned_source",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_codex_parser_args"
+      ]
+    },
+    {
+      "id": "source_src_codux_readme",
+      "type": "source",
+      "label": "https://github.com/Clock-Skew/Codux/blob/bf85202aebffed078b6835413d7e651ec274bd9c/README.md",
+      "url": "https://github.com/Clock-Skew/Codux/blob/bf85202aebffed078b6835413d7e651ec274bd9c/README.md",
+      "revision": "bf85202aebffed078b6835413d7e651ec274bd9c",
+      "content_sha256": "c902330943197b0fa81eea659c8ab03830893a9bc66ad9f5d46decf5b8cee097",
+      "evidence_status": "pinned_source",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_codux_readme"
+      ]
+    },
+    {
+      "id": "claim_prime_glibc_min",
+      "type": "claim",
+      "label": "libc.version_gte",
+      "source_id": "src_prime_installer",
+      "predicate": "libc.version_gte",
+      "value": "2.35",
+      "evidence_status": "source_verified",
+      "source_refs": [
+        "src_prime_installer"
+      ]
+    },
+    {
+      "id": "claim_prime_libc_family",
+      "type": "claim",
+      "label": "libc.family",
+      "source_id": "src_prime_installer",
+      "predicate": "libc.family",
+      "value": "glibc",
+      "evidence_status": "source_verified",
+      "source_refs": [
+        "src_prime_installer"
+      ]
+    },
+    {
+      "id": "claim_prime_archive_digest",
+      "type": "claim",
+      "label": "published_sha256",
+      "source_id": "src_prime_release",
+      "predicate": "published_sha256",
+      "value": "f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
+      "evidence_status": "publisher_metadata_only",
+      "source_refs": [
+        "src_prime_release"
+      ]
+    },
+    {
+      "id": "claim_prime_archive_size",
+      "type": "claim",
+      "label": "published_size_bytes",
+      "source_id": "src_prime_release",
+      "predicate": "published_size_bytes",
+      "value": 21858488,
+      "evidence_status": "publisher_metadata_only",
+      "source_refs": [
+        "src_prime_release"
+      ]
+    },
+    {
+      "id": "claim_codex_sandbox_host_backend",
+      "type": "claim",
+      "label": "backend_selection",
+      "source_id": "src_codex_parser_main",
+      "predicate": "backend_selection",
+      "value": "host_os",
+      "evidence_status": "source_verified",
+      "source_refs": [
+        "src_codex_parser_main"
+      ]
+    },
+    {
+      "id": "claim_codex_sandbox_command",
+      "type": "claim",
+      "label": "command_argv",
+      "source_id": "src_codex_parser_args",
+      "predicate": "command_argv",
+      "value": [
+        "codex",
+        "sandbox",
+        "--",
+        "/bin/true"
+      ],
+      "evidence_status": "static_parser_inference",
+      "source_refs": [
+        "src_codex_parser_args"
+      ]
+    },
+    {
+      "id": "claim_codux_device_model_unknown",
+      "type": "claim",
+      "label": "identified_test_device",
+      "source_id": "src_codux_readme",
+      "predicate": "identified_test_device",
+      "value": null,
+      "evidence_status": "not_established",
+      "source_refs": [
+        "src_codux_readme"
+      ]
+    },
+    {
+      "id": "check_account_permission",
+      "type": "success_check",
+      "label": "계정과 조직이 device-auth beta 사용을 허용함",
+      "evidence_status": "design_proposal",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_device_auth",
+        "legacy_src_android_report"
+      ]
+    },
+    {
+      "id": "route_claude_musl_community",
+      "type": "community_route",
+      "label": "Claude Code Android 호환성 community 후보",
+      "evidence_status": "community_claim_in_input",
+      "runtime_tested": false,
+      "source_refs": [
+        "legacy_src_claude_musl_community"
+      ],
+      "agent_id": "agent_claude",
+      "required_check_ids": [
+        "check_agent_version"
+      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "runtime_kind",
+            "value": "native"
+          }
+        ]
+      },
+      "identity": "community_compatibility_candidate"
+    },
+    {
+      "id": "pb_android_codex_context",
+      "type": "recovery_playbook",
+      "label": "pb_android_codex_context",
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_codex_context_mismatch",
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "in",
+            "fact": "runtime_kind",
+            "values": [
+              "native",
+              "proot"
+            ]
+          }
+        ]
+      },
+      "diagnostic_ids": [
+        "diagnostics_context_abi",
+        "diagnostics_elf_loader"
+      ],
+      "route_ids": [
+        "route_codux_community",
+        "route_original_artifact"
+      ],
+      "required_check_ids": [
+        "check_agent_version",
+        "check_sandbox"
+      ],
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "runtime_tested": false,
+      "agent_ids": [
+        "agent_codex"
+      ]
+    },
+    {
+      "id": "pb_codex_oauth_device_auth",
+      "type": "recovery_playbook",
+      "label": "pb_codex_oauth_device_auth",
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_callback_unreachable",
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "in",
+            "fact": "auth.failure_stage",
+            "values": [
+              "headless",
+              "browser_open",
+              "localhost_callback"
+            ]
+          }
+        ]
+      },
+      "diagnostic_ids": [
+        "diagnostics_auth_stages"
+      ],
+      "route_ids": [
+        "route_codex_device_auth_beta"
+      ],
+      "required_check_ids": [
+        "check_account_permission",
+        "check_login_and_readonly_task"
+      ],
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "runtime_tested": false,
+      "agent_ids": [
+        "agent_codex"
+      ]
+    },
+    {
+      "id": "pb_android_prime_glibc",
+      "type": "recovery_playbook",
+      "label": "pb_android_prime_glibc",
+      "agent_id": "agent_prime",
+      "symptom_id": "symptom_prime_glibc_mismatch",
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "architecture",
+            "value": "aarch64"
+          },
+          {
+            "op": "in",
+            "fact": "libc.family",
+            "values": [
+              "bionic",
+              "musl",
+              "glibc"
+            ]
+          }
+        ]
+      },
+      "diagnostic_ids": [
+        "diagnostics_context_abi",
+        "diagnostics_elf_loader"
+      ],
+      "route_ids": [
+        "route_compatible_glibc_userland",
+        "route_original_artifact"
+      ],
+      "required_check_ids": [
+        "check_artifact_integrity",
+        "check_runtime_compatibility",
+        "check_agent_version"
+      ],
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "runtime_tested": false,
+      "agent_ids": [
+        "agent_prime"
+      ]
+    },
+    {
+      "id": "pb_ios_ish_i386",
+      "type": "recovery_playbook",
+      "label": "pb_ios_ish_i386",
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_ish_arch_mismatch",
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "ios"
+          },
+          {
+            "op": "in",
+            "fact": "architecture",
+            "values": [
+              "i386",
+              "i686",
+              "x86"
+            ]
+          }
+        ]
+      },
+      "diagnostic_ids": [
+        "diagnostics_context_abi"
+      ],
+      "route_ids": [
+        "route_utm_se_guest",
+        "route_original_artifact"
+      ],
+      "required_check_ids": [
+        "check_agent_version",
+        "check_sandbox"
+      ],
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "runtime_tested": false,
+      "agent_ids": [
+        "agent_codex",
+        "agent_claude",
+        "agent_prime"
+      ],
+      "scope_note": "iSH의 i386에서 세 대상 agent의 stock 64-bit Linux artifact를 검토하는 공통 사례"
+    },
+    {
+      "id": "pb_proot_sandbox_capability",
+      "type": "recovery_playbook",
+      "label": "pb_proot_sandbox_capability",
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_sandbox_failure",
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "runtime_kind",
+            "value": "proot"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "eq",
+                "fact": "capabilities.user_namespace",
+                "value": false
+              },
+              {
+                "op": "eq",
+                "fact": "capabilities.bubblewrap",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
+      "diagnostic_ids": [
+        "diagnostics_context_abi"
+      ],
+      "route_ids": [
+        "route_codux_community"
+      ],
+      "required_check_ids": [
+        "check_sandbox"
+      ],
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "runtime_tested": false,
+      "agent_ids": [
+        "agent_codex"
+      ]
+    },
+    {
+      "id": "check_artifact_integrity",
+      "type": "success_check",
+      "label": "공개 SHA-256과 관측 artifact SHA-256 일치",
+      "evidence_status": "typed_check_definition",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_prime_release"
+      ]
+    },
+    {
+      "id": "check_runtime_compatibility",
+      "type": "success_check",
+      "label": "현재 OS·CPU·libc가 pinned artifact 요구와 일치",
+      "evidence_status": "typed_check_definition",
+      "runtime_tested": false,
+      "source_refs": [
+        "src_prime_installer",
+        "src_prime_release"
       ]
     }
   ],
@@ -654,8 +1665,11 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan"
-      ]
+        "legacy_src_plan"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
     },
     {
       "id": "e02",
@@ -665,9 +1679,12 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan",
-        "src_android_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_android_report"
+      ],
+      "details": {
+        "original_relation": "applies_to"
+      }
     },
     {
       "id": "e03",
@@ -677,9 +1694,12 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan",
-        "src_ios_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "applies_to"
+      }
     },
     {
       "id": "e04",
@@ -689,170 +1709,212 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan",
-        "src_ios_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "excludes"
+      }
     },
     {
       "id": "e05",
       "source": "platform_android",
       "target": "runtime_termux_bionic",
-      "relation": "has_native_candidate",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_termux_execution"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "has_native_candidate"
+      }
     },
     {
       "id": "e06",
       "source": "platform_android",
       "target": "runtime_proot_distro",
-      "relation": "has_local_userland_candidate",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "has_local_userland_candidate"
+      }
     },
     {
       "id": "e07",
       "source": "agent_codex",
       "target": "artifact_codex_arm64_musl",
-      "relation": "has_official_linux_target",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codex_release",
-        "src_codex_targets"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codex_release",
+        "legacy_src_codex_targets"
+      ],
+      "details": {
+        "original_relation": "has_official_linux_target"
+      }
     },
     {
       "id": "e08",
       "source": "artifact_codex_arm64_musl",
       "target": "runtime_termux_bionic",
-      "relation": "target_does_not_equal_host_abi",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_termux_execution",
-        "src_codex_targets"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_termux_execution",
+        "legacy_src_codex_targets"
+      ],
+      "details": {
+        "original_relation": "target_does_not_equal_host_abi"
+      }
     },
     {
       "id": "e09",
       "source": "runtime_termux_bionic",
       "target": "artifact_codex_arm64_musl",
-      "relation": "requires_abi_compatibility_check",
+      "relation": "requires",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_termux_execution"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "requires_abi_compatibility_check"
+      }
     },
     {
       "id": "e10",
       "source": "route_codux_community",
       "target": "runtime_proot_distro",
-      "relation": "claims_to_install_into",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codux_readme"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codux_readme"
+      ],
+      "details": {
+        "original_relation": "claims_to_install_into"
+      }
     },
     {
       "id": "e11",
       "source": "route_codux_community",
       "target": "artifact_codex_arm64_musl",
-      "relation": "claims_to_use",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codux_readme",
-        "src_codux_script"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "claims_to_use"
+      }
     },
     {
       "id": "e12",
       "source": "route_codux_community",
       "target": "claim_codux_checksum_absent",
-      "relation": "has_reported_installer_limit",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codux_script"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codux_script"
+      ],
+      "details": {
+        "original_relation": "has_reported_installer_limit"
+      }
     },
     {
       "id": "e13",
       "source": "artifact_codex_arm64_musl",
       "target": "claim_download_not_verified",
-      "relation": "published_digest_is_not_local_file_verification",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codex_checksums"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codex_checksums"
+      ],
+      "details": {
+        "original_relation": "published_digest_is_not_local_file_verification"
+      }
     },
     {
       "id": "e14",
       "source": "symptom_codex_context_mismatch",
       "target": "diagnostics_context_abi",
-      "relation": "motivates_context_and_abi_diagnosis",
+      "relation": "describes",
       "confidence": "INFERRED",
       "confidence_score": 0.74,
       "source_refs": [
-        "src_android_report",
-        "src_codux_readme",
-        "src_termux_execution",
-        "src_proot_readme"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "motivates_context_and_abi_diagnosis"
+      }
     },
     {
       "id": "e15",
       "source": "diagnostics_context_abi",
       "target": "route_codux_community",
-      "relation": "may_select_only_after_validation",
+      "relation": "candidate_for",
       "confidence": "INFERRED",
       "confidence_score": 0.72,
       "source_refs": [
-        "src_android_report",
-        "src_codux_readme"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codux_readme"
+      ],
+      "details": {
+        "original_relation": "may_select_only_after_validation"
+      }
     },
     {
       "id": "e16",
       "source": "symptom_callback_unreachable",
       "target": "route_codex_device_auth_beta",
-      "relation": "has_documented_alternative_login",
+      "relation": "supported_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_device_auth",
-        "src_android_report"
-      ]
+        "legacy_src_device_auth",
+        "legacy_src_android_report"
+      ],
+      "details": {
+        "original_relation": "has_documented_alternative_login"
+      }
     },
     {
       "id": "e17",
       "source": "symptom_callback_unreachable",
       "target": "constraint_account_org_permission",
-      "relation": "checks_account_permission_before_beta_route",
+      "relation": "requires",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_device_auth",
-        "src_android_report"
-      ]
+        "legacy_src_device_auth",
+        "legacy_src_android_report"
+      ],
+      "details": {
+        "original_relation": "checks_account_permission_before_beta_route"
+      }
     },
     {
       "id": "e18",
@@ -862,21 +1924,27 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_device_auth"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
     },
     {
       "id": "e19",
       "source": "agent_codex",
       "target": "route_codex_device_auth_beta",
-      "relation": "has_official_beta_login_option",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_device_auth"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "has_official_beta_login_option"
+      }
     },
     {
       "id": "e20",
@@ -886,404 +1954,503 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codex_oauth_issue"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
     },
     {
       "id": "e21",
       "source": "agent_prime",
       "target": "artifact_prime_arm64_gnu",
-      "relation": "has_linux_arm64_gnu_release_candidate",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_prime_release"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "has_linux_arm64_gnu_release_candidate"
+      }
     },
     {
       "id": "e22",
       "source": "artifact_prime_arm64_gnu",
       "target": "symptom_prime_glibc_mismatch",
-      "relation": "glibc_runtime_mismatch_is_reported",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_prime_release"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "glibc_runtime_mismatch_is_reported"
+      }
     },
     {
       "id": "e23",
       "source": "runtime_termux_bionic",
       "target": "symptom_prime_glibc_mismatch",
-      "relation": "does_not_supply_glibc_runtime",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_termux_execution"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "does_not_supply_glibc_runtime"
+      }
     },
     {
       "id": "e24",
       "source": "runtime_proot_distro",
       "target": "route_compatible_glibc_userland",
-      "relation": "candidate_environment_for",
+      "relation": "candidate_for",
       "confidence": "INFERRED",
       "confidence_score": 0.81,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme",
-        "src_prime_release"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "candidate_environment_for"
+      }
     },
     {
       "id": "e25",
       "source": "route_compatible_glibc_userland",
       "target": "artifact_prime_arm64_gnu",
-      "relation": "candidate_for_unmodified_execution",
+      "relation": "candidate_for",
       "confidence": "INFERRED",
       "confidence_score": 0.79,
       "source_refs": [
-        "src_android_report",
-        "src_prime_release",
-        "src_prime_installer"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer"
+      ],
+      "details": {
+        "original_relation": "candidate_for_unmodified_execution"
+      }
     },
     {
       "id": "e26",
       "source": "diagnostics_context_abi",
       "target": "symptom_prime_glibc_mismatch",
-      "relation": "checks_architecture_and_libc_separately",
+      "relation": "requires",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_prime_release"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "checks_architecture_and_libc_separately"
+      }
     },
     {
       "id": "e27",
       "source": "platform_ios",
       "target": "runtime_ish_i386",
-      "relation": "has_user_mode_x86_candidate",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_ios_report",
-        "src_ish_readme"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme"
+      ],
+      "details": {
+        "original_relation": "has_user_mode_x86_candidate"
+      }
     },
     {
       "id": "e28",
       "source": "runtime_ish_i386",
       "target": "symptom_ish_arch_mismatch",
-      "relation": "is_32_bit_execution_context",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_ios_report",
-        "src_ish_readme"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme"
+      ],
+      "details": {
+        "original_relation": "is_32_bit_execution_context"
+      }
     },
     {
       "id": "e29",
       "source": "artifact_stock_64bit",
       "target": "symptom_ish_arch_mismatch",
-      "relation": "cannot_run_as_64_bit_process_in_i386_context",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_ios_report",
-        "src_codex_targets",
-        "src_prime_release"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "cannot_run_as_64_bit_process_in_i386_context"
+      }
     },
     {
       "id": "e30",
       "source": "platform_ios",
       "target": "route_utm_se_guest",
-      "relation": "has_unverified_local_vm_candidate",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_ios_report",
-        "src_utm_ios",
-        "src_utm_repo"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "has_unverified_local_vm_candidate"
+      }
     },
     {
       "id": "e31",
       "source": "route_utm_se_guest",
       "target": "runtime_utm_x86_64",
-      "relation": "candidate_guest_architecture",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_ios_report",
-        "src_utm_repo"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "candidate_guest_architecture"
+      }
     },
     {
       "id": "e32",
       "source": "runtime_utm_x86_64",
       "target": "artifact_stock_64bit",
-      "relation": "may_match_stock_artifact_architecture",
+      "relation": "describes",
       "confidence": "INFERRED",
       "confidence_score": 0.69,
       "source_refs": [
-        "src_ios_report",
-        "src_utm_repo",
-        "src_codex_targets",
-        "src_prime_release"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "may_match_stock_artifact_architecture"
+      }
     },
     {
       "id": "e33",
       "source": "symptom_ish_arch_mismatch",
       "target": "route_utm_se_guest",
-      "relation": "candidate_route_not_proven_recovery",
+      "relation": "candidate_for",
       "confidence": "INFERRED",
       "confidence_score": 0.67,
       "source_refs": [
-        "src_ios_report",
-        "src_utm_ios",
-        "src_utm_repo"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo"
+      ],
+      "details": {
+        "original_relation": "candidate_route_not_proven_recovery"
+      }
     },
     {
       "id": "e34",
       "source": "route_utm_se_guest",
       "target": "route_original_artifact",
-      "relation": "can_preserve_agent_binary_if_guest_works",
+      "relation": "describes",
       "confidence": "INFERRED",
       "confidence_score": 0.72,
       "source_refs": [
-        "src_plan",
-        "src_ios_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "can_preserve_agent_binary_if_guest_works"
+      }
     },
     {
       "id": "e35",
       "source": "runtime_proot_distro",
       "target": "constraint_proot_namespace_limits",
-      "relation": "documents_missing_vm_capabilities",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "documents_missing_vm_capabilities"
+      }
     },
     {
       "id": "e36",
       "source": "requirement_codex_bwrap",
       "target": "symptom_sandbox_failure",
-      "relation": "needs_user_namespace_capability",
+      "relation": "requires",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codex_sandbox"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "needs_user_namespace_capability"
+      }
     },
     {
       "id": "e37",
       "source": "constraint_proot_namespace_limits",
       "target": "symptom_sandbox_failure",
-      "relation": "may_conflict_with_sandbox_requirement",
+      "relation": "constrained_by",
       "confidence": "INFERRED",
       "confidence_score": 0.82,
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme",
-        "src_codex_sandbox"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "may_conflict_with_sandbox_requirement"
+      }
     },
     {
       "id": "e38",
       "source": "symptom_sandbox_failure",
       "target": "stop_no_bypass",
-      "relation": "requires_stop_if_capability_unavailable",
+      "relation": "requires",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codex_sandbox"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "requires_stop_if_capability_unavailable"
+      }
     },
     {
       "id": "e39",
       "source": "artifact_codex_arm64_musl",
       "target": "claim_musl_target_scope",
-      "relation": "target_name_does_not_prove_loader_or_alpine_only",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_ios_report",
-        "src_codex_targets"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_codex_targets"
+      ],
+      "details": {
+        "original_relation": "target_name_does_not_prove_loader_or_alpine_only"
+      }
     },
     {
       "id": "e40",
       "source": "artifact_codex_arm64_musl",
       "target": "unknown_elf_interpreter",
-      "relation": "requires_local_elf_inspection_to_resolve",
+      "relation": "requires",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report",
-        "src_codex_release"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_ios_report",
+        "legacy_src_codex_release"
+      ],
+      "details": {
+        "original_relation": "requires_local_elf_inspection_to_resolve"
+      }
     },
     {
       "id": "e41",
       "source": "route_original_artifact",
       "target": "goal_original_agents",
-      "relation": "preserves_agent_implementation",
+      "relation": "supported_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan",
-        "src_ios_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "preserves_agent_implementation"
+      }
     },
     {
       "id": "e42",
       "source": "route_patched_elf",
       "target": "route_original_artifact",
-      "relation": "is_distinct_modified_binary_candidate",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan",
-        "src_android_report",
-        "src_claude_musl_community"
-      ]
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_claude_musl_community"
+      ],
+      "details": {
+        "original_relation": "is_distinct_modified_binary_candidate"
+      }
     },
     {
       "id": "e43",
       "source": "route_patched_elf",
       "target": "goal_original_agents",
-      "relation": "does_not_guarantee_byte_identical_artifact",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_claude_musl_community"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_claude_musl_community"
+      ],
+      "details": {
+        "original_relation": "does_not_guarantee_byte_identical_artifact"
+      }
     },
     {
       "id": "e44",
       "source": "goal_original_agents",
       "target": "route_original_artifact",
-      "relation": "prefers_before_fork_or_patch",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan",
-        "src_android_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_android_report"
+      ],
+      "details": {
+        "original_relation": "prefers_before_fork_or_patch"
+      }
     },
     {
       "id": "e45",
       "source": "diagnostics_elf_loader",
       "target": "unknown_elf_interpreter",
-      "relation": "resolves_with_local_artifact_inspection",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "resolves_with_local_artifact_inspection"
+      }
     },
     {
       "id": "e46",
       "source": "diagnostics_context_abi",
       "target": "check_agent_version",
-      "relation": "precedes_runtime_smoke_check",
+      "relation": "precedes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_ios_report"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "precedes_runtime_smoke_check"
+      }
     },
     {
       "id": "e47",
       "source": "check_agent_version",
       "target": "check_login_and_readonly_task",
-      "relation": "precedes_auth_and_readonly_task_check",
+      "relation": "precedes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_plan",
-        "src_android_report",
-        "src_ios_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "precedes_auth_and_readonly_task_check"
+      }
     },
     {
       "id": "e48",
       "source": "check_login_and_readonly_task",
       "target": "check_sandbox",
-      "relation": "does_not_replace_sandbox_check",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codex_sandbox"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "does_not_replace_sandbox_check"
+      }
     },
     {
       "id": "e49",
       "source": "check_sandbox",
       "target": "stop_no_bypass",
-      "relation": "failure_is_terminal_under_current_constraint",
+      "relation": "constrained_by",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_codex_sandbox"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "failure_is_terminal_under_current_constraint"
+      }
     },
     {
       "id": "e50",
       "source": "route_utm_se_guest",
       "target": "check_agent_version",
-      "relation": "must_pass_version_check_before_auth",
+      "relation": "requires",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_ios_report",
-        "src_plan"
-      ]
+        "legacy_src_ios_report",
+        "legacy_src_plan"
+      ],
+      "details": {
+        "original_relation": "must_pass_version_check_before_auth"
+      }
     },
     {
       "id": "e51",
       "source": "route_compatible_glibc_userland",
       "target": "check_agent_version",
-      "relation": "version_check_is_first_success_gate",
+      "relation": "describes",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_plan"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_plan"
+      ],
+      "details": {
+        "original_relation": "version_check_is_first_success_gate"
+      }
     },
     {
       "id": "e52",
       "source": "route_codex_device_auth_beta",
       "target": "check_login_and_readonly_task",
-      "relation": "candidate_success_requires_completed_login_and_readonly_prompt",
+      "relation": "candidate_for",
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_device_auth"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "candidate_success_requires_completed_login_and_readonly_prompt"
+      }
     },
     {
       "id": "e53",
@@ -1293,21 +2460,911 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1,
       "source_refs": [
-        "src_android_report",
-        "src_device_auth"
-      ]
+        "legacy_src_android_report",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
     },
     {
       "id": "e54",
       "source": "check_login_and_readonly_task",
       "target": "check_scoped_scratch_write",
-      "relation": "optional_later_validation_stage",
+      "relation": "constrained_by",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
       "source_refs": [
-        "src_plan",
-        "src_ios_report"
-      ]
+        "legacy_src_plan",
+        "legacy_src_ios_report"
+      ],
+      "details": {
+        "original_relation": "optional_later_validation_stage"
+      }
+    },
+    {
+      "id": "link_claim_prime_glibc_min_source",
+      "source": "claim_prime_glibc_min",
+      "target": "source_src_prime_installer",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_installer"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claim_prime_libc_family_source",
+      "source": "claim_prime_libc_family",
+      "target": "source_src_prime_installer",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_installer"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claim_prime_archive_digest_source",
+      "source": "claim_prime_archive_digest",
+      "target": "source_src_prime_release",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claim_prime_archive_size_source",
+      "source": "claim_prime_archive_size",
+      "target": "source_src_prime_release",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claim_codex_sandbox_host_backend_source",
+      "source": "claim_codex_sandbox_host_backend",
+      "target": "source_src_codex_parser_main",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_codex_parser_main"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claim_codex_sandbox_command_source",
+      "source": "claim_codex_sandbox_command",
+      "target": "source_src_codex_parser_args",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_codex_parser_args"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claim_codux_device_model_unknown_source",
+      "source": "claim_codux_device_model_unknown",
+      "target": "source_src_codux_readme",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_codux_readme"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_artifact_claim_prime_glibc_min",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "claim_prime_glibc_min",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release",
+        "src_prime_installer"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_artifact_claim_prime_libc_family",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "claim_prime_libc_family",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release",
+        "src_prime_installer"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_artifact_claim_prime_archive_digest",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "claim_prime_archive_digest",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release",
+        "src_prime_installer"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_artifact_claim_prime_archive_size",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "claim_prime_archive_size",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release",
+        "src_prime_installer"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_claude_candidate_route",
+      "source": "agent_claude",
+      "target": "route_claude_musl_community",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_claude_musl_community"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_claude_route_source",
+      "source": "route_claude_musl_community",
+      "target": "source_legacy_src_claude_musl_community",
+      "relation": "supported_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_claude_musl_community"
+      ],
+      "details": {
+        "original_relation": "supported_by"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_agent",
+      "source": "pb_android_codex_context",
+      "target": "agent_codex",
+      "relation": "applies_to",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "applies_to"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_symptom",
+      "source": "pb_android_codex_context",
+      "target": "symptom_codex_context_mismatch",
+      "relation": "describes",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "describes"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_diagnostics_context_abi",
+      "source": "pb_android_codex_context",
+      "target": "diagnostics_context_abi",
+      "relation": "diagnosed_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_diagnostics_elf_loader",
+      "source": "pb_android_codex_context",
+      "target": "diagnostics_elf_loader",
+      "relation": "diagnosed_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_route_codux_community",
+      "source": "pb_android_codex_context",
+      "target": "route_codux_community",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_route_original_artifact",
+      "source": "pb_android_codex_context",
+      "target": "route_original_artifact",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_check_agent_version",
+      "source": "pb_android_codex_context",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_codex_context_check_sandbox",
+      "source": "pb_android_codex_context",
+      "target": "check_sandbox",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_agent",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "agent_codex",
+      "relation": "applies_to",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "applies_to"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_symptom",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "symptom_callback_unreachable",
+      "relation": "describes",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "describes"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_diagnostics_auth_stages",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "diagnostics_auth_stages",
+      "relation": "diagnosed_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_route_codex_device_auth_beta",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "route_codex_device_auth_beta",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_check_account_permission",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "check_account_permission",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_codex_oauth_device_auth_check_login_and_readonly_task",
+      "source": "pb_codex_oauth_device_auth",
+      "target": "check_login_and_readonly_task",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_agent",
+      "source": "pb_android_prime_glibc",
+      "target": "agent_prime",
+      "relation": "applies_to",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "applies_to"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_symptom",
+      "source": "pb_android_prime_glibc",
+      "target": "symptom_prime_glibc_mismatch",
+      "relation": "describes",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "describes"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_diagnostics_context_abi",
+      "source": "pb_android_prime_glibc",
+      "target": "diagnostics_context_abi",
+      "relation": "diagnosed_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_diagnostics_elf_loader",
+      "source": "pb_android_prime_glibc",
+      "target": "diagnostics_elf_loader",
+      "relation": "diagnosed_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_route_compatible_glibc_userland",
+      "source": "pb_android_prime_glibc",
+      "target": "route_compatible_glibc_userland",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_route_original_artifact",
+      "source": "pb_android_prime_glibc",
+      "target": "route_original_artifact",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_android_prime_glibc_check_agent_version",
+      "source": "pb_android_prime_glibc",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_ios_ish_i386_agent",
+      "source": "pb_ios_ish_i386",
+      "target": "agent_codex",
+      "relation": "applies_to",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "applies_to"
+      }
+    },
+    {
+      "id": "link_pb_ios_ish_i386_symptom",
+      "source": "pb_ios_ish_i386",
+      "target": "symptom_ish_arch_mismatch",
+      "relation": "describes",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "describes"
+      }
+    },
+    {
+      "id": "link_pb_ios_ish_i386_diagnostics_context_abi",
+      "source": "pb_ios_ish_i386",
+      "target": "diagnostics_context_abi",
+      "relation": "diagnosed_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
+    },
+    {
+      "id": "link_pb_ios_ish_i386_route_utm_se_guest",
+      "source": "pb_ios_ish_i386",
+      "target": "route_utm_se_guest",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_ios_ish_i386_route_original_artifact",
+      "source": "pb_ios_ish_i386",
+      "target": "route_original_artifact",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_ios_ish_i386_check_agent_version",
+      "source": "pb_ios_ish_i386",
+      "target": "check_agent_version",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_ios_ish_i386_check_sandbox",
+      "source": "pb_ios_ish_i386",
+      "target": "check_sandbox",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_agent",
+      "source": "pb_proot_sandbox_capability",
+      "target": "agent_codex",
+      "relation": "applies_to",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "applies_to"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_symptom",
+      "source": "pb_proot_sandbox_capability",
+      "target": "symptom_sandbox_failure",
+      "relation": "describes",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "describes"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_diagnostics_context_abi",
+      "source": "pb_proot_sandbox_capability",
+      "target": "diagnostics_context_abi",
+      "relation": "diagnosed_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "diagnosed_by"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_route_codux_community",
+      "source": "pb_proot_sandbox_capability",
+      "target": "route_codux_community",
+      "relation": "candidate_for",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "candidate_for"
+      }
+    },
+    {
+      "id": "link_pb_proot_sandbox_capability_check_sandbox",
+      "source": "pb_proot_sandbox_capability",
+      "target": "check_sandbox",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_artifact_check_artifact_integrity",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "check_artifact_integrity",
+      "relation": "verified_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "verified_by"
+      }
+    },
+    {
+      "id": "link_route_prime_check_artifact_integrity",
+      "source": "route_compatible_glibc_userland",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_prime_check_artifact_integrity",
+      "source": "pb_android_prime_glibc",
+      "target": "check_artifact_integrity",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_artifact_check_runtime_compatibility",
+      "source": "artifact_prime_arm64_gnu",
+      "target": "check_runtime_compatibility",
+      "relation": "verified_by",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_installer",
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "verified_by"
+      }
+    },
+    {
+      "id": "link_route_prime_check_runtime_compatibility",
+      "source": "route_compatible_glibc_userland",
+      "target": "check_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_installer",
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
+    },
+    {
+      "id": "link_pb_prime_check_runtime_compatibility",
+      "source": "pb_android_prime_glibc",
+      "target": "check_runtime_compatibility",
+      "relation": "requires",
+      "confidence": "source_bound",
+      "confidence_score": 0.9,
+      "source_refs": [
+        "src_prime_installer",
+        "src_prime_release"
+      ],
+      "details": {
+        "original_relation": "requires"
+      }
     }
   ],
   "recovery_playbooks": [
@@ -1315,24 +3372,29 @@
       "id": "pb_android_codex_context",
       "symptom": "Codex 실행 결과가 Termux native와 Debian PRoot에서 달라 보이거나, 선택한 설치 경로와 실제 실행 문맥이 일치하는지 불명확하다. Codux README는 PRoot 안에서 공식 Linux ARM64 musl artifact를 쓰는 커뮤니티 경로를 주장한다.",
       "evidence_status": "design_proposal",
-      "applicability": [
-        {
-          "constraint": "Android에서 Codex 원본 CLI를 같은 기기 안에서 실행하려는 경우",
-          "source_refs": [
-            "src_android_report",
-            "src_plan"
-          ]
-        },
-        {
-          "constraint": "현재 셸이 Termux native Bionic인지 PRoot userland인지 확정되지 않았거나 Codux 경로를 검토 중인 경우",
-          "source_refs": [
-            "src_android_report",
-            "src_codux_readme",
-            "src_termux_execution",
-            "src_proot_readme"
-          ]
-        }
-      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "in",
+            "fact": "runtime_kind",
+            "values": [
+              "native",
+              "proot"
+            ]
+          }
+        ]
+      },
       "diagnostics": [
         "수정이나 설치 전에 현재 실행 셸이 Termux native인지 PRoot userland인지 기록하고, release target과 architecture·libc를 각각 대조한다.",
         "실제 배포 파일의 ELF machine, PT_INTERP, DT_NEEDED를 확인한다. musl 이름만으로 static 여부나 Alpine 한정을 추론하지 않는다.",
@@ -1357,39 +3419,72 @@
         "검토한 설치 범위를 벗어나는 system package 변경이나 검증되지 않은 다운로드 실행이 필요하다."
       ],
       "source_refs": [
-        "src_plan",
-        "src_android_report",
-        "src_codux_readme",
-        "src_codux_script",
-        "src_codex_release",
-        "src_codex_checksums",
-        "src_codex_targets",
-        "src_termux_execution",
-        "src_proot_readme"
+        "legacy_src_plan",
+        "legacy_src_android_report",
+        "legacy_src_codux_readme",
+        "legacy_src_codux_script",
+        "legacy_src_codex_release",
+        "legacy_src_codex_checksums",
+        "legacy_src_codex_targets",
+        "legacy_src_termux_execution",
+        "legacy_src_proot_readme"
       ],
       "execution_enabled": false,
-      "runtime_tested": false
+      "runtime_tested": false,
+      "applicability_notes": [
+        {
+          "constraint": "Android에서 Codex 원본 CLI를 같은 기기 안에서 실행하려는 경우",
+          "source_refs": [
+            "legacy_src_android_report",
+            "legacy_src_plan"
+          ]
+        },
+        {
+          "constraint": "현재 셸이 Termux native Bionic인지 PRoot userland인지 확정되지 않았거나 Codux 경로를 검토 중인 경우",
+          "source_refs": [
+            "legacy_src_android_report",
+            "legacy_src_codux_readme",
+            "legacy_src_termux_execution",
+            "legacy_src_proot_readme"
+          ]
+        }
+      ],
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_codex_context_mismatch",
+      "diagnostic_ids": [
+        "diagnostics_context_abi",
+        "diagnostics_elf_loader"
+      ],
+      "route_ids": [
+        "route_codux_community",
+        "route_original_artifact"
+      ],
+      "required_check_ids": [
+        "check_agent_version",
+        "check_sandbox"
+      ],
+      "agent_ids": [
+        "agent_codex"
+      ]
     },
     {
       "id": "pb_codex_oauth_device_auth",
       "symptom": "headless 환경이거나 localhost callback이 도달하지 않아 기본 browser login을 완료할 수 없다. callback 뒤 token exchange 실패는 별도 원인 분기로 다룬다.",
       "evidence_status": "design_proposal",
-      "applicability": [
-        {
-          "constraint": "Codex의 browser login 실패 지점이 headless/browser-open 또는 localhost callback 도달 단계로 확인된 경우",
-          "source_refs": [
-            "src_device_auth",
-            "src_android_report"
-          ]
-        },
-        {
-          "constraint": "공식 device-code beta를 계정·조직이 허용하고 설치된 CLI가 해당 옵션을 제공하는 경우",
-          "source_refs": [
-            "src_device_auth",
-            "src_android_report"
-          ]
-        }
-      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "in",
+            "fact": "auth.failure_stage",
+            "values": [
+              "headless",
+              "browser_open",
+              "localhost_callback"
+            ]
+          }
+        ]
+      },
       "diagnostics": [
         "실패 지점을 browser open, localhost callback, DNS/TLS, token exchange로 구분한다. callback 도달 이후의 token endpoint 실패는 이 복구 경로의 조건을 충족하지 않는다.",
         "CLI version과 device-auth 옵션 제공 여부, 계정·조직의 beta 허용 여부를 확인한다.",
@@ -1414,9 +3509,9 @@
         "비밀정보를 로그·KG에 보관해야만 진단할 수 있다."
       ],
       "source_refs": [
-        "src_android_report",
-        "src_codex_oauth_issue",
-        "src_device_auth"
+        "legacy_src_android_report",
+        "legacy_src_codex_oauth_issue",
+        "legacy_src_device_auth"
       ],
       "execution_enabled": false,
       "runtime_tested": false,
@@ -1428,28 +3523,72 @@
         "route_codex_device_auth_beta",
         "constraint_account_org_permission",
         "check_login_and_readonly_task"
+      ],
+      "applicability_notes": [
+        {
+          "constraint": "Codex의 browser login 실패 지점이 headless/browser-open 또는 localhost callback 도달 단계로 확인된 경우",
+          "source_refs": [
+            "legacy_src_device_auth",
+            "legacy_src_android_report"
+          ]
+        },
+        {
+          "constraint": "공식 device-code beta를 계정·조직이 허용하고 설치된 CLI가 해당 옵션을 제공하는 경우",
+          "source_refs": [
+            "legacy_src_device_auth",
+            "legacy_src_android_report"
+          ]
+        }
+      ],
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_callback_unreachable",
+      "diagnostic_ids": [
+        "diagnostics_auth_stages"
+      ],
+      "route_ids": [
+        "route_codex_device_auth_beta"
+      ],
+      "required_check_ids": [
+        "check_account_permission",
+        "check_login_and_readonly_task"
+      ],
+      "agent_ids": [
+        "agent_codex"
       ]
     },
     {
       "id": "pb_android_prime_glibc",
       "symptom": "Prime Linux ARM64 GNU artifact를 Termux Bionic 또는 musl userland에서 실행할 때 glibc/loader mismatch가 발생할 수 있다.",
       "evidence_status": "design_proposal",
-      "applicability": [
-        {
-          "constraint": "Android의 Termux native Bionic 또는 PRoot의 musl/glibc userland에서 Prime Linux ARM64 GNU artifact를 실행하려는 경우",
-          "source_refs": [
-            "src_android_report",
-            "src_prime_release"
-          ]
-        },
-        {
-          "constraint": "실제 실행 환경의 CPU·libc·loader와 선택한 release의 공식 요구사항 사이에 불일치가 관측된 경우",
-          "source_refs": [
-            "src_android_report",
-            "src_prime_installer"
-          ]
-        }
-      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "architecture",
+            "value": "aarch64"
+          },
+          {
+            "op": "in",
+            "fact": "libc.family",
+            "values": [
+              "bionic",
+              "musl",
+              "glibc"
+            ]
+          }
+        ]
+      },
       "diagnostics": [
         "현재 셸이 Termux native인지 PRoot guest인지 구분하고, 해당 환경의 architecture·libc 종류·버전을 기록한다. aarch64 이름만으로 ABI 호환을 판정하지 않는다.",
         "원본 Prime artifact의 ELF interpreter와 필요한 libraries를 읽고 guest userland와 비교한다.",
@@ -1474,37 +3613,77 @@
         "공식 artifact 출처 또는 다운로드 checksum을 확인할 수 없다."
       ],
       "source_refs": [
-        "src_android_report",
-        "src_prime_release",
-        "src_prime_installer",
-        "src_proot_readme",
-        "src_termux_execution"
+        "legacy_src_android_report",
+        "legacy_src_prime_release",
+        "legacy_src_prime_installer",
+        "legacy_src_proot_readme",
+        "legacy_src_termux_execution"
       ],
       "execution_enabled": false,
-      "runtime_tested": false
+      "runtime_tested": false,
+      "applicability_notes": [
+        {
+          "constraint": "Android의 Termux native Bionic 또는 PRoot의 musl/glibc userland에서 Prime Linux ARM64 GNU artifact를 실행하려는 경우",
+          "source_refs": [
+            "legacy_src_android_report",
+            "legacy_src_prime_release"
+          ]
+        },
+        {
+          "constraint": "실제 실행 환경의 CPU·libc·loader와 선택한 release의 공식 요구사항 사이에 불일치가 관측된 경우",
+          "source_refs": [
+            "legacy_src_android_report",
+            "legacy_src_prime_installer"
+          ]
+        }
+      ],
+      "agent_id": "agent_prime",
+      "symptom_id": "symptom_prime_glibc_mismatch",
+      "diagnostic_ids": [
+        "diagnostics_context_abi",
+        "diagnostics_elf_loader"
+      ],
+      "route_ids": [
+        "route_compatible_glibc_userland",
+        "route_original_artifact"
+      ],
+      "required_check_ids": [
+        "check_artifact_integrity",
+        "check_runtime_compatibility",
+        "check_agent_version"
+      ],
+      "agent_ids": [
+        "agent_prime"
+      ]
     },
     {
       "id": "pb_ios_ish_i386",
       "symptom": "iSH의 i386/x86 process context에서 stock 64-bit Linux Codex·Claude·Prime artifact를 실행하려는 경우.",
       "evidence_status": "design_proposal",
-      "applicability": [
-        {
-          "constraint": "iOS에서 iSH를 agent host 후보로 검토하고 대상 artifact가 x86_64 또는 ARM64 64-bit인 경우",
-          "source_refs": [
-            "src_ios_report",
-            "src_ish_readme",
-            "src_codex_targets",
-            "src_prime_release"
-          ]
-        },
-        {
-          "constraint": "사용자가 원본 agent binary를 보존하고 같은 기기 안에서 시험하려는 경우",
-          "source_refs": [
-            "src_plan",
-            "src_ios_report"
-          ]
-        }
-      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "ios"
+          },
+          {
+            "op": "in",
+            "fact": "architecture",
+            "values": [
+              "i386",
+              "i686",
+              "x86"
+            ]
+          }
+        ]
+      },
       "diagnostics": [
         "iSH userland architecture와 process bitness를 확인하고 stock artifact architecture와 비교한다.",
         "iSH가 64-bit Linux VM이라고 가정하지 않는다. i386과 x86_64 불일치가 확인되면 같은 binary를 반복 실행하지 않는다.",
@@ -1530,36 +3709,92 @@
         "실제 guest에서 version·auth·read-only task를 각각 확인할 수 없다."
       ],
       "source_refs": [
-        "src_ios_report",
-        "src_ish_readme",
-        "src_utm_ios",
-        "src_utm_repo",
-        "src_codex_targets",
-        "src_prime_release"
+        "legacy_src_ios_report",
+        "legacy_src_ish_readme",
+        "legacy_src_utm_ios",
+        "legacy_src_utm_repo",
+        "legacy_src_codex_targets",
+        "legacy_src_prime_release"
       ],
       "execution_enabled": false,
-      "runtime_tested": false
+      "runtime_tested": false,
+      "applicability_notes": [
+        {
+          "constraint": "iOS에서 iSH를 agent host 후보로 검토하고 대상 artifact가 x86_64 또는 ARM64 64-bit인 경우",
+          "source_refs": [
+            "legacy_src_ios_report",
+            "legacy_src_ish_readme",
+            "legacy_src_codex_targets",
+            "legacy_src_prime_release"
+          ]
+        },
+        {
+          "constraint": "사용자가 원본 agent binary를 보존하고 같은 기기 안에서 시험하려는 경우",
+          "source_refs": [
+            "legacy_src_plan",
+            "legacy_src_ios_report"
+          ]
+        }
+      ],
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_ish_arch_mismatch",
+      "diagnostic_ids": [
+        "diagnostics_context_abi"
+      ],
+      "route_ids": [
+        "route_utm_se_guest",
+        "route_original_artifact"
+      ],
+      "required_check_ids": [
+        "check_agent_version",
+        "check_sandbox"
+      ],
+      "agent_ids": [
+        "agent_codex",
+        "agent_claude",
+        "agent_prime"
+      ],
+      "scope_note": "iSH의 i386에서 세 대상 agent의 stock 64-bit Linux artifact를 검토하는 공통 사례"
     },
     {
       "id": "pb_proot_sandbox_capability",
       "symptom": "Codex Linux sandbox가 PRoot에서 bubblewrap/user namespace capability 오류를 내거나 실행되지 않는다.",
       "evidence_status": "design_proposal",
-      "applicability": [
-        {
-          "constraint": "Codex Linux sandbox를 PRoot 안에서 실행 중이고 sandbox가 필요한 동일-device 원본-agent 경로인 경우",
-          "source_refs": [
-            "src_android_report",
-            "src_codex_sandbox"
-          ]
-        },
-        {
-          "constraint": "PRoot namespace 제한이 sandbox requirement와 충돌할 가능성이 있는 경우",
-          "source_refs": [
-            "src_proot_readme",
-            "src_codex_sandbox"
-          ]
-        }
-      ],
+      "applicability": {
+        "op": "all",
+        "conditions": [
+          {
+            "op": "eq",
+            "fact": "kernel_os",
+            "value": "linux"
+          },
+          {
+            "op": "eq",
+            "fact": "host_os",
+            "value": "android"
+          },
+          {
+            "op": "eq",
+            "fact": "runtime_kind",
+            "value": "proot"
+          },
+          {
+            "op": "any",
+            "conditions": [
+              {
+                "op": "eq",
+                "fact": "capabilities.user_namespace",
+                "value": false
+              },
+              {
+                "op": "eq",
+                "fact": "capabilities.bubblewrap",
+                "value": false
+              }
+            ]
+          }
+        ]
+      },
       "diagnostics": [
         "PRoot capability 제한과 Codex sandbox error를 별도로 기록하고 실패한 기능만 분류한다.",
         "읽기 전용 sandbox probe로 실제 capability가 제공되는지 확인한다. probe가 실패하면 제한을 낮추거나 우회하는 절차를 시도하지 않는다."
@@ -1582,13 +3817,120 @@
         "성공을 위해 보안 경계 우회, 권한 확대 또는 원격 host 전환이 필요하다."
       ],
       "source_refs": [
-        "src_android_report",
-        "src_proot_readme",
-        "src_codex_sandbox"
+        "legacy_src_android_report",
+        "legacy_src_proot_readme",
+        "legacy_src_codex_sandbox"
       ],
       "execution_enabled": false,
-      "runtime_tested": false
+      "runtime_tested": false,
+      "applicability_notes": [
+        {
+          "constraint": "Codex Linux sandbox를 PRoot 안에서 실행 중이고 sandbox가 필요한 동일-device 원본-agent 경로인 경우",
+          "source_refs": [
+            "legacy_src_android_report",
+            "legacy_src_codex_sandbox"
+          ]
+        },
+        {
+          "constraint": "PRoot namespace 제한이 sandbox requirement와 충돌할 가능성이 있는 경우",
+          "source_refs": [
+            "legacy_src_proot_readme",
+            "legacy_src_codex_sandbox"
+          ]
+        }
+      ],
+      "agent_id": "agent_codex",
+      "symptom_id": "symptom_sandbox_failure",
+      "diagnostic_ids": [
+        "diagnostics_context_abi"
+      ],
+      "route_ids": [
+        "route_codux_community"
+      ],
+      "required_check_ids": [
+        "check_sandbox"
+      ],
+      "agent_ids": [
+        "agent_codex"
+      ]
     }
   ],
-  "source_path_base": "repository_root"
+  "source_path_base": "repository_root",
+  "claims": [
+    {
+      "id": "claim_prime_glibc_min",
+      "source_id": "src_prime_installer",
+      "subject": "prime-agent@0.10.0/linux-arm64",
+      "predicate": "libc.version_gte",
+      "value": "2.35",
+      "locator": "lines 808-831",
+      "evidence_status": "source_verified",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_prime_libc_family",
+      "source_id": "src_prime_installer",
+      "subject": "prime-agent@0.10.0/linux-arm64",
+      "predicate": "libc.family",
+      "value": "glibc",
+      "locator": "lines 808-831",
+      "evidence_status": "source_verified",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_prime_archive_digest",
+      "source_id": "src_prime_release",
+      "subject": "prime-agent-0.10.0-linux-arm64.tar.gz",
+      "predicate": "published_sha256",
+      "value": "f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
+      "locator": "selected release asset digest",
+      "evidence_status": "publisher_metadata_only",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_prime_archive_size",
+      "source_id": "src_prime_release",
+      "subject": "prime-agent-0.10.0-linux-arm64.tar.gz",
+      "predicate": "published_size_bytes",
+      "value": 21858488,
+      "locator": "selected release asset size",
+      "evidence_status": "publisher_metadata_only",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_codex_sandbox_host_backend",
+      "source_id": "src_codex_parser_main",
+      "subject": "codex@0.159.1/sandbox",
+      "predicate": "backend_selection",
+      "value": "host_os",
+      "locator": "lines 459-464",
+      "evidence_status": "source_verified",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_codex_sandbox_command",
+      "source_id": "src_codex_parser_args",
+      "subject": "codex@0.159.1/sandbox",
+      "predicate": "command_argv",
+      "value": [
+        "codex",
+        "sandbox",
+        "--",
+        "/bin/true"
+      ],
+      "locator": "lines 144-146",
+      "evidence_status": "static_parser_inference",
+      "claim_class": "pinned_claim"
+    },
+    {
+      "id": "claim_codux_device_model_unknown",
+      "source_id": "src_codux_readme",
+      "subject": "codux/device-model",
+      "predicate": "identified_test_device",
+      "value": null,
+      "locator": "README body at captured revision",
+      "evidence_status": "not_established",
+      "claim_class": "pinned_claim"
+    }
+  ]
 }

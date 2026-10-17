@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-welcome.local/schemas/observation.schema.json",
+  "title": "Setup environment observations",
+  "description": "kernel_os identifies the running process kernel environment; host_os is the physical host only when positively identified and otherwise null.",
+  "type": "object",
+  "properties": {
+    "kernel_os": {"type": "string"},
+    "host_os": {"type": ["string", "null"], "enum": ["android", "ios", "macos", "windows", "linux", null]},
+    "architecture": {"type": "string"},
+    "runtime_kind": {"type": "string", "enum": ["proot", "linux_userland", "native", "utm_guest"]},
+    "libc": {
+      "type": "object",
+      "properties": {
+        "family": {"type": ["string", "null"], "enum": ["glibc", "musl", "bionic", null]},
+        "version": {"type": ["string", "null"], "pattern": "^[0-9]+(\\.[0-9]+)*$"}
+      },
+      "additionalProperties": true
+    },
+    "capabilities": {"type": "object"},
+    "auth": {"type": "object"},
+    "provenance": {"type": "object"}
+  },
+  "additionalProperties": true
+}

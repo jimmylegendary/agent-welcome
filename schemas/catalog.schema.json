@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agent-welcome.local/schemas/catalog.schema.json",
+  "title": "Agent Welcome typed graph 0.2",
+  "type": "object",
+  "required": ["schema_version", "nodes", "links", "sources", "claims", "recovery_playbooks"],
+  "properties": {
+    "schema_version": {"const": "0.2"},
+    "directed": {"type": "boolean"},
+    "multigraph": {"type": "boolean"},
+    "stage": {"type": "string"},
+    "automatic_execution_enabled": {"type": "boolean"},
+    "runtime_tested": {"type": "boolean"},
+    "direct_reproduction": {"type": "boolean"},
+    "nodes": {"type": "array", "items": {"type": "object", "required": ["id", "type", "label"]}},
+    "links": {"type": "array", "items": {"type": "object", "required": ["id", "source", "target", "relation", "details"]}},
+    "sources": {"type": "array", "items": {"type": "object", "required": ["id", "url"]}},
+    "claims": {"type": "array", "items": {"type": "object", "required": ["id", "source_id", "predicate", "value"]}},
+    "recovery_playbooks": {"type": "array", "items": {"type": "object", "required": ["id", "agent_id", "symptom_id", "applicability", "diagnostic_ids", "route_ids", "required_check_ids"]}}
+  },
+  "additionalProperties": true
+}

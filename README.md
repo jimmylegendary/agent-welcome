@@ -1,13 +1,13 @@
 # Agent Welcome
 
-왕초보·비개발자가 AI agent 환경을 준비하고 첫 결과물까지 만들도록 돕는 웹사이트, skill 저장소, 쉬운 설치 서비스의 조사·설계 자료입니다.
+왕초보·비개발자가 자기 기기에서 AI agent를 준비하고 첫 결과물까지 만들도록 돕는 웹사이트, skill 저장소, 쉬운 설치 서비스 프로젝트입니다.
 
-현재는 **조사와 기획 단계**입니다. 설치기와 자동 복구 실행 엔진은 아직 구현하지 않았습니다.
+현재는 **조사 자료, 정형 KG·catalog, 단일 설치 recipe의 reference implementation**이 있습니다. 웹사이트·배포용 설치 앱·인증 연결·첫 결과물 팩은 후속 개발 범위입니다.
 
 ## 제품 방향
 
 - macOS, Windows, iOS, Android 각각을 독립 agent host로 다룹니다.
-- 기존 Claude Code, Codex, [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent)를 기기 안에서 실행하는 경로를 우선합니다.
+- 네 OS **각각에서** 기존 Claude Code, Codex, [Prime Agent](https://github.com/PrimeIntellect-ai/prime-agent) **세 agent 모두**를 기기 안에서 실행하는 것을 목표로 합니다. 12개 조합의 목표와 실제 검증 상태를 구분합니다.
 - Claude·Codex·Paseo GUI와 실제 agent 실행 위치를 구분합니다.
 - Jimmy's Agent Skills 기본 팩과 영상·이미지·코딩·자동화·마케팅·온라인 소매·게임 분야의 추가 도구를 함께 안내합니다.
 - 공식 문서·블로그·GitHub 가이드를 KG로 연결해 환경 조건 → 오류 진단 → 복구 → 성공 확인에 사용합니다.
@@ -15,14 +15,40 @@
 
 모바일의 원본 agent 실행과 각 도구 조합은 문서 근거와 실제 실행 검증을 구분합니다. 모델 추론 API 이용은 현재 기획의 잠정 전제입니다.
 
+## Reference 실행
+
+Python **3.11 이상**이 필요하며 Python 표준 라이브러리만 사용합니다. 저장소 루트에서 실행합니다. 대상 agent나 계정 없이 데이터 검증과 환경 진단이 가능합니다.
+
+```bash
+python3 -m agent_welcome validate
+python3 -m agent_welcome diagnose --recipe prime-agent-0.10.0-linux-arm64
+python3 -m unittest discover -s tests -v
+```
+
+첫 recipe는 **Prime Agent v0.10.0의 Linux ARM64·glibc >= 2.35 binary installation**입니다. 실제 kernel·CPU·libc 조건에 맞는 환경에서만 다음 단계로 진행합니다. Android·iOS에서 Linux guest가 실행되더라도 이것만으로 해당 휴대폰의 전체 지원이 입증되지는 않습니다.
+
+```bash
+python3 -m agent_welcome start --recipe prime-agent-0.10.0-linux-arm64 --state-dir .agent-welcome/prime
+python3 -m agent_welcome status --state-dir .agent-welcome/prime
+python3 -m agent_welcome resume --state-dir .agent-welcome/prime --artifact-file /path/to/prime-agent-0.10.0-linux-arm64.tar.gz
+```
+
+조건이 맞고 archive가 없으면 `WAITING_USER`로 저장합니다. `--artifact-file`로 파일을 제공하거나 `--download`로 고정 release 다운로드를 선택하면 게시된 hash 확인, 제한된 archive 추출, `--version` 확인을 수행합니다. 설치 파일과 상태는 지정한 state directory에 둡니다. 전체 성공 범위는 `binary_installation`이며 로그인·모델 요청·Python kernel·첫 결과물 성공을 뜻하지 않습니다.
+
+`--observations FILE`은 `diagnose`에서만 사용할 수 있습니다. 실제 설치는 현재 실행 환경을 다시 관측합니다. 상세 실행 계약은 [reference-implementation.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/docs/reference-implementation.md)에 있습니다.
+
 ## 먼저 읽기
 
 | 파일 | 내용 |
 |---|---|
+| [DECISIONS.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/DECISIONS.md) | 현행 결정, 조사 제안과의 우선순위, 미정 사항 |
+| [support-targets.json](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/catalog/support-targets.json) | 12개 필수 지원 목표와 별도 검증 상태 |
+| [reference-implementation.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/docs/reference-implementation.md) | 조건 판정, 실행·대기·재개, 필수 검사와 완료 범위 |
+| [source-evidence.json](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/catalog/source-evidence.json) | 고정 source revision·hash·위치와 구조화된 주장 |
 | [START-HERE.md](https://github.com/jimmylegendary/agent-welcome/blob/main/START-HERE.md) | 전체 제품 범위, 분야별 팩, 계정 연결, 단계별 계획 |
 | [SETUP-KG-PLAN.md](https://github.com/jimmylegendary/agent-welcome/blob/main/SETUP-KG-PLAN.md) | 설치 지식 KG와 자동 예외 대응 설계 |
-| [graph.json](https://github.com/jimmylegendary/agent-welcome/blob/main/kg/graph.json) | 42개 노드·54개 관계·5개 복구 후보를 담은 초기 KG |
-| [GRAPH_REPORT.md](https://github.com/jimmylegendary/agent-welcome/blob/main/kg/GRAPH_REPORT.md) | KG의 근거 해석, 독립 검토와 로컬 검증 기록 |
+| [graph.json](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/kg/graph.json) | 공통 관계·조건·필수 check로 연결한 schema 0.2 KG와 5개 playbook |
+| [GRAPH_REPORT.md](https://github.com/jimmylegendary/agent-welcome/blob/main/kg/GRAPH_REPORT.md) | 초기 KG의 근거 해석과 당시 검증 기록 |
 
 ## 조사 자료
 
@@ -38,8 +64,8 @@
 
 ## KG 데이터 상태
 
-`kg/graph.json`은 `research_seed`입니다. `automatic_execution_enabled`, `runtime_tested`, `direct_reproduction`은 모두 `false`입니다.
+KG의 연구 경로와 playbook은 실행 검증·자동 실행이 비활성인 상태를 유지합니다. 실제 reference runner는 별도 pinned recipe의 제한된 action만 처리하며, KG에 들어 있는 설명이나 shell 문자열을 실행하지 않습니다.
 
 `input_files`와 source의 `file_path`는 저장소 루트 기준 경로이며, 각 로컬 source에는 GitHub 문서 URL도 있습니다. `EXTRACTED`는 입력 자료에 관계가 명시됐다는 뜻이며 실제 실행 성공률을 뜻하지 않습니다.
 
-이 저장소에는 조사 문서와 초기 KG만 포함되어 있습니다. 개별 skill의 실행 파일이나 외부 도구를 재배포하는 저장소는 아직 아닙니다. 자료 기준일은 2026-10-17이며, 과거 검증 문서의 hash는 원래 로컬 사본에 대한 기록입니다.
+테스트는 임시 archive와 작은 fixture executable로 설치·실패·대기·재개를 확인합니다. 실제 Prime 배포 파일 실행, 네 OS 실기기 설치, credential 연결의 증거는 아닙니다. 이 저장소는 외부 agent binary나 개별 skill을 재배포하지 않습니다. 조사 기준일은 2026-10-17이며, 과거 검증 문서의 hash와 개수는 당시 사본에 대한 기록입니다.
