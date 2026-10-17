@@ -1,5 +1,7 @@
 # Jimmy Agent Skills 공개 패키지 준비 조사
 
+> 현행 제품 결정은 [DECISIONS.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/DECISIONS.md)를 우선한다. 4개 OS 각각에서 세 agent 모두가 목표이며, 이 문서의 조사 제안은 확정 결정과 구분한다.
+
 조사일: 2026-10-17. 현재 설치본과 2026-10-14 인벤토리를 출발점으로 삼은 기획 자료다. 원본 skill 수정·복사·공개는 하지 않았다.
 
 ## 기존 자산

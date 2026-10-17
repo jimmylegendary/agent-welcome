@@ -1,5 +1,7 @@
 # 플랫폼별 로컬 agent 실행 가능성
 
+> 현행 제품 결정은 [DECISIONS.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/DECISIONS.md)를 우선한다. 4개 OS 각각에서 세 agent 모두가 목표이며, 이 문서의 조사 제안은 확정 결정과 구분한다.
+
 **조사 기준일: 2026-10-17.** 여기서 “로컬 host”는 프롬프트를 받은 뒤 agent loop, 저장소 접근, 도구 실행을 해당 기기에서 수행하는 프로세스를 뜻한다. 휴대폰에서 다른 컴퓨터에 연결해 그 컴퓨터에서 실행되는 작업을 조종하는 UI는 로컬 host로 세지 않았다.
 
 **가정:** 아래 내용은 root가 제시한 잠정 해석에 따라, 모델 추론은 원격 API를 써도 되며 agent 도구와 저장소 작업만 각 기기에서 수행하는 구조를 기준으로 한다. 사용자가 API 추론을 확정한 것은 아니다. 오프라인 모델 추론은 별도 요구다. 기존 기준 agent는 Claude Code, Codex, Prime Agent이며 이들을 모바일용으로 바꾼다고 가정하지 않았다.

@@ -1,0 +1,82 @@
+{
+  "schema_version": "1.0",
+  "captured_at": "2026-10-17",
+  "runtime_reproduced": false,
+  "sources": [
+    {
+      "id": "src_prime_installer",
+      "kind": "official_repository",
+      "url": "https://github.com/PrimeIntellect-ai/prime-agent/blob/763094e1b6a7c17450ee8399b06cda1853847ca5/install-rust.sh",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "release_tag": "v0.10.0",
+      "content_sha256": "82afa854760ad8a088372b94307e59d1e32dadf5e1838c5fc1dcf53eea4fca29",
+      "locator": "lines 808-831; staged payload layout around lines 2247-2252"
+    },
+    {
+      "id": "src_prime_release",
+      "kind": "official_release_metadata",
+      "url": "https://api.github.com/repos/PrimeIntellect-ai/prime-agent/releases/tags/v0.10.0",
+      "revision": "763094e1b6a7c17450ee8399b06cda1853847ca5",
+      "release_tag": "v0.10.0",
+      "locator": "assets[name=prime-agent-0.10.0-linux-arm64.tar.gz]",
+      "snapshot_fields": {
+        "name": "prime-agent-0.10.0-linux-arm64.tar.gz",
+        "size": 21858488,
+        "digest": "sha256:f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
+        "browser_download_url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.10.0/prime-agent-0.10.0-linux-arm64.tar.gz"
+      },
+      "download_bytes_verified": false
+    },
+    {
+      "id": "src_codex_parser_main",
+      "kind": "official_repository",
+      "url": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/main.rs",
+      "revision": "8e68a98ef03cdde76d2e6800791ebdf1b3b95b24",
+      "release_tag": "rust-v0.159.1",
+      "content_sha256": "dc0356a131108ace0f63f7e9f5040b1f0fc19a71057eeeb4108e04623267c502",
+      "locator": "lines 459-464: HostSandboxArgs target_os aliases"
+    },
+    {
+      "id": "src_codex_parser_args",
+      "kind": "official_repository",
+      "url": "https://github.com/openai/codex/blob/8e68a98ef03cdde76d2e6800791ebdf1b3b95b24/codex-rs/cli/src/lib.rs",
+      "revision": "8e68a98ef03cdde76d2e6800791ebdf1b3b95b24",
+      "release_tag": "rust-v0.159.1",
+      "content_sha256": "cf24032f801314033b2ff21e6c5a85ad8c2898012e9fba279f3a5c91439c1ab6",
+      "locator": "lines 106-147: LandlockCommand, permission-profile and trailing_var_arg command"
+    },
+    {
+      "id": "src_codux_readme",
+      "kind": "community_repository",
+      "url": "https://github.com/Clock-Skew/Codux/blob/bf85202aebffed078b6835413d7e651ec274bd9c/README.md",
+      "revision": "bf85202aebffed078b6835413d7e651ec274bd9c",
+      "content_sha256": "c902330943197b0fa81eea659c8ab03830893a9bc66ad9f5d46decf5b8cee097",
+      "locator": "README body, 199 lines; setup/screenshots/troubleshooting sections"
+    }
+  ],
+  "claims": [
+    {"id":"claim_prime_glibc_min","source_id":"src_prime_installer","subject":"prime-agent@0.10.0/linux-arm64","predicate":"libc.version_gte","value":"2.35","locator":"lines 808-831","evidence_status":"source_verified"},
+    {"id":"claim_prime_libc_family","source_id":"src_prime_installer","subject":"prime-agent@0.10.0/linux-arm64","predicate":"libc.family","value":"glibc","locator":"lines 808-831","evidence_status":"source_verified"},
+    {"id":"claim_prime_archive_digest","source_id":"src_prime_release","subject":"prime-agent-0.10.0-linux-arm64.tar.gz","predicate":"published_sha256","value":"f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4","locator":"selected release asset digest","evidence_status":"publisher_metadata_only"},
+    {"id":"claim_prime_archive_size","source_id":"src_prime_release","subject":"prime-agent-0.10.0-linux-arm64.tar.gz","predicate":"published_size_bytes","value":21858488,"locator":"selected release asset size","evidence_status":"publisher_metadata_only"},
+    {"id":"claim_codex_sandbox_host_backend","source_id":"src_codex_parser_main","subject":"codex@0.159.1/sandbox","predicate":"backend_selection","value":"host_os","locator":"lines 459-464","evidence_status":"source_verified"},
+    {"id":"claim_codex_sandbox_command","source_id":"src_codex_parser_args","subject":"codex@0.159.1/sandbox","predicate":"command_argv","value":["codex","sandbox","--","/bin/true"],"locator":"lines 144-146","evidence_status":"static_parser_inference"},
+    {"id":"claim_codux_device_model_unknown","source_id":"src_codux_readme","subject":"codux/device-model","predicate":"identified_test_device","value":null,"locator":"README body at captured revision","evidence_status":"not_established"}
+  ],
+  "reference_artifact": {
+    "id": "prime-agent-0.10.0-linux-arm64",
+    "agent": "prime-agent",
+    "version": "0.10.0",
+    "target": "linux-arm64-gnu",
+    "architecture": "aarch64",
+    "kernel_os": "linux",
+    "libc": {"family":"glibc","minimum_version":"2.35","claim_refs":["claim_prime_glibc_min","claim_prime_libc_family"]},
+    "url": "https://github.com/PrimeIntellect-ai/prime-agent/releases/download/v0.10.0/prime-agent-0.10.0-linux-arm64.tar.gz",
+    "published_sha256": "f3cab3530a4d7ca43dbef8321bf13f260d1ba05d8b5dde057165a20bd4f675c4",
+    "published_size_bytes": 21858488,
+    "digest_claim_ref": "claim_prime_archive_digest",
+    "observed_sha256": null,
+    "download_verified": false,
+    "runtime_tested": false
+  }
+}
