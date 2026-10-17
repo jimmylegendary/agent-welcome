@@ -41,26 +41,27 @@ python3 -m agent_welcome resume --state-dir .agent-welcome/prime --artifact-file
 
 | 파일 | 내용 |
 |---|---|
+| [implementation-results.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/docs/implementation-results.md) | 실행 명령·테스트·독립 리뷰·미검증 범위 |
 | [DECISIONS.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/DECISIONS.md) | 현행 결정, 조사 제안과의 우선순위, 미정 사항 |
 | [support-targets.json](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/catalog/support-targets.json) | 12개 필수 지원 목표와 별도 검증 상태 |
 | [reference-implementation.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/docs/reference-implementation.md) | 조건 판정, 실행·대기·재개, 필수 검사와 완료 범위 |
 | [source-evidence.json](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/catalog/source-evidence.json) | 고정 source revision·hash·위치와 구조화된 주장 |
-| [START-HERE.md](https://github.com/jimmylegendary/agent-welcome/blob/main/START-HERE.md) | 전체 제품 범위, 분야별 팩, 계정 연결, 단계별 계획 |
-| [SETUP-KG-PLAN.md](https://github.com/jimmylegendary/agent-welcome/blob/main/SETUP-KG-PLAN.md) | 설치 지식 KG와 자동 예외 대응 설계 |
+| [START-HERE.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/START-HERE.md) | 전체 제품 범위, 분야별 팩, 계정 연결, 단계별 계획 |
+| [SETUP-KG-PLAN.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/SETUP-KG-PLAN.md) | 설치 지식 KG와 자동 예외 대응 설계 |
 | [graph.json](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/kg/graph.json) | 공통 관계·조건·필수 check로 연결한 schema 0.2 KG와 5개 playbook |
-| [GRAPH_REPORT.md](https://github.com/jimmylegendary/agent-welcome/blob/main/kg/GRAPH_REPORT.md) | 초기 KG의 근거 해석과 당시 검증 기록 |
+| [GRAPH_REPORT.md](https://github.com/jimmylegendary/agent-welcome/blob/ab4b7c3abc5a84a3eb6af3cbc184bf8e5327c688/kg/GRAPH_REPORT.md) | 초기 KG의 근거 해석과 당시 검증 기록 |
 
 ## 조사 자료
 
 | 파일 | 내용 |
 |---|---|
-| [platform-research.md](https://github.com/jimmylegendary/agent-welcome/blob/main/platform-research.md) | OS·agent·GUI 지원과 실행 위치 |
-| [android-original-agent-validation.md](https://github.com/jimmylegendary/agent-welcome/blob/main/android-original-agent-validation.md) | Android에서 원본 agent를 실행할 경로와 오류 사례 |
-| [ios-original-agent-validation.md](https://github.com/jimmylegendary/agent-welcome/blob/main/ios-original-agent-validation.md) | iOS runtime별 원본 agent 후보와 제약 |
-| [workflow-skill-research.md](https://github.com/jimmylegendary/agent-welcome/blob/main/workflow-skill-research.md) | 코딩·자동화·마케팅·소매·DB·infra 후보 28개 |
-| [media-game-research.md](https://github.com/jimmylegendary/agent-welcome/blob/main/media-game-research.md) | 영상·이미지·게임 후보 22개 |
-| [local-skills-audit.md](https://github.com/jimmylegendary/agent-welcome/blob/main/local-skills-audit.md) | 기존 Jimmy skill 모음의 배포 준비 조사 |
-| [verification.md](https://github.com/jimmylegendary/agent-welcome/blob/main/verification.md) | 첫 조사 문서의 검증 기록 |
+| [platform-research.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/platform-research.md) | OS·agent·GUI 지원과 실행 위치 |
+| [android-original-agent-validation.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/android-original-agent-validation.md) | Android에서 원본 agent를 실행할 경로와 오류 사례 |
+| [ios-original-agent-validation.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/ios-original-agent-validation.md) | iOS runtime별 원본 agent 후보와 제약 |
+| [workflow-skill-research.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/workflow-skill-research.md) | 코딩·자동화·마케팅·소매·DB·infra 후보 28개 |
+| [media-game-research.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/media-game-research.md) | 영상·이미지·게임 후보 22개 |
+| [local-skills-audit.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/local-skills-audit.md) | 기존 Jimmy skill 모음의 배포 준비 조사 |
+| [verification.md](https://github.com/jimmylegendary/agent-welcome/blob/ab4b7c3abc5a84a3eb6af3cbc184bf8e5327c688/verification.md) | 첫 조사 문서의 검증 기록 |
 
 ## KG 데이터 상태
 

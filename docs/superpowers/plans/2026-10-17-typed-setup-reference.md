@@ -33,10 +33,10 @@
 
 **Files:** `DECISIONS.md`, `docs/reference-implementation.md`, `catalog/source-evidence.json`, `android-original-agent-validation.md`, `START-HERE.md`, `workflow-skill-research.md`, `local-skills-audit.md`.
 
-- [ ] 고정 tag의 Codex parser와 Prime installer 및 Codux README 근거 확인.
-- [ ] 잘못된 sandbox probe와 확인되지 않은 휴대폰 모델 서술 제거.
-- [ ] 최신 제품 결정을 조사 제안보다 우선하도록 문서 연결.
-- [ ] source commit/content hash/location/claim을 source evidence에 저장.
+- [x] 고정 tag의 Codex parser와 Prime installer 및 Codux README 근거 확인.
+- [x] 잘못된 sandbox probe와 확인되지 않은 휴대폰 모델 서술 제거.
+- [x] 최신 제품 결정을 조사 제안보다 우선하도록 문서 연결.
+- [x] source commit/content hash/location/claim을 source evidence에 저장.
 
 ## Task 2: 정형 catalog, 실행기, regression tests
 
@@ -52,14 +52,14 @@
 - `runner.start(...)`, `runner.resume(...)`, `runner.status(...)`는 spec의 상태 기록을 반환한다. 인자·내부 자료형은 구현 시 하나로 정하고 tests/CLI에서 일관되게 사용한다.
 - `artifacts`는 bounded download, digest, safe extraction, owned payload version probe만 구현한다.
 
-- [ ] Prime glibc 조건, unknown/invalid condition, Codex sandbox dependency, OAuth stage 분리의 실패 테스트를 먼저 작성하고 RED 기록.
-- [ ] KG schema 0.2와 5개 playbook typed bindings, controlled relations, connected Claude route, structured release facts를 작성.
-- [ ] evaluator/validator를 구현하고 관련 tests GREEN.
-- [ ] missing artifact → WAITING_USER → supply → digest/extract/version → SUCCEEDED의 실제 fixture file cycle 테스트를 먼저 작성하고 RED 기록.
-- [ ] atomic state, idempotent resume/reconciliation, retry budget/lock, drift 판정 구현.
-- [ ] checksum mismatch, archive abuse, version failure, missing required check, MFA wait, interruption/concurrent run의 failure tests와 최소 구현.
-- [ ] CLI validate/diagnose/start/resume/status 구현. 외부 observation은 diagnose 전용.
-- [ ] 전체 unittest suite와 CLI no-agent validate/diagnose 실행. command·counts·output을 report에 기록.
+- [x] Prime glibc 조건, unknown/invalid condition, Codex sandbox dependency, OAuth stage 분리의 실패 테스트를 먼저 작성하고 RED 기록.
+- [x] KG schema 0.2와 5개 playbook typed bindings, controlled relations, connected Claude route, structured release facts를 작성.
+- [x] evaluator/validator를 구현하고 관련 tests GREEN.
+- [x] missing artifact → WAITING_USER → supply → digest/extract/version → SUCCEEDED의 실제 fixture file cycle 테스트를 먼저 작성하고 RED 기록.
+- [x] atomic state, idempotent resume/reconciliation, retry budget/lock, drift 판정 구현.
+- [x] checksum mismatch, archive abuse, version failure, missing required check, MFA wait, interruption/concurrent run의 failure tests와 최소 구현.
+- [x] CLI validate/diagnose/start/resume/status 구현. 외부 observation은 diagnose 전용.
+- [x] 전체 unittest suite와 CLI no-agent validate/diagnose 실행. command·counts·output을 report에 기록.
 
 ## Task 3: 별도 review와 master 검증·GitHub 반영
 
@@ -67,9 +67,9 @@
 
 **Files:** 구현 diff 전부 read-only review; master는 `README.md`, `docs/implementation-results.md`와 ledger 통합 담당.
 
-- [ ] reviewer가 spec와 code를 대조하고 중요 결함을 구현 worker에게 돌려준다.
-- [ ] 수정한 범위 재검토 후 master가 전체 suite와 실제 CLI를 실행한다.
-- [ ] 12개 OS/agent 목표와 구현·실증 상태를 혼동하지 않도록 README/결과 기록 갱신.
+- [x] reviewer가 spec와 code를 대조하고 중요 결함을 구현 worker에게 돌려준다.
+- [x] 수정한 범위 재검토 후 master가 전체 suite와 실제 CLI를 실행한다.
+- [x] 12개 OS/agent 목표와 구현·실증 상태를 혼동하지 않도록 README/결과 기록 갱신.
 - [ ] source links, JSON references, whitespace, Git 상태를 검증하고 commit/push 후 원격 SHA 확인.
 
 ## Preflight interface scan
