@@ -79,6 +79,7 @@ class RunnerTests(unittest.TestCase):
     def setUpClass(cls):
         cls.recipe = load_recipe(ROOT / 'recipes' / 'prime-agent-0.10.0-linux-arm64.json')
 
+    @unittest.skipIf(os.name == 'nt', 'reference fixture executes a Linux ARM shell payload')
     def test_missing_artifact_waits_then_resume_installs_once(self):
         blob = make_archive()
         recipe = recipe_for(blob)
@@ -162,6 +163,7 @@ class RunnerTests(unittest.TestCase):
             self.assertTrue(no_artifact['retry_exhausted'])
             self.assertNotEqual(no_artifact['status'], 'WAITING_USER')
 
+    @unittest.skipIf(os.name == 'nt', 'reference fixture executes a Linux ARM shell payload')
     def test_digest_failure_can_resume_with_correct_archive_without_stale_success_record(self):
         blob = make_archive()
         recipe = recipe_for(blob)
@@ -187,6 +189,7 @@ class RunnerTests(unittest.TestCase):
             self.assertIsNone(recovered['failure_evidence'])
             self.assertEqual(len(recovered['failure_history']), 1)
 
+    @unittest.skipIf(os.name == 'nt', 'reference fixture executes a Linux ARM shell payload')
     def test_modified_installed_payload_invalidates_success_and_can_be_repaired(self):
         blob = make_archive()
         recipe = recipe_for(blob)
@@ -210,6 +213,7 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(repaired['status'], 'SUCCEEDED')
             self.assertEqual(repaired['attempts']['total'], 2)
 
+    @unittest.skipIf(os.name == 'nt', 'reference fixture executes a Linux ARM shell payload')
     def test_invalid_recovery_input_preserves_owned_installation(self):
         blob = make_archive()
         recipe = recipe_for(blob)
@@ -234,6 +238,7 @@ class RunnerTests(unittest.TestCase):
             self.assertEqual(payload.read_bytes(), b'changed after the successful install')
             self.assertTrue((state_dir / 'install' / recipe['artifact']['id']).exists())
 
+    @unittest.skipIf(os.name == 'nt', 'reference fixture executes a Linux ARM shell payload')
     def test_exhausted_repair_budget_preserves_owned_installation(self):
         blob = make_archive()
         recipe = recipe_for(blob)
@@ -331,6 +336,7 @@ class RunnerTests(unittest.TestCase):
                 start(recipe, state_dir, compatible_observation())
             self.assertFalse(state_dir.exists())
 
+    @unittest.skipIf(os.name == 'nt', 'reference fixture executes a Linux ARM shell payload')
     def test_interrupted_install_reconciles_manifest_without_duplicate_probe(self):
         blob = make_counting_archive()
         recipe = recipe_for(blob)

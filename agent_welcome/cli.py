@@ -70,10 +70,7 @@ def _parser():
     easy_resume_parser.add_argument('--agent-executable')
     easy_resume_parser.add_argument('--approve-install', action='store_true', help='execute the target official installer after showing its recorded plan')
     easy_resume_parser.add_argument('--approve-prerequisites', action='store_true', help='execute the displayed same-device prerequisite plan')
-    easy_resume_parser.add_argument('--auth-evidence')
-    easy_resume_parser.add_argument('--first-task-evidence')
-    easy_resume_parser.add_argument('--first-task-command', help='JSON argv; requires --allow-billable-first-task')
-    easy_resume_parser.add_argument('--allow-billable-first-task', action='store_true')
+    easy_resume_parser.add_argument('--approve-first-task', action='store_true', help='run the fixed, nonce-bound state-local proof task after interactive sign-in')
     easy_status_parser = commands.add_parser('easy-status', help='read a saved Easy Install state')
     easy_status_parser.add_argument('--state-dir', required=True)
     diagnose = commands.add_parser('diagnose', help='evaluate a recipe against observations')
@@ -140,12 +137,9 @@ def main(argv=None):
         if args.command == 'easy-resume':
             result = easy_resume(
                 args.state_dir, observe(), agent_executable=args.agent_executable,
-                auth_evidence=args.auth_evidence,
-                first_task_evidence=args.first_task_evidence,
-                first_task_command=args.first_task_command,
-                allow_billable_first_task=args.allow_billable_first_task,
                 approve_install=args.approve_install,
                 approve_prerequisites=args.approve_prerequisites,
+                approve_first_task=args.approve_first_task,
             )
             print(_json(result))
             return 0

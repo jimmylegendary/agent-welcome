@@ -18,4 +18,7 @@ Android is a same-device Termux/PRoot Linux-userland route and iOS a
 same-device UTM Linux-guest route. App installation, guest import/boot, MFA,
 credentials, and device permissions remain user checkpoints with a completion
 probe and resume state. Fixture success cannot set actual-OS, upstream-binary,
-authentication, first-task, or `runtime_verified` evidence to true.
+authentication, first-task, or `runtime_verified` evidence to true. A successful
+first task must use the fixed nonce-bound adapter and both its expected output
+and a state-local proof file; manual JSON attestations and arbitrary argv are
+not success mechanisms.

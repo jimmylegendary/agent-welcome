@@ -28,6 +28,38 @@ PINNED_ARTIFACT_URL = (
 )
 
 
+def _state_relative_path(path, root, label):
+    """Return a canonical relative path while rejecting lexical link escapes.
+
+    Windows can expose the same directory through a DOS 8.3 alias (for example
+    ``C:\\Users\\NAME~1``) and its long form.  A plain ``Path.relative_to`` on
+    those two spellings rejects an in-tree path.  Compare resolved canonical
+    paths, but separately walk the caller's lexical components and reject any
+    symbolic-link/reparse-point component before a write or deletion is allowed.
+    """
+    candidate = Path(os.path.abspath(path))
+    canonical_root = Path(root).resolve()
+    try:
+        canonical_candidate = candidate.resolve()
+        relative = canonical_candidate.relative_to(canonical_root)
+    except (OSError, ValueError) as exc:
+        raise InstallError(f'{label} is outside the explicit state directory') from exc
+    cursor = candidate
+    while True:
+        if cursor.is_symlink():
+            raise InstallError(f'{label} contains a symbolic link inside the state directory')
+        try:
+            if cursor.resolve() == canonical_root:
+                break
+        except OSError as exc:
+            raise InstallError(f'cannot inspect {label} safely: {exc}') from exc
+        parent = cursor.parent
+        if parent == cursor:
+            raise InstallError(f'{label} is outside the explicit state directory')
+        cursor = parent
+    return relative
+
+
 def sha256_file(path):
     digest = hashlib.sha256()
     with Path(path).open('rb') as stream:
@@ -75,18 +107,12 @@ def download_artifact(artifact, state_dir, timeout=30):
     target_dir = root / 'downloads'
     if target_dir.is_symlink():
         raise InstallError('state-local downloads directory must not be a symbolic link')
-    try:
-        target_dir.resolve().relative_to(root)
-    except ValueError as exc:
-        raise InstallError('downloads directory is outside the explicit state directory') from exc
+    _state_relative_path(target_dir, root, 'downloads directory')
     target_dir.mkdir(parents=True, exist_ok=True)
     target = target_dir / artifact['name']
     if target.is_symlink():
         raise InstallError('cached artifact path must not be a symbolic link')
-    try:
-        target.resolve().relative_to(root)
-    except ValueError as exc:
-        raise InstallError('final artifact path is outside the explicit state directory') from exc
+    _state_relative_path(target, root, 'final artifact path')
     if target.exists():
         observed, cache_stat = _sha256_regular_file_nonblocking(target)
         if observed == artifact['published_sha256']:
@@ -236,8 +262,8 @@ def cleanup_staging(parent_dir, *, run_id, attempts, allowed_root):
     root = Path(allowed_root).resolve()
     parent = Path(os.path.abspath(parent_dir))
     try:
-        relative_parent = parent.relative_to(root)
-    except ValueError:
+        relative_parent = _state_relative_path(parent, root, 'staging parent')
+    except InstallError:
         return
     cursor = root
     for part in relative_parent.parts:
@@ -385,10 +411,7 @@ def _snapshot_archive(source_path, state_root, max_bytes):
     if snapshot_dir.is_symlink():
         raise InstallError('state-local archive snapshot path must not be a symbolic link')
     snapshot_dir.mkdir(parents=True, exist_ok=True, mode=0o700)
-    try:
-        snapshot_dir.resolve().relative_to(root)
-    except ValueError as exc:
-        raise InstallError('archive snapshot directory is outside the explicit state directory') from exc
+    _state_relative_path(snapshot_dir, root, 'archive snapshot directory')
     out_fd, snapshot_name = tempfile.mkstemp(prefix='.archive-', suffix='.tmp', dir=snapshot_dir)
     snapshot = Path(snapshot_name)
     source_fd = None
@@ -452,10 +475,7 @@ def verify_extract_and_probe(
     if destination.is_symlink():
         raise InstallError('install destination must not be a symbolic link')
     root = Path(allowed_root).resolve() if allowed_root is not None else destination.parent.resolve()
-    try:
-        relative_destination = destination.relative_to(root)
-    except ValueError as exc:
-        raise InstallError('install destination is outside the explicit state directory') from exc
+    relative_destination = _state_relative_path(destination, root, 'install destination')
     cursor = root
     for part in relative_destination.parts[:-1]:
         cursor = cursor / part
@@ -561,10 +581,10 @@ def verify_extract_and_probe(
                 'files': inventory['files'],
                 'directories': inventory['directories'],
             }
-            (stage / MANIFEST_NAME).write_text(
-                json.dumps(manifest, sort_keys=True) + '\n', encoding='utf-8'
-            )
-            with (stage / MANIFEST_NAME).open('rb') as stream:
+            with (stage / MANIFEST_NAME).open('w', encoding='utf-8') as stream:
+                json.dump(manifest, stream, sort_keys=True)
+                stream.write('\n')
+                stream.flush()
                 os.fsync(stream.fileno())
             os.replace(stage, destination)
             return {

@@ -2,11 +2,12 @@
 param(
     [string]$StateDir = (Join-Path (Get-Location) '.agent-welcome\easy'),
     [string]$AgentExecutable,
-    [string]$AuthEvidence,
-    [string]$FirstTaskEvidence,
     [switch]$ApproveInstall,
-    [switch]$ApprovePrerequisites
+    [switch]$ApprovePrerequisites,
+    [switch]$ApproveFirstTask
 )
+
+$env:PYTHONPATH = $PSScriptRoot
 
 $python = Get-Command py -ErrorAction SilentlyContinue
 if ($null -ne $python) {
@@ -20,9 +21,8 @@ if ($null -ne $python) {
 }
 $arguments = @('-m', 'agent_welcome', 'easy-resume', '--state-dir', $StateDir)
 if ($AgentExecutable) { $arguments += @('--agent-executable', $AgentExecutable) }
-if ($AuthEvidence) { $arguments += @('--auth-evidence', $AuthEvidence) }
-if ($FirstTaskEvidence) { $arguments += @('--first-task-evidence', $FirstTaskEvidence) }
 if ($ApproveInstall) { $arguments += '--approve-install' }
 if ($ApprovePrerequisites) { $arguments += '--approve-prerequisites' }
+if ($ApproveFirstTask) { $arguments += '--approve-first-task' }
 & $pythonExe @pythonPrefix @arguments
 exit $LASTEXITCODE

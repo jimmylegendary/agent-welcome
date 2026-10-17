@@ -13,6 +13,7 @@ import json
 import os
 import re
 import shutil
+import secrets
 import stat
 import subprocess
 import tempfile
@@ -28,7 +29,8 @@ EASY_STATE_NAME = 'easy-state.json'
 EASY_LOCK_NAME = '.agent-welcome-easy.lock'
 EASY_STATES = {
     'READY', 'RUNNING', 'WAITING_USER', 'SUCCEEDED', 'USER_ATTESTED',
-    'NOT_APPLICABLE', 'UNSUPPORTED', 'FAILED', 'NEEDS_DIAGNOSIS',
+    'COMPLETED_UNVERIFIED_PROVENANCE', 'NOT_APPLICABLE', 'UNSUPPORTED',
+    'FAILED', 'NEEDS_DIAGNOSIS',
 }
 STEPS = ('environment', 'prerequisites', 'agent_installation', 'path_config',
          'provider_authentication', 'minimal_first_task')
@@ -229,6 +231,10 @@ def _new_state(target, observation):
             'fixture': False,
             'actual_os': False,
             'upstream_binary': False,
+            'agent_identity': 'not_checked',
+            'binary_provenance': 'not_checked',
+            'process_execution': 'not_checked',
+            'host_assertion': observation.get('provenance', {}).get('host_os_evidence'),
             'authentication': 'not_checked',
             'first_task': 'not_checked',
         },
@@ -296,10 +302,13 @@ def _android_prerequisite_plan(target):
         'same_device_only': True,
         'commands': [
             ['pkg', 'install', '-y', 'proot-distro'],
-            ['proot-distro', 'install', 'ubuntu:24.04'],
+            # `ubuntu` is the PRoot-Distro container alias.  Do not use the
+            # upstream image/tag spelling as a login selector.
+            ['proot-distro', 'install', 'ubuntu'],
         ],
-        'scope': 'Installs the Termux PRoot-Distro package and a Linux guest in the current Android device Termux storage. It does not use a remote host or change Android security settings.',
-        'after_completion': 'Run proot-distro login ubuntu:24.04, then start this same Easy Install state directory from inside that guest.',
+        'container_alias': 'ubuntu',
+        'scope': 'Installs the Termux PRoot-Distro package and its ubuntu container in the current Android device Termux storage. It does not use a remote host or change Android security settings.',
+        'after_completion': 'Run proot-distro login ubuntu, then start this same Easy Install state directory from inside that guest.',
         'recovery': target['recovery'],
     }
 
@@ -314,22 +323,44 @@ def _step_attempt_allowed(state, step):
     return True
 
 
-def _run(argv, root, runner=subprocess.run):
+def _run(argv, root, runner=subprocess.run, timeout=30):
     if not isinstance(argv, list) or not argv or not all(isinstance(value, str) and value for value in argv):
         raise EasyInstallError('subprocess command must be a non-empty argv list')
-    safe_env = {'PATH': os.environ.get('PATH', ''), 'HOME': os.environ.get('HOME', '')}
-    if os.name == 'nt':
-        safe_env['SystemRoot'] = os.environ.get('SystemRoot', r'C:\\Windows')
+    # Preserve the profile/config locations installers require, including the
+    # Windows variables used by the official Codex installer.  Do not pass or
+    # serialize arbitrary credential-bearing environment variables.
+    allowed_names = {
+        'PATH', 'HOME', 'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA',
+        'LOCALAPPDATA', 'PROGRAMDATA', 'ProgramFiles', 'ProgramFiles(x86)',
+        'SystemRoot', 'COMSPEC', 'PATHEXT', 'TEMP', 'TMP', 'TERM', 'LANG',
+        'LC_ALL', 'LC_CTYPE', 'XDG_CONFIG_HOME', 'XDG_DATA_HOME',
+        'CODEX_HOME', 'CLAUDE_CONFIG_DIR', 'PI_PACKAGE_DIR',
+    }
+    safe_env = {name: value for name, value in os.environ.items() if name in allowed_names}
     try:
         completed = runner(
             argv, cwd=str(root), env=safe_env, shell=False, text=True,
-            capture_output=True, timeout=30,
+            capture_output=True, timeout=timeout,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise EasyInstallError(_safe_message(exc)) from exc
     if completed.returncode != 0:
         raise EasyInstallError(_safe_message(completed.stderr or completed.stdout or f'exit {completed.returncode}'))
     return completed.stdout.strip()
+
+
+def _is_direct_execution(runner, observation, opener=None):
+    """Return true only for a real local process and real local observation.
+
+    Tests inject runners/openers to exercise state transitions.  Their success
+    is fixture evidence, never a direct process, actual-OS, or upstream-binary
+    claim in a saved user state.
+    """
+    provenance = observation.get('provenance', {}) if isinstance(observation, dict) else {}
+    direct = runner is subprocess.run and provenance.get('kind') == 'process_observation'
+    if opener is not None:
+        direct = direct and opener is urllib.request.urlopen
+    return direct
 
 
 def _installer_spec(target):
@@ -341,7 +372,10 @@ def _installer_spec(target):
         },
         'codex': {
             'unix': 'https://chatgpt.com/codex/install.sh',
-            'windows': 'https://chatgpt.com/codex/install.ps1',
+            # The public ChatGPT URL currently redirects here.  Use the
+            # canonical OpenAI release host directly so strict host checking
+            # does not reject a healthy Windows install.
+            'windows': 'https://releases.openai.com/codex/install.ps1',
         },
         'prime-agent': {
             'unix': 'https://app.primeintellect.ai/prime-agent/install.sh',
@@ -360,7 +394,11 @@ def _installer_spec(target):
         filename = 'official-installer.sh'
     return {
         'url': url,
-        'expected_host': urllib.parse.urlsplit(url).hostname,
+        'allowed_hosts': {
+            'claude-code': {'claude.ai'},
+            'codex': {'chatgpt.com', 'releases.openai.com'},
+            'prime-agent': {'app.primeintellect.ai'},
+        }[target['agent']],
         'argv_prefix': argv_prefix,
         'filename': filename,
     }
@@ -388,7 +426,7 @@ def _download_official_installer(root, target, opener=urllib.request.urlopen):
             with opener(request, timeout=30) as response:
                 resolved_url = response.geturl() if hasattr(response, 'geturl') else spec['url']
                 resolved = urllib.parse.urlsplit(resolved_url)
-                if resolved.scheme != 'https' or resolved.hostname != spec['expected_host']:
+                if resolved.scheme != 'https' or resolved.hostname not in spec['allowed_hosts']:
                     raise EasyInstallError('official installer redirect left the approved HTTPS host')
                 while True:
                     chunk = response.read(64 * 1024)
@@ -436,7 +474,33 @@ def _resolve_executable(command, explicit=None):
             raise EasyInstallError('agent executable must be an existing absolute file')
         return str(candidate.resolve())
     discovered = shutil.which(command)
-    return str(Path(discovered).resolve()) if discovered else None
+    if discovered:
+        return str(Path(discovered).resolve())
+    # Official installers can update a user-local bin directory without
+    # changing the current process PATH.  Check deterministic, read-only
+    # locations before asking the user for an absolute path; never search a
+    # broad directory tree or edit PATH.
+    home = Path(os.environ.get('USERPROFILE') or os.environ.get('HOME') or '~').expanduser()
+    suffix = '.exe' if os.name == 'nt' else ''
+    candidates = [home / '.local' / 'bin' / f'{command}{suffix}']
+    if os.name == 'nt':
+        local_app_data = os.environ.get('LOCALAPPDATA')
+        if local_app_data:
+            candidates.append(Path(local_app_data) / 'Programs' / command / f'{command}.exe')
+        if command == 'codex':
+            candidates.append(home / '.codex' / 'bin' / 'codex.exe')
+    else:
+        candidates.extend((
+            Path('/usr/local/bin') / command,
+            Path('/opt/homebrew/bin') / command,
+        ))
+    for candidate in candidates:
+        try:
+            if candidate.is_file() and not candidate.is_symlink():
+                return str(candidate.resolve())
+        except OSError:
+            continue
+    return None
 
 
 def _write_launcher(root, target, executable):
@@ -457,24 +521,103 @@ def _write_launcher(root, target, executable):
     return str(path)
 
 
-def _attestation(path, target_id, event):
-    data = _read_json(path)
-    if not isinstance(data, dict) or set(data) != {'target_id', 'event', 'status', 'method'}:
-        raise EasyInstallError('evidence must contain only target_id, event, status, and method')
-    if data['target_id'] != target_id or data['event'] != event or data['status'] != 'completed':
-        raise EasyInstallError('evidence does not match this target and event')
-    if not isinstance(data['method'], str) or not data['method'] or len(data['method']) > 80:
-        raise EasyInstallError('evidence method must be a short non-secret description')
-    if any(SECRET_KEY_RE.search(str(key)) or SECRET_VALUE_RE.search(str(value)) for key, value in data.items()):
-        raise EasyInstallError('evidence must not contain credentials, authorization codes, or tokens')
-    return {'kind': 'user_attestation', 'event': event, 'method': data['method'], 'sha256': _canonical(data)}
+AGENT_IDENTITY = {
+    'claude-code': {
+        'filenames': {'claude', 'claude.exe'},
+        'version_pattern': re.compile(r'(?<!\d)(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?!\d)'),
+    },
+    'codex': {
+        'filenames': {'codex', 'codex.exe'},
+        'version_pattern': re.compile(r'(?<!\d)(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?!\d)'),
+    },
+    'prime-agent': {
+        'filenames': {'prime-agent', 'prime-agent.exe'},
+        'version_pattern': re.compile(r'(?<!\d)(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?)(?!\d)'),
+    },
+}
+
+
+def _validate_agent_identity(target, executable, version_output):
+    policy = AGENT_IDENTITY[target['agent']]
+    if Path(executable).name.lower() not in policy['filenames']:
+        raise EasyInstallError(
+            f'agent executable name does not identify {target["agent"]}: {Path(executable).name}'
+        )
+    if not version_output or len(version_output) > 200:
+        raise EasyInstallError('agent --version output is empty or implausibly long')
+    match = policy['version_pattern'].search(version_output)
+    if not match:
+        raise EasyInstallError('agent --version output does not contain a semantic version')
+    return match.group(1)
+
+
+def _first_task_adapter(target, state, root):
+    """Build a fixed, non-help/non-version task and its state-local proof."""
+    workspace = root / 'first-task'
+    if workspace.is_symlink():
+        raise EasyInstallError('first-task workspace must not be a symbolic link')
+    workspace.mkdir(mode=0o700, exist_ok=True)
+    # Each execution gets a fresh challenge.  A proof written by an interrupted
+    # or failed prior invocation can therefore never satisfy a retry.
+    nonce = secrets.token_hex(16)
+    marker = workspace / f'agent-welcome-proof-{nonce}.txt'
+    if marker.exists() or marker.is_symlink():
+        raise EasyInstallError('first-task proof path already exists or is redirected')
+    prompt = (
+        f'Create the file {marker.name} in the current directory containing exactly {nonce}. '
+        f'Then reply with exactly {nonce}. Do not read, modify, or execute anything outside the current directory.'
+    )
+    executable = state['agent_executable']
+    if target['agent'] == 'claude-code':
+        argv = [executable, '-p', prompt]
+    elif target['agent'] == 'codex':
+        argv = [executable, 'exec', '--skip-git-repo-check', prompt]
+    else:
+        # Prime Agent routes positional text into its initial-message path;
+        # this is intentionally a task, never --help/--version/status.
+        argv = [executable, prompt]
+    return workspace, marker, nonce, argv
+
+
+def _verify_first_task_proof(marker, nonce, output):
+    if marker.is_symlink() or not marker.is_file():
+        raise EasyInstallError('fixed first task did not create its state-local proof file')
+    try:
+        content = marker.read_text(encoding='utf-8')
+    except OSError as exc:
+        raise EasyInstallError(f'cannot read fixed first-task proof: {exc}') from exc
+    if content != nonce:
+        raise EasyInstallError('fixed first-task proof content did not match its nonce')
+    if nonce not in output:
+        raise EasyInstallError('fixed first-task response did not contain its nonce')
+
+
+def _record_fixture_execution(state, kind):
+    state['evidence']['fixture'] = True
+    state['evidence']['process_execution'] = f'fixture_{kind}'
+
+
+def _record_direct_execution(state, kind):
+    state['evidence']['actual_os'] = True
+    state['evidence']['process_execution'] = f'direct_{kind}'
 
 
 def _continue(target, root, observation, state, agent_executable=None,
-              auth_evidence=None, first_task_evidence=None, first_task_command=None,
-              allow_billable_first_task=False, approve_install=False,
-              approve_prerequisites=False,
+              approve_install=False, approve_prerequisites=False,
+              approve_first_task=False,
               runner=subprocess.run, opener=urllib.request.urlopen):
+    evidence = state.setdefault('evidence', {})
+    for key, value in {
+        'fixture': False,
+        'actual_os': False,
+        'upstream_binary': False,
+        'agent_identity': 'not_checked',
+        'binary_provenance': 'not_checked',
+        'process_execution': 'not_checked',
+        'authentication': 'not_checked',
+        'first_task': 'not_checked',
+    }.items():
+        evidence.setdefault(key, value)
     if state['target_sha256'] != _canonical(target):
         state['status'] = 'NEEDS_DIAGNOSIS'
         state['error'] = 'target recipe changed since this run was created'
@@ -500,6 +643,26 @@ def _continue(target, root, observation, state, agent_executable=None,
             state['error'] = 'host environment changed since this run was created'
             _save(root, state)
             return state
+    # States written before the fixed nonce-bound adapter could be terminal
+    # after a user attestation or caller-supplied argv.  Preserve their history
+    # but do not continue to present that weaker evidence as verified success.
+    verified_first_task = (
+        state.get('first_task_evidence', {}).get('kind') == 'direct_fixed_adapter'
+        and state.get('binary_provenance', {}).get('kind')
+        == 'official_installer_then_direct_version_probe'
+    )
+    if state['status'] == 'USER_ATTESTED' or (
+        state['status'] == 'SUCCEEDED' and not verified_first_task
+    ):
+        state['status'] = 'COMPLETED_UNVERIFIED_PROVENANCE'
+        state['waiting'] = None
+        state['legacy_evidence_reclassified'] = True
+        state['evidence']['upstream_binary'] = bool(
+            state.get('binary_provenance', {}).get('kind')
+            == 'official_installer_then_direct_version_probe'
+        )
+        _save(root, state)
+        return state
     if state['status'] in {'SUCCEEDED', 'USER_ATTESTED', 'NOT_APPLICABLE', 'UNSUPPORTED', 'NEEDS_DIAGNOSIS'}:
         return state
     outcome, reason = _target_matches(target, observation)
@@ -547,17 +710,29 @@ def _continue(target, root, observation, state, agent_executable=None,
                 state['android_prerequisite_pending'] = True
                 _save(root, state)
                 try:
-                    outputs = [_run(argv, root, runner=runner) for argv in plan['commands']]
-                except EasyInstallError:
+                    outputs = [
+                        _run(argv, root, runner=runner, timeout=900)
+                        for argv in plan['commands']
+                    ]
+                except EasyInstallError as exc:
                     state['android_prerequisite_pending'] = False
-                    raise
+                    _fail(state, 'prerequisites', exc, 'android_prerequisite_execution')
+                    _save(root, state)
+                    return state
                 state['android_prerequisite_pending'] = False
                 state['android_prerequisite_completed'] = True
                 state['android_prerequisite_evidence'] = {
-                    'kind': 'direct_subprocess',
+                    'kind': (
+                        'direct_subprocess' if _is_direct_execution(runner, observation)
+                        else 'fixture_subprocess'
+                    ),
                     'argv': plan['commands'],
                     'stdout_sha256': [hashlib.sha256(value.encode('utf-8')).hexdigest() for value in outputs],
                 }
+                if _is_direct_execution(runner, observation):
+                    _record_direct_execution(state, 'android_prerequisites')
+                else:
+                    _record_fixture_execution(state, 'android_prerequisites')
                 _wait(state, 'enter_android_guest', 'prerequisites', plan)
                 _save(root, state)
                 return state
@@ -632,11 +807,19 @@ def _continue(target, root, observation, state, agent_executable=None,
                     raise
                 state['installer_execution_pending'] = False
                 state['installer_evidence'] = {
-                    'kind': 'direct_subprocess', 'url': installer['url'],
+                    'kind': (
+                        'direct_official_installer' if _is_direct_execution(runner, observation, opener)
+                        else 'fixture_installer'
+                    ),
+                    'url': installer['url'],
                     'bytes': installer['bytes'], 'sha256': installer['sha256'],
                     'argv': [*installer['argv_prefix'], installer['path']],
                     'stdout_sha256': hashlib.sha256(output.encode('utf-8')).hexdigest(),
                 }
+                if _is_direct_execution(runner, observation, opener):
+                    _record_direct_execution(state, 'official_installer')
+                else:
+                    _record_fixture_execution(state, 'official_installer')
                 executable = _resolve_executable(target['command'], None)
                 if not executable:
                     _wait(state, 'locate_installed_agent', 'agent_installation', {
@@ -649,14 +832,39 @@ def _continue(target, root, observation, state, agent_executable=None,
                 state['attempts']['total'] += 1
                 state['attempts']['by_step']['agent_installation'] = 1
             version = _run([executable, '--version'], root, runner=runner)
-            if not version or len(version) > 200:
-                raise EasyInstallError('agent --version output is empty or implausibly long')
+            version_value = _validate_agent_identity(target, executable, version)
             state['agent_executable'] = executable
             state['installation_evidence'] = {
-                'kind': 'direct_subprocess', 'argv': [executable, '--version'],
+                'kind': (
+                    'direct_version_probe' if _is_direct_execution(runner, observation)
+                    else 'fixture_version_probe'
+                ),
+                'argv': [executable, '--version'],
+                'agent': target['agent'],
+                'version': version_value,
                 'version_sha256': hashlib.sha256(version.encode('utf-8')).hexdigest(),
             }
-            state['evidence']['upstream_binary'] = True
+            state['evidence']['agent_identity'] = 'filename_and_semver_probe'
+            installer_is_direct = state.get('installer_evidence', {}).get('kind') == 'direct_official_installer'
+            direct_version = _is_direct_execution(runner, observation)
+            if direct_version:
+                _record_direct_execution(state, 'version_probe')
+            else:
+                _record_fixture_execution(state, 'version_probe')
+            if installer_is_direct and direct_version:
+                state['binary_provenance'] = {
+                    'kind': 'official_installer_then_direct_version_probe',
+                    'installer_url': state['installer_evidence']['url'],
+                }
+                state['evidence']['binary_provenance'] = 'official_installer_then_direct_version_probe'
+                state['evidence']['upstream_binary'] = True
+            else:
+                state['binary_provenance'] = {
+                    'kind': 'unverified_local_executable',
+                    'reason': 'no direct official-installer-to-binary chain was observed',
+                }
+                state['evidence']['binary_provenance'] = 'unverified_local_executable'
+                state['evidence']['upstream_binary'] = False
             _complete(state, 'agent_installation')
         except EasyInstallError as exc:
             _fail(
@@ -673,69 +881,70 @@ def _continue(target, root, observation, state, agent_executable=None,
             _fail(state, 'path_config', exc, 'state_local_launcher')
             _save(root, state)
             return state
-    if 'provider_authentication' not in state['completed_steps']:
-        if not auth_evidence:
+    if 'minimal_first_task' not in state['completed_steps']:
+        if state.get('first_task_execution_pending'):
+            _wait(state, 'first_task_outcome_unknown', 'minimal_first_task', {
+                'instruction': 'The fixed first-task process may have completed before its response was recorded. Do not rerun it automatically. Inspect the account/session outside this state directory and start a new Easy Install run if another task is required.',
+                'recovery': target['recovery'],
+            })
+            _save(root, state)
+            return state
+        if not approve_first_task:
             _wait(state, 'provider_authentication', 'provider_authentication', {
                 'instruction': target['login_instruction'],
-                'safety': 'Do not put passwords, tokens, cookies, MFA codes, or authorization codes in the state directory or evidence file.',
-                'evidence_template': {'target_id': target['id'], 'event': 'provider_authentication', 'status': 'completed', 'method': 'browser_login'},
+                'next_step': target['first_task_instruction'],
+                'consent': 'After completing sign-in outside Agent Welcome, re-run with --approve-first-task to execute the fixed, state-local proof task.',
+                'safety': 'Do not put passwords, tokens, cookies, MFA codes, authorization codes, or manual JSON attestations in the state directory.',
             })
             _save(root, state)
             return state
         try:
-            state['authentication_evidence'] = _attestation(auth_evidence, target['id'], 'provider_authentication')
-            state['evidence']['authentication'] = 'user_attestation'
+            if not _step_attempt_allowed(state, 'minimal_first_task'):
+                _save(root, state)
+                return state
+            workspace, marker, nonce, argv = _first_task_adapter(target, state, root)
+            state['first_task_nonce'] = nonce
+            state['attempts']['total'] += 1
+            state['attempts']['by_step']['minimal_first_task'] = state['attempts']['by_step'].get('minimal_first_task', 0) + 1
+            state['status'] = 'RUNNING'
+            state['current_step'] = 'minimal_first_task'
+            state['waiting'] = None
+            state['first_task_execution_pending'] = True
+            _save(root, state)
+            output = _run(argv, workspace, runner=runner)
+            _verify_first_task_proof(marker, nonce, output)
+            state['first_task_execution_pending'] = False
+            direct_task = _is_direct_execution(runner, observation)
+            first_kind = 'direct_fixed_adapter' if direct_task else 'fixture_fixed_adapter'
+            state['first_task_evidence'] = {
+                'kind': first_kind,
+                'argv': argv,
+                'workspace': str(workspace),
+                'proof_file': marker.name,
+                'stdout_sha256': hashlib.sha256(output.encode('utf-8')).hexdigest(),
+            }
+            if direct_task:
+                _record_direct_execution(state, 'fixed_first_task')
+            else:
+                _record_fixture_execution(state, 'fixed_first_task')
             _complete(state, 'provider_authentication')
+            _complete(state, 'minimal_first_task')
+            if direct_task:
+                state['evidence']['authentication'] = 'direct_fixed_agent_task'
+                state['evidence']['first_task'] = 'direct_fixed_adapter'
+            else:
+                state['evidence']['authentication'] = 'fixture_fixed_agent_task'
+                state['evidence']['first_task'] = 'fixture_fixed_adapter'
+            if direct_task and state['evidence']['upstream_binary']:
+                state['status'] = 'SUCCEEDED'
+            else:
+                state['status'] = 'COMPLETED_UNVERIFIED_PROVENANCE'
+            state['waiting'] = None
         except EasyInstallError as exc:
-            _fail(state, 'provider_authentication', exc, 'invalid_attestation')
+            state['first_task_execution_pending'] = False
+            _fail(state, 'minimal_first_task', exc, 'fixed_first_task')
             _save(root, state)
             return state
-    if 'minimal_first_task' not in state['completed_steps']:
-        if first_task_command:
-            if not allow_billable_first_task:
-                _wait(state, 'billable_first_task_consent', 'minimal_first_task', {
-                    'instruction': target['first_task_instruction'],
-                    'safety': 'A direct first task can use provider credentials or incur cost. Re-run with --allow-billable-first-task only after explicit approval.',
-                })
-                _save(root, state)
-                return state
-            try:
-                argv = json.loads(first_task_command)
-                if not isinstance(argv, list) or not argv or Path(argv[0]).resolve() != Path(state['agent_executable']).resolve():
-                    raise EasyInstallError('first task command must be a JSON argv list beginning with the verified agent executable')
-                if not _step_attempt_allowed(state, 'minimal_first_task'):
-                    _save(root, state)
-                    return state
-                state['attempts']['total'] += 1
-                state['attempts']['by_step']['minimal_first_task'] = state['attempts']['by_step'].get('minimal_first_task', 0) + 1
-                output = _run(argv, root, runner=runner)
-                state['first_task_evidence'] = {'kind': 'direct_subprocess', 'stdout_sha256': hashlib.sha256(output.encode('utf-8')).hexdigest()}
-                state['evidence']['actual_os'] = 'direct_process_observation'
-                state['evidence']['first_task'] = 'direct_subprocess'
-                _complete(state, 'minimal_first_task')
-                state['status'] = 'SUCCEEDED'
-                state['waiting'] = None
-            except (EasyInstallError, json.JSONDecodeError) as exc:
-                _fail(state, 'minimal_first_task', exc, 'first_task_probe')
-                _save(root, state)
-                return state
-        elif first_task_evidence:
-            try:
-                state['first_task_evidence'] = _attestation(first_task_evidence, target['id'], 'minimal_first_task')
-                state['evidence']['first_task'] = 'user_attestation'
-                _complete(state, 'minimal_first_task')
-                state['status'] = 'USER_ATTESTED'
-                state['waiting'] = None
-            except EasyInstallError as exc:
-                _fail(state, 'minimal_first_task', exc, 'invalid_attestation')
-                _save(root, state)
-                return state
-        else:
-            _wait(state, 'minimal_first_task', 'minimal_first_task', {
-                'instruction': target['first_task_instruction'],
-                'direct_command_option': '--first-task-command JSON_ARGV --allow-billable-first-task',
-                'evidence_template': {'target_id': target['id'], 'event': 'minimal_first_task', 'status': 'completed', 'method': 'interactive_read_only_task'},
-            })
     _save(root, state)
     return state
 
@@ -744,14 +953,20 @@ def _mobile_instructions(target):
     if target['os'] == 'android':
         return {
             'same_device_only': True,
-            'instruction': 'On this Android device install Termux, then run pkg install proot-distro; proot-distro install ubuntu:24.04; proot-distro login ubuntu. Run this launcher inside that guest.',
+            'instruction': 'On this Android device install Termux, then run pkg install -y proot-distro; proot-distro install ubuntu; proot-distro login ubuntu. Run this launcher inside that guest.',
             'completion_probe': 'TERMUX_VERSION plus a PRoot/Linux-userland observation',
             'source_refs': target['source_refs'],
         }
     return {
         'same_device_only': True,
-        'instruction': 'On this iOS device install/open UTM, import and boot a Linux guest, then run this launcher in the guest with AGENT_WELCOME_IOS_GUEST=1.',
-        'completion_probe': 'Linux guest plus AGENT_WELCOME_IOS_GUEST=1 marker',
+        'instruction': 'On this iOS device, use UTM to create a Linux VM, attach an Ubuntu Server ARM64 ISO, complete the guest install, and copy this repository into the guest. Then run this launcher in that guest with AGENT_WELCOME_IOS_GUEST=1. UTM/guest import and boot stay user-owned checkpoints.',
+        'completion_probe': 'Linux guest process observation plus AGENT_WELCOME_IOS_GUEST=1 user marker',
+        'guest_bootstrap': [
+            'Create a UTM Linux VM on this iOS device and attach an Ubuntu Server ARM64 installer ISO.',
+            'Boot the ISO, install a glibc-based Ubuntu guest, and ensure Python 3.11+ is available.',
+            'Copy or clone this repository into that guest; no host-path or remote-PC substitution is accepted.',
+            'Set AGENT_WELCOME_IOS_GUEST=1 only in the guest session before starting Easy Install.',
+        ],
         'source_refs': target['source_refs'],
     }
 

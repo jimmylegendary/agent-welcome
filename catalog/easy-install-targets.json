@@ -63,7 +63,7 @@
       "source_refs": ["claude_setup", "claude_quickstart"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "curl -fsSL https://claude.ai/install.sh | bash",
       "login_instruction": "Run claude in the intended project and complete the browser login.",
-      "first_task_instruction": "Ask Claude Code one read-only question about the current project, then supply evidence or an explicitly approved command.",
+      "first_task_instruction": "After sign-in, approve the fixed nonce-bound Claude Code proof task; no manual evidence or custom command is accepted.",
       "recovery": ["claude doctor", "re-run easy-resume with the absolute agent executable"]
     },
     {
@@ -72,7 +72,7 @@
       "source_refs": ["codex_quickstart"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "curl -fsSL https://chatgpt.com/codex/install.sh | sh",
       "login_instruction": "Run codex in the intended project and choose a supported sign-in method.",
-      "first_task_instruction": "Ask Codex a read-only question such as 'Tell me about this project', then supply evidence or an explicitly approved command.",
+      "first_task_instruction": "After sign-in, approve the fixed nonce-bound Codex proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Re-run the official installer manually", "re-run easy-resume with the absolute agent executable"]
     },
     {
@@ -81,7 +81,7 @@
       "source_refs": ["prime_readme", "prime_installer"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh",
       "login_instruction": "Run prime-agent and use /login to select an allowed provider or subscription.",
-      "first_task_instruction": "Complete a minimal read-only Prime Agent interaction, then supply evidence or an explicitly approved command.",
+      "first_task_instruction": "After sign-in, approve the fixed nonce-bound Prime Agent proof task; no manual evidence or custom command is accepted.",
       "recovery": ["prime-agent doctor", "prime-agent status", "re-run easy-resume with the absolute agent executable"]
     },
     {
@@ -90,7 +90,7 @@
       "source_refs": ["claude_setup", "claude_quickstart"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "irm https://claude.ai/install.ps1 | iex",
       "login_instruction": "Run claude in the intended project and complete the browser login.",
-      "first_task_instruction": "Ask Claude Code one read-only question about the current project, then supply evidence or an explicitly approved command.",
+      "first_task_instruction": "After sign-in, approve the fixed nonce-bound Claude Code proof task; no manual evidence or custom command is accepted.",
       "recovery": ["claude doctor", "Use the official WSL route if native Windows constraints block the required feature"]
     },
     {
@@ -99,7 +99,7 @@
       "source_refs": ["codex_quickstart", "codex_windows_installer"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "irm https://chatgpt.com/codex/install.ps1 | iex",
       "login_instruction": "Run codex in the intended project and choose a supported sign-in method.",
-      "first_task_instruction": "Ask Codex a read-only question such as 'Tell me about this project', then supply evidence or an explicitly approved command.",
+      "first_task_instruction": "After sign-in, approve the fixed nonce-bound Codex proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Re-run the official Windows installer manually", "Use the official WSL route if native Windows constraints block the required feature"]
     },
     {
@@ -108,7 +108,7 @@
       "source_refs": ["prime_readme"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "irm https://app.primeintellect.ai/prime-agent/install.ps1 | iex",
       "login_instruction": "Run prime-agent and use /login to select an allowed provider or subscription.",
-      "first_task_instruction": "Complete a minimal read-only Prime Agent interaction, then supply evidence or an explicitly approved command.",
+      "first_task_instruction": "After sign-in, approve the fixed nonce-bound Prime Agent proof task; no manual evidence or custom command is accepted.",
       "recovery": ["prime-agent doctor", "prime-agent status", "re-run easy-resume with the absolute agent executable"]
     },
     {
@@ -117,7 +117,7 @@
       "source_refs": ["claude_setup", "termux", "termux_proot"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "Inside the same-device Ubuntu guest: curl -fsSL https://claude.ai/install.sh | bash",
       "login_instruction": "Inside the guest, run claude and complete the browser/device login without recording credentials in Agent Welcome.",
-      "first_task_instruction": "Inside the guest, ask Claude Code one read-only project question and supply non-secret evidence.",
+      "first_task_instruction": "After guest sign-in, approve the fixed nonce-bound Claude Code proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Termux Android 12+ may stop background processes; reopen the same guest and run easy-resume", "claude doctor"]
     },
     {
@@ -126,7 +126,7 @@
       "source_refs": ["codex_quickstart", "termux", "termux_proot"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "Inside the same-device Ubuntu guest: curl -fsSL https://chatgpt.com/codex/install.sh | sh",
       "login_instruction": "Inside the guest, run codex and choose a supported sign-in method.",
-      "first_task_instruction": "Inside the guest, ask Codex a read-only project question and supply non-secret evidence.",
+      "first_task_instruction": "After guest sign-in, approve the fixed nonce-bound Codex proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Termux Android 12+ may stop background processes; reopen the same guest and run easy-resume", "Re-run the official installer manually"]
     },
     {
@@ -135,7 +135,7 @@
       "source_refs": ["prime_readme", "prime_installer", "termux", "termux_proot"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "Inside the same-device Ubuntu 24.04 glibc guest: curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh",
       "login_instruction": "Inside the guest, run prime-agent and use /login without recording credentials in Agent Welcome.",
-      "first_task_instruction": "Inside the guest, complete a minimal read-only Prime Agent interaction and supply non-secret evidence.",
+      "first_task_instruction": "After guest sign-in, approve the fixed nonce-bound Prime Agent proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Use a glibc >= 2.35 guest; musl is not a supported Prime release target", "prime-agent doctor", "reopen after Android process kill and run easy-resume"]
     },
     {
@@ -144,7 +144,7 @@
       "source_refs": ["claude_setup", "utm_ios"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "Inside the same-device UTM Linux guest: curl -fsSL https://claude.ai/install.sh | bash",
       "login_instruction": "Inside the guest, run claude and complete browser/device login.",
-      "first_task_instruction": "Inside the guest, ask Claude Code one read-only project question and supply non-secret evidence.",
+      "first_task_instruction": "After guest sign-in, approve the fixed nonce-bound Claude Code proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Install/open UTM and import/boot the Linux guest before resuming", "UTM SE may be slow without JIT; do not mistake this for agent success"]
     },
     {
@@ -153,7 +153,7 @@
       "source_refs": ["codex_quickstart", "utm_ios"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "Inside the same-device UTM Linux guest: curl -fsSL https://chatgpt.com/codex/install.sh | sh",
       "login_instruction": "Inside the guest, run codex and choose a supported sign-in method.",
-      "first_task_instruction": "Inside the guest, ask Codex a read-only project question and supply non-secret evidence.",
+      "first_task_instruction": "After guest sign-in, approve the fixed nonce-bound Codex proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Install/open UTM and import/boot the Linux guest before resuming", "UTM SE may be slow without JIT; do not mistake this for agent success"]
     },
     {
@@ -162,7 +162,7 @@
       "source_refs": ["prime_readme", "prime_installer", "utm_ios"], "version_policy": {"kind": "vendor_managed_latest", "probe": ["--version"]},
       "manual_install": "Inside the same-device UTM Linux guest with glibc >= 2.35: curl -fsSL https://app.primeintellect.ai/prime-agent/install.sh | sh",
       "login_instruction": "Inside the guest, run prime-agent and use /login without recording credentials in Agent Welcome.",
-      "first_task_instruction": "Inside the guest, complete a minimal read-only Prime Agent interaction and supply non-secret evidence.",
+      "first_task_instruction": "After guest sign-in, approve the fixed nonce-bound Prime Agent proof task; no manual evidence or custom command is accepted.",
       "recovery": ["Install/open UTM and import/boot the Linux guest before resuming", "Use a glibc >= 2.35 guest; musl is not a supported Prime release target", "prime-agent doctor"]
     }
   ]

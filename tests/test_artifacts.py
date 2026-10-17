@@ -8,6 +8,7 @@ import tarfile
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from agent_welcome import artifacts as artifacts_module
@@ -106,6 +107,10 @@ class ArtifactTests(unittest.TestCase):
                 artifacts_module,
                 '_validate_archive',
                 side_effect=replace_external_path_before_archive_read,
+            ), patch.object(
+                artifacts_module.subprocess,
+                'run',
+                return_value=SimpleNamespace(returncode=0, stdout='0.10.0\n', stderr=''),
             ):
                 result = verify_extract_and_probe(
                     artifact, archive, Path(temp) / 'install', allowed_root=temp,
@@ -183,6 +188,30 @@ class ArtifactTests(unittest.TestCase):
                     download_artifact(artifact, temp)
             self.assertEqual(list((Path(temp) / 'downloads').iterdir()), [])
 
+    @unittest.skipUnless(os.name == 'nt', 'requires Windows DOS path aliases')
+    def test_windows_dos_alias_is_accepted_inside_the_same_state_root(self):
+        """A long state root and an 8.3 destination spelling name one tree."""
+        import ctypes
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp).resolve()
+            buffer = ctypes.create_unicode_buffer(32768)
+            size = ctypes.windll.kernel32.GetShortPathNameW(str(root), buffer, len(buffer))
+            if not size:
+                self.skipTest('Windows did not expose an 8.3 alias for this temporary path')
+            alias = Path(buffer.value)
+            if alias == root:
+                self.skipTest('Windows returned no distinct 8.3 alias for this temporary path')
+            blob = archive_bytes([('prime-agent', 'file', VERSION_SCRIPT)])
+            archive = root / 'fixture.tar.gz'
+            archive.write_bytes(blob)
+            artifact = artifact_for(blob)
+            artifact['published_sha256'] = '0' * 64
+            with self.assertRaisesRegex(InstallError, 'SHA-256 does not match'):
+                verify_extract_and_probe(
+                    artifact, archive, alias / 'install', allowed_root=root,
+                )
+
     @unittest.skipUnless(hasattr(os, 'mkfifo'), 'requires POSIX FIFO support')
     def test_cached_fifo_is_rejected_without_blocking(self):
         script = (
@@ -219,9 +248,14 @@ class ArtifactTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             archive = Path(temp) / 'fixture.tar.gz'
             archive.write_bytes(blob)
-            result = verify_extract_and_probe(
-                artifact_for(blob), archive, Path(temp) / 'owned-install'
-            )
+            with patch.object(
+                artifacts_module.subprocess,
+                'run',
+                return_value=SimpleNamespace(returncode=0, stdout='0.10.0\n', stderr=''),
+            ):
+                result = verify_extract_and_probe(
+                    artifact_for(blob), archive, Path(temp) / 'owned-install'
+                )
             self.assertEqual(result['status'], 'pass')
             self.assertEqual(result['version'], '0.10.0')
             self.assertEqual(result['observed_sha256'], hashlib.sha256(blob).hexdigest())
@@ -237,7 +271,13 @@ class ArtifactTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             archive = Path(temp) / 'fixture.tar.gz'
             archive.write_bytes(blob)
-            with patch.dict(os.environ, {'PI_PACKAGE_DIR': '/outside/untrusted-version'}):
+            def probe(_argv, **kwargs):
+                self.assertNotIn('PI_PACKAGE_DIR', kwargs['env'])
+                return SimpleNamespace(returncode=0, stdout='0.10.0\n', stderr='')
+
+            with patch.dict(os.environ, {'PI_PACKAGE_DIR': '/outside/untrusted-version'}), patch.object(
+                artifacts_module.subprocess, 'run', side_effect=probe,
+            ):
                 result = verify_extract_and_probe(
                     artifact_for(blob), archive, Path(temp) / 'install', allowed_root=temp,
                 )

@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import re
 import tempfile
 import urllib.error
 import unittest
@@ -10,6 +11,7 @@ from unittest import mock
 
 from agent_welcome.easy_install import (
     EasyInstallError,
+    _run,
     easy_resume,
     easy_start,
     easy_status,
@@ -21,6 +23,13 @@ from agent_welcome.environment import observe
 def mac_observation():
     return {
         'kernel_os': 'darwin', 'host_os': 'macos', 'architecture': 'aarch64',
+        'runtime_kind': 'native', 'provenance': {'kind': 'fixture'},
+    }
+
+
+def windows_observation():
+    return {
+        'kernel_os': 'windows', 'host_os': 'windows', 'architecture': 'x86_64',
         'runtime_kind': 'native', 'provenance': {'kind': 'fixture'},
     }
 
@@ -38,14 +47,19 @@ class RedirectResponse(Response):
         return 'https://unapproved.example/installer.sh'
 
 
+class ApprovedCodexResponse(Response):
+    def geturl(self):
+        return 'https://releases.openai.com/codex/install.ps1'
+
+
 def opener(_request, timeout):
     assert timeout == 30
     return Response(b'#!/bin/sh\nexit 0\n')
 
 
 class EasyInstallTests(unittest.TestCase):
-    def _agent(self, root):
-        path = Path(root) / 'fake-agent'
+    def _agent(self, root, command):
+        path = Path(root) / command
         path.write_text('fixture', encoding='utf-8')
         return path
 
@@ -57,6 +71,18 @@ class EasyInstallTests(unittest.TestCase):
             assert Path(kwargs['cwd']).is_dir()
             return SimpleNamespace(returncode=0, stdout=stdout, stderr='')
         return run
+
+    @staticmethod
+    def task_runner(argv, **kwargs):
+        assert kwargs['shell'] is False
+        if argv[1:] == ['--version']:
+            return SimpleNamespace(returncode=0, stdout='1.2.3', stderr='')
+        prompt = argv[-1]
+        match = re.search(r'(agent-welcome-proof-([0-9a-f]+)\.txt).*exactly ([0-9a-f]+)', prompt)
+        if match is None or match.group(2) != match.group(3):
+            raise AssertionError(f'fixed task prompt malformed: {prompt!r}')
+        (Path(kwargs['cwd']) / match.group(1)).write_text(match.group(2), encoding='utf-8')
+        return SimpleNamespace(returncode=0, stdout=match.group(2), stderr='')
 
     def test_catalog_has_all_twelve_implemented_routes_without_runtime_claims(self):
         catalog = load_targets()
@@ -80,10 +106,10 @@ class EasyInstallTests(unittest.TestCase):
             self.assertEqual(state['attempts']['total'], 0)
             self.assertFalse((Path(temp) / 'state' / 'downloads').exists())
 
-    def test_explicit_consent_runs_official_script_then_requires_authentication(self):
+    def test_fixture_installer_never_creates_upstream_or_direct_evidence(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            agent = self._agent(root)
+            agent = self._agent(root, 'codex')
             state_dir = root / 'state'
             easy_start('macos-codex', state_dir, mac_observation())
             with mock.patch('agent_welcome.easy_install.shutil.which', side_effect=[None, str(agent)]):
@@ -93,56 +119,106 @@ class EasyInstallTests(unittest.TestCase):
                 )
             self.assertEqual(state['status'], 'WAITING_USER')
             self.assertEqual(state['waiting']['reason'], 'provider_authentication')
-            self.assertEqual(state['installer_evidence']['bytes'], len(b'#!/bin/sh\nexit 0\n'))
-            self.assertTrue((state_dir / 'downloads' / 'official-installer.sh').is_file())
-            self.assertTrue(Path(state['launcher_path']).is_file())
-            self.assertTrue(state['evidence']['upstream_binary'])
+            self.assertEqual(state['installer_evidence']['kind'], 'fixture_installer')
+            self.assertEqual(state['installation_evidence']['kind'], 'fixture_version_probe')
+            self.assertTrue(state['evidence']['fixture'])
+            self.assertFalse(state['evidence']['actual_os'])
+            self.assertFalse(state['evidence']['upstream_binary'])
+            self.assertEqual(state['evidence']['binary_provenance'], 'unverified_local_executable')
 
-    def test_auth_and_task_attestations_are_non_secret_and_not_direct_success(self):
+    def test_fixed_task_requires_consent_and_fixture_success_is_unverified(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            agent = self._agent(root)
+            agent = self._agent(root, 'claude')
             state_dir = root / 'state'
-            state = easy_start(
+            waiting = easy_start(
                 'macos-claude-code', state_dir, mac_observation(),
-                agent_executable=str(agent), runner=self.runner(),
+                agent_executable=str(agent), runner=self.task_runner,
             )
-            self.assertEqual(state['waiting']['reason'], 'provider_authentication')
-            bad = root / 'bad.json'
-            bad.write_text(json.dumps({'target_id': 'macos-claude-code', 'event': 'provider_authentication', 'status': 'completed', 'method': 'browser', 'token': 'do-not-save'}))
-            rejected = easy_resume(state_dir, mac_observation(), auth_evidence=bad)
-            self.assertEqual(rejected['status'], 'FAILED')
-            self.assertNotIn('do-not-save', json.dumps(rejected))
-            auth = root / 'auth.json'
-            auth.write_text(json.dumps({'target_id': 'macos-claude-code', 'event': 'provider_authentication', 'status': 'completed', 'method': 'browser_login'}))
-            waiting = easy_resume(state_dir, mac_observation(), auth_evidence=auth)
-            self.assertEqual(waiting['waiting']['reason'], 'minimal_first_task')
-            task = root / 'task.json'
-            task.write_text(json.dumps({'target_id': 'macos-claude-code', 'event': 'minimal_first_task', 'status': 'completed', 'method': 'interactive_read_only_task'}))
-            attested = easy_resume(state_dir, mac_observation(), first_task_evidence=task)
-            self.assertEqual(attested['status'], 'USER_ATTESTED')
-            self.assertEqual(attested['evidence']['authentication'], 'user_attestation')
-            self.assertEqual(attested['evidence']['first_task'], 'user_attestation')
-            self.assertFalse(attested['evidence']['actual_os'])
+            self.assertEqual(waiting['waiting']['reason'], 'provider_authentication')
+            self.assertNotIn('evidence_template', waiting['waiting']['instructions'])
+            self.assertNotIn('first-task-command', json.dumps(waiting))
+            completed = easy_resume(
+                state_dir, mac_observation(), approve_first_task=True,
+                runner=self.task_runner,
+            )
+            self.assertEqual(completed['status'], 'COMPLETED_UNVERIFIED_PROVENANCE')
+            self.assertEqual(completed['first_task_evidence']['kind'], 'fixture_fixed_adapter')
+            self.assertEqual(completed['evidence']['authentication'], 'fixture_fixed_agent_task')
+            self.assertFalse(completed['evidence']['actual_os'])
+            self.assertFalse(completed['evidence']['upstream_binary'])
 
-    def test_direct_task_needs_separate_billable_consent(self):
+    def test_legacy_attestation_or_custom_argv_success_is_reclassified(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'state'
+            state = easy_start('macos-codex', state_dir, mac_observation())
+            state['status'] = 'SUCCEEDED'
+            state['first_task_evidence'] = {'kind': 'direct_subprocess'}
+            state['binary_provenance'] = {'kind': 'unverified_local_executable'}
+            (state_dir / 'easy-state.json').write_text(json.dumps(state), encoding='utf-8')
+            migrated = easy_resume(state_dir, mac_observation())
+            self.assertEqual(migrated['status'], 'COMPLETED_UNVERIFIED_PROVENANCE')
+            self.assertTrue(migrated['legacy_evidence_reclassified'])
+            self.assertFalse(migrated['evidence']['upstream_binary'])
+
+    def test_arbitrary_executable_and_short_output_cannot_pass_identity_probe(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
-            agent = self._agent(root)
-            state_dir = root / 'state'
-            easy_start('macos-prime-agent', state_dir, mac_observation(), agent_executable=str(agent), runner=self.runner())
-            auth = root / 'auth.json'
-            auth.write_text(json.dumps({'target_id': 'macos-prime-agent', 'event': 'provider_authentication', 'status': 'completed', 'method': 'interactive_login'}))
-            easy_resume(state_dir, mac_observation(), auth_evidence=auth)
-            command = json.dumps([str(agent), 'read-only prompt'])
-            waiting = easy_resume(state_dir, mac_observation(), first_task_command=command)
-            self.assertEqual(waiting['waiting']['reason'], 'billable_first_task_consent')
-            done = easy_resume(
-                state_dir, mac_observation(), first_task_command=command,
-                allow_billable_first_task=True, runner=self.runner('done'),
+            fake = self._agent(root, 'arbitrary-executable')
+            state = easy_start(
+                'macos-codex', root / 'state', mac_observation(),
+                agent_executable=str(fake), runner=self.runner('1.2.3'),
             )
-            self.assertEqual(done['status'], 'SUCCEEDED')
-            self.assertEqual(done['evidence']['first_task'], 'direct_subprocess')
+            self.assertEqual(state['status'], 'FAILED')
+            self.assertEqual(state['failure_evidence']['kind'], 'version_probe')
+            self.assertIn('does not identify codex', state['error'])
+            self.assertFalse(state['evidence']['upstream_binary'])
+
+    def test_windows_codex_approved_release_redirect_is_allowed(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            agent = self._agent(root, 'codex')
+            state_dir = root / 'state'
+            easy_start('windows-codex', state_dir, windows_observation())
+            with mock.patch('agent_welcome.easy_install.shutil.which', side_effect=[None, str(agent)]):
+                state = easy_resume(
+                    state_dir, windows_observation(), approve_install=True,
+                    runner=self.runner(),
+                    opener=lambda _request, timeout: ApprovedCodexResponse(b'Write-Output installer'),
+                )
+            self.assertEqual(state['status'], 'WAITING_USER')
+            self.assertEqual(state['installer_evidence']['url'], 'https://releases.openai.com/codex/install.ps1')
+
+    def test_cross_host_installer_redirect_is_rejected_before_execution(self):
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'state'
+            easy_start('macos-codex', state_dir, mac_observation())
+            with mock.patch('agent_welcome.easy_install.shutil.which', return_value=None):
+                failed = easy_resume(
+                    state_dir, mac_observation(), approve_install=True,
+                    opener=lambda _request, timeout: RedirectResponse(b'installer'),
+                )
+            self.assertEqual(failed['status'], 'FAILED')
+            self.assertIn('approved HTTPS host', failed['error'])
+            self.assertFalse((state_dir / 'downloads' / 'official-installer.sh').exists())
+
+    def test_run_keeps_required_windows_profile_variables_without_secrets(self):
+        seen = {}
+
+        def runner(argv, **kwargs):
+            seen.update(kwargs['env'])
+            return SimpleNamespace(returncode=0, stdout='ok', stderr='')
+
+        with tempfile.TemporaryDirectory() as temp:
+            with mock.patch.dict(os.environ, {
+                'USERPROFILE': r'C:\\Users\\fixture',
+                'CODEX_HOME': r'C:\\Users\\fixture\\.codex',
+                'OPENAI_API_KEY': 'must-not-leak',
+            }, clear=False):
+                self.assertEqual(_run(['fixture'], temp, runner=runner), 'ok')
+        self.assertEqual(seen['USERPROFILE'], r'C:\\Users\\fixture')
+        self.assertEqual(seen['CODEX_HOME'], r'C:\\Users\\fixture\\.codex')
+        self.assertNotIn('OPENAI_API_KEY', seen)
 
     def test_interrupted_installer_is_not_automatically_replayed(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -172,20 +248,6 @@ class EasyInstallTests(unittest.TestCase):
             self.assertEqual(failed['status'], 'FAILED')
             self.assertFalse(failed['installer_execution_pending'])
             self.assertEqual(failed['failure_evidence']['kind'], 'installer_execution')
-            self.assertNotIn('Bearer', json.dumps(failed))
-
-    def test_cross_host_installer_redirect_is_rejected_before_execution(self):
-        with tempfile.TemporaryDirectory() as temp:
-            state_dir = Path(temp) / 'state'
-            easy_start('macos-codex', state_dir, mac_observation())
-            with mock.patch('agent_welcome.easy_install.shutil.which', return_value=None):
-                failed = easy_resume(
-                    state_dir, mac_observation(), approve_install=True,
-                    opener=lambda _request, timeout: RedirectResponse(b'installer'),
-                )
-            self.assertEqual(failed['status'], 'FAILED')
-            self.assertIn('approved HTTPS host', failed['error'])
-            self.assertFalse((state_dir / 'downloads' / 'official-installer.sh').exists())
 
     def test_target_and_environment_drift_stop_before_a_second_install(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -219,6 +281,7 @@ class EasyInstallTests(unittest.TestCase):
         calls = []
 
         def runner(argv, **kwargs):
+            self.assertEqual(kwargs['timeout'], 900)
             calls.append(argv)
             return SimpleNamespace(returncode=0, stdout='prepared', stderr='')
 
@@ -232,11 +295,41 @@ class EasyInstallTests(unittest.TestCase):
             self.assertEqual(prepared['waiting']['reason'], 'enter_android_guest')
             self.assertEqual(calls, [
                 ['pkg', 'install', '-y', 'proot-distro'],
-                ['proot-distro', 'install', 'ubuntu:24.04'],
+                ['proot-distro', 'install', 'ubuntu'],
             ])
+            self.assertEqual(prepared['android_prerequisite_evidence']['kind'], 'fixture_subprocess')
             in_guest = easy_resume(state_dir, guest)
             self.assertEqual(in_guest['waiting']['reason'], 'installer_consent')
             self.assertEqual(in_guest['environment_transition'], 'termux_to_same_device_proot_guest')
+
+    def test_android_prerequisite_failure_and_interrupt_are_durable(self):
+        termux = {
+            'kernel_os': 'linux', 'host_os': 'android', 'architecture': 'aarch64',
+            'runtime_kind': 'linux_userland', 'provenance': {'kind': 'fixture'},
+        }
+        with tempfile.TemporaryDirectory() as temp:
+            state_dir = Path(temp) / 'failed'
+            easy_start('android-codex', state_dir, termux)
+            failed = easy_resume(
+                state_dir, termux, approve_prerequisites=True,
+                runner=lambda *_args, **_kwargs: SimpleNamespace(returncode=1, stdout='', stderr='fixture failure'),
+            )
+            self.assertEqual(failed['status'], 'FAILED')
+            self.assertFalse(failed['android_prerequisite_pending'])
+            self.assertEqual(failed['failure_evidence']['kind'], 'android_prerequisite_execution')
+            self.assertEqual(easy_status(state_dir)['status'], 'FAILED')
+
+            interrupted_dir = Path(temp) / 'interrupted'
+            easy_start('android-codex', interrupted_dir, termux)
+            with self.assertRaises(KeyboardInterrupt):
+                easy_resume(
+                    interrupted_dir, termux, approve_prerequisites=True,
+                    runner=lambda *_args, **_kwargs: (_ for _ in ()).throw(KeyboardInterrupt()),
+                )
+            recovered = easy_resume(interrupted_dir, termux)
+            self.assertEqual(recovered['status'], 'WAITING_USER')
+            self.assertTrue(recovered['android_prerequisite_pending'])
+            self.assertEqual(recovered['waiting']['reason'], 'android_guest_outcome_unknown')
 
     def test_mobile_prime_requires_observed_glibc_floor(self):
         base = {

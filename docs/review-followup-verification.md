@@ -134,3 +134,48 @@ matches the locally tested tree.  GitHub reports the branch as mergeable and
 ahead of `main` with no commits behind.  There is no `.github/workflows` entry
 in either ref, and the head has zero GitHub Actions workflow runs and zero
 commit-status checks; no CI result is pending.
+
+## Latest repair pass: Easy Install provenance and Windows portability
+
+This update was made after the Easy Install review. It still does **not** run a
+vendor installer, sign in, accept a license, send a model request, or modify a
+global PATH on the connected machine.
+
+| Review item | Reproduction / correction | Regression evidence |
+|---|---|---|
+| Arbitrary executable, short output, manual JSON, or arbitrary argv could reach success. | The adapter now requires an agent-specific executable filename, a semantic version, and a fixed per-agent nonce challenge that writes an exact state-local proof and returns the nonce. JSON attestations and custom first-task argv were removed. | `test_arbitrary_executable_and_short_output_cannot_pass_identity_probe`; `test_fixed_task_requires_consent_and_fixture_success_is_unverified`. |
+| Mocked subprocesses could claim upstream/direct success. | Fixture runners are labelled `fixture_*`; only a direct process observation plus a direct official-installer-to-binary chain can set `upstream_binary` and permit `SUCCEEDED`. Other completions are `COMPLETED_UNVERIFIED_PROVENANCE`. | `test_fixture_installer_never_creates_upstream_or_direct_evidence`. |
+| Codex Windows redirect was rejected. | The Windows adapter uses `https://releases.openai.com/codex/install.ps1` and only the narrow documented vendor host allowlist. | `test_windows_codex_official_release_host_is_allowed`; `test_cross_host_installer_redirect_is_rejected_before_execution`. |
+| Windows installer lacked profile/config variables. | `_run` now preserves a documented allowlist including `USERPROFILE` and `CODEX_HOME`, without passing arbitrary credential variables. | `test_run_keeps_required_windows_profile_variables_without_secrets`. |
+| Android PRoot used an image tag as an alias and did not durably record failure/interruption. | It installs/logs into the `ubuntu` alias, uses a 900-second command bound, stores ordinary failure, and leaves an interrupted process pending for manual reconciliation rather than replay. | `test_android_prerequisites_are_consent_gated_and_resume_in_same_device_guest`; `test_android_prerequisite_failure_and_interrupt_are_durable`. |
+| Cache/Windows state paths had unsafe or incompatible boundaries. | Cached files remain nonblocking regular-file checks; canonical containment accepts a DOS 8.3 spelling only when every lexical component remains link-free. Manifest sync now uses a write handle on Windows. | Linux bounded FIFO tests; `test_windows_dos_alias_is_accepted_inside_the_same_state_root`. |
+
+### Latest commands and results
+
+| Environment | Command | Result |
+|---|---|---|
+| Windows 11, Python 3.13.5 | `python -m unittest discover -s tests -v` | `Ran 75 tests ... OK (skipped=10)`. The skips require POSIX FIFOs, privileged Windows symlinks, or a Linux ARM shell fixture; the Windows DOS-path regression ran. |
+| Ubuntu 24.04 WSL2, Python 3.12.3, x86_64 | `python3 -m unittest discover -s tests -v` | `Ran 75 tests ... OK (skipped=1)`; the only skip is Windows-only DOS alias coverage. |
+| Ubuntu 24.04 WSL2 | `python3 -m agent_welcome validate` | `VALID`; 12 Easy Install targets. |
+| Ubuntu 24.04 WSL2 | `python3 -m agent_welcome diagnose --recipe prime-agent-0.10.0-linux-arm64` | `NOT_APPLICABLE`; WSL is x86_64, not the ARM64 recipe runtime. |
+
+### Latest 4-OS / 3-agent evidence matrix
+
+`I` is implemented/catalog-tested; `F` is fixture-state coverage; `O`, `U`, and
+`A` mean target-OS execution, official upstream binary, and authenticated first
+task respectively. A blank `O/U/A` remains an explicit lack of evidence, not a
+negative compatibility claim.
+
+| Target OS | Claude Code | Codex CLI | Prime Agent |
+|---|---|---|---|
+| macOS | I/F; O/U/A not run | I/F; O/U/A not run | I/F; O/U/A not run |
+| Windows | I; Windows reference suite only; O/U/A not run | I/F; installer-host and profile tests; O/U/A not run | I; Windows reference suite only; O/U/A not run |
+| Android | I; native/Termux gate only; O/U/A not run | I/F; PRoot plan/failure fixture; O/U/A not run | I/F; glibc/PRoot fixture; O/U/A not run |
+| iOS | I; user-marker/UTM checkpoint only; O/U/A not run | I; user-marker/UTM checkpoint only; O/U/A not run | I; user-marker/UTM/glibc checkpoint only; O/U/A not run |
+
+The connected environment has Windows and WSL only. Docker's Linux engine,
+QEMU user mode, Android `adb`, and an iOS device/UTM guest are unavailable; no
+virtualization feature, container engine, emulator, package, account, or
+credential was changed to compensate. The iOS route now describes the concrete
+manual bootstrap (UTM Linux VM, Ubuntu Server ARM64 ISO, glibc guest, Python,
+repository copy), but remains a user-owned checkpoint until observed on-device.

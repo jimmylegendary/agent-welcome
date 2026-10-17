@@ -21,9 +21,12 @@ On Windows:
 .\easy-resume.ps1 -StateDir .agent-welcome\easy -AgentExecutable C:\absolute\path\to\codex.exe
 ```
 
-The launchers find Python 3.11+ and use only the explicit state directory. Use
-`easy-plan --target ID` to view a route without changing the machine and
-`easy-status --state-dir DIR` to inspect durable progress.
+The launchers locate this checkout automatically, so they work from another
+current directory and do not require a manual `PYTHONPATH` or `cd`. They require
+an existing Python 3.11+ runtime; bootstrap installation of Python is not
+automated because it would be an external installer outside the explicit state
+directory. Use `easy-plan --target ID` to view a route without changing the
+machine and `easy-status --state-dir DIR` to inspect durable progress.
 
 ## Consent-gated installer adapter
 
@@ -52,21 +55,26 @@ exhaustion become structured failure evidence/history.
 On Android, when this launcher is running in directly observed Termux Linux
 userland, the prerequisite plan is also executable rather than a manual-only
 placeholder. After `--approve-prerequisites`, it runs the exact argv commands
-`pkg install -y proot-distro` and `proot-distro install ubuntu:24.04` on that
+`pkg install -y proot-distro` and `proot-distro install ubuntu` on that
 same device, records hashed output, then waits for the user to enter that guest
 before continuing. An interruption is never rerun automatically. iOS cannot
-create/import/boot a UTM guest through an iOS guest API, so those app-owned
-steps remain specific manual checkpoints; setup resumes inside the observed UTM
-guest.
+create/import/boot a UTM guest through an iOS guest API. The concrete iOS path
+is to create a UTM Linux VM, attach an Ubuntu Server ARM64 installer ISO, boot
+and install a glibc-based guest with Python 3.11+, then copy this repository
+into the guest. Those app-owned steps remain specific manual checkpoints; setup
+resumes only inside the observed UTM guest.
 
 ## Login and first work
 
-Login/MFA/authorization input is never persisted. A non-secret four-field JSON
-attestation can advance an interactive checkpoint but remains labelled
-`user_attestation`; it is not direct account verification. A direct first-task
-subprocess requires both an argv beginning with the previously verified agent
-binary and `--allow-billable-first-task`, because it can consume credentials or
-cost. It was not run for this delivery.
+Login/MFA/authorization input is never persisted and there is no manual JSON
+attestation path. After the user completes login outside Agent Welcome, the
+user must explicitly pass `--approve-first-task`. The program then runs a
+fixed, per-agent adapter with a fresh nonce and requires both exact response
+text and a state-local proof file. It never accepts an arbitrary argv, or a
+`--help`, `--version`, or no-op command as a first task. A mock runner is
+recorded only as fixture evidence. `SUCCEEDED` additionally requires a direct
+process observation and a direct official-installer-to-binary provenance chain;
+otherwise the terminal result is `COMPLETED_UNVERIFIED_PROVENANCE`.
 
 ## 12-target implementation matrix
 
@@ -84,6 +92,10 @@ cost. It was not run for this delivery.
 | iOS × Claude Code | Same-device UTM Linux guest | install/open UTM, import/boot guest, Linux installer, login/task | implementation only |
 | iOS × Codex | Same-device UTM Linux guest | install/open UTM, import/boot guest, Linux installer, login/task | implementation only |
 | iOS × Prime Agent | Same-device UTM glibc >= 2.35 guest | import/boot guest, Linux installer, `/login`, task | implementation only |
+
+For Windows Codex, the adapter uses the canonical
+`releases.openai.com/codex/install.ps1` endpoint; the catalog's ChatGPT command
+is retained only as the vendor's documented manual-command equivalent.
 
 Android requires a directly observed `TERMUX_VERSION` plus a Linux-userland or
 PRoot runtime. iOS requires the same-device Linux guest to run with

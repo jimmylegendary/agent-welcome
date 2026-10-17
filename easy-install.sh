@@ -3,6 +3,11 @@
 # a vendor installer; all Agent Welcome files stay beneath --state-dir.
 set -eu
 
+# Resolve the checked-out module from this script, while keeping the caller's
+# current directory as the default state-directory base.
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export PYTHONPATH="$script_dir${PYTHONPATH:+:$PYTHONPATH}"
+
 if command -v python3 >/dev/null 2>&1; then
   python_cmd=python3
 elif command -v python >/dev/null 2>&1; then
