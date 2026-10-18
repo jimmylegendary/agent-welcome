@@ -1,6 +1,6 @@
 # Simple Mode website implementation plan
 
-Status: approved scope from the user's request; implementation in progress.
+Status: implemented, independently reviewed, verified and deployed on 2026-10-18. Public URL: https://agent-welcome-alpha.vercel.app.
 Base: `0f998df29184274d9c60317d2c8973c5a38e4d02`.
 Workspace: `/home/jimmy/.paseo/worktrees/13nkmqul/simple-mode-web`.
 

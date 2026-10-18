@@ -1,10 +1,23 @@
 # Agent Welcome
 
+## Simple Mode 웹사이트
+
+**[Agent Welcome 시작하기](https://agent-welcome-alpha.vercel.app)**
+
+초보자가 목적에 맞는 도구를 고르고 가입·설치·계정 연결을 따라갈 수 있는 한국어 가이드입니다. Next.js + Zustand로 구현하고 ui-ux-pro-max와 Tabler HTML 레이아웃을 참고했습니다.
+
+- 서비스 가이드 35개, 실제 공개 화면 캡처 35개, 목적별 시작 경로 8개
+- 모델 프로필 7개: HY4 Preview, DeepSeek V4.1 Flash, Seedance 2.5, Veo 3.1 Lite, Qwen Image Pro/Turbo, Jev
+- OS 추정·수동 수정, 지원하지 않는 로컬 action의 비활성화, 사용자 체크리스트 저장
+- Codex/OpenRouter·Next/Zustand·Flutter/MVVM·Jimmy Skills·크롤러 ZIP과 Supabase 등록·검사·제거 SQL
+
+요구사항별 범위는 [simple-mode-coverage.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/simple-mode-web/docs/simple-mode-coverage.md), 검증과 제한은 [simple-mode-verification.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/simple-mode-web/docs/simple-mode-verification.md), 로컬 실행은 [README.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/simple-mode-web/web/README.md)에 정리했습니다. 계정 가입·결제·key 발급은 사용자가 공식 서비스에서 직접 진행하며, 체크리스트는 사용자가 확인한 기록입니다.
+
 ## Easy Install
 
 The approved 12-target Easy Install implementation is in
-[docs/easy-install.md](docs/easy-install.md), with the contract addendum in
-[docs/easy-install-decision.md](docs/easy-install-decision.md). Start with
+[easy-install.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/docs/easy-install.md), with the contract addendum in
+[easy-install-decision.md](https://github.com/jimmylegendary/agent-welcome/blob/feat/typed-setup-reference/docs/easy-install-decision.md). Start with
 `./easy-install.sh --target macos-codex` or
 `.\easy-install.ps1 -Target windows-codex`. The first run records a concrete
 official-installer plan; it executes only after explicit
@@ -13,7 +26,7 @@ is intentionally separate from implementation and fixture coverage.
 
 왕초보·비개발자가 자기 기기에서 AI agent를 준비하고 첫 결과물까지 만들도록 돕는 웹사이트, skill 저장소, 쉬운 설치 서비스 프로젝트입니다.
 
-현재는 **조사 자료, 정형 KG·catalog, 단일 설치 recipe의 reference implementation**이 있습니다. 웹사이트·배포용 설치 앱·인증 연결·첫 결과물 팩은 후속 개발 범위입니다.
+현재는 **Simple Mode 웹사이트, 조사 자료, 정형 KG·catalog, 설치 recipe의 reference implementation**이 있습니다. 모바일 원본 agent 실행·실계정 연결·배포용 설치 앱의 검증은 웹사이트 배포와 별도 범위입니다.
 
 ## 제품 방향
 
@@ -80,4 +93,4 @@ KG의 연구 경로와 playbook은 실행 검증·자동 실행이 비활성인 
 
 `input_files`와 source의 `file_path`는 저장소 루트 기준 경로이며, 각 로컬 source에는 GitHub 문서 URL도 있습니다. `EXTRACTED`는 입력 자료에 관계가 명시됐다는 뜻이며 실제 실행 성공률을 뜻하지 않습니다.
 
-테스트는 임시 archive와 작은 fixture executable로 설치·실패·대기·재개를 확인합니다. 실제 Prime 배포 파일 실행, 네 OS 실기기 설치, credential 연결의 증거는 아닙니다. 이 저장소는 외부 agent binary나 개별 skill을 재배포하지 않습니다. 조사 기준일은 2026-10-17이며, 과거 검증 문서의 hash와 개수는 당시 사본에 대한 기록입니다.
+설치기 테스트는 임시 archive와 작은 fixture executable로 설치·실패·대기·재개를 확인합니다. 실제 Prime 배포 파일 실행, 네 OS 실기기 설치, credential 연결의 증거는 아닙니다. 외부 agent binary나 기존 개인 skill 모음을 재배포하지 않으며, Simple Mode에는 새로 작성한 starter skill을 제공합니다. 초기 조사 기준일은 2026-10-17이며, 과거 검증 문서의 hash와 개수는 당시 사본에 대한 기록입니다.

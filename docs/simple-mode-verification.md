@@ -26,7 +26,7 @@ Node 24.15.0, Chrome 152. 운영 서버는 `npm run start -- --port 3117`로 실
 
 UI 구현자의 `npm run build`는 Next.js 16.4.2에서 정적 페이지 43개 생성으로 통과했다. TypeScript 7.0.2와 현재 Next ESLint parser의 비호환을 확인해 6.0.2로 고정했고, 전체 Next TypeScript lint 규칙을 유지했다.
 
-Desktop 1440×1000, mobile 390×844의 홈·가이드·catalog 화면을 master가 캡처해 직접 확인했다. 네 화면 모두 가로 overflow와 page error가 없었다. Clef 화면 판정은 헤더·줄바꿈 보정의 보조 근거로만 사용했다. 최종 스타일 보정은 별도 focused 확인을 수행한다.
+Desktop 1440×1000, mobile 390×844의 홈·가이드·catalog 화면을 master가 캡처해 직접 확인했다. 네 화면 모두 가로 overflow와 page error가 없었다. Clef 화면 판정은 헤더·줄바꿈 보정의 보조 근거로만 사용했다. 최종 스타일 보정 뒤 375/390 px focused regression이 통과했고 master가 갱신된 운영 화면을 다시 확인했다.
 
 ## 자료·starter 검증
 
@@ -45,4 +45,12 @@ Desktop 1440×1000, mobile 390×844의 홈·가이드·catalog 화면을 master�
 
 ## 배포
 
-Vercel 배포 URL·최종 commit·공개 HTTP/browser 결과는 배포 후 이 절에 기록한다.
+- 공개 주소: [Agent Welcome](https://agent-welcome-alpha.vercel.app)
+- 배포 코드 commit: `a954ff0e8698773f93546854833f3f3f095ec04c`
+- Vercel production deployment: `dpl_5xAV3RYBhxAVxiia9ChjXb7jVFfR`, 상태 `READY`
+- 운영 빌드: Next.js 16.4.2, 정적 페이지 43개, Vercel Node 24
+- `node scripts/verify-deployment.mjs https://agent-welcome-alpha.vercel.app`: **84 PASS / 0 FAIL**
+- 공개 주소 대상 `npm run test:ui`: **17/17 PASS**, 3 workers, 5.8초. 새 모바일 헤더 regression을 포함한다.
+- [GitHub CI](https://github.com/jimmylegendary/agent-welcome/actions/runs/39088509098): 해당 배포 코드에서 성공.
+
+첫 Vercel project 생성 시 framework preset이 `Other`여서 앱 빌드 뒤 `public` 파일만 배포되는 문제를 실제 공개 검사에서 발견했다(40개 page 404, 이미지/다운로드 정상). `web/vercel.json`에 `framework: nextjs`를 명시해 수정했고, 재배포 로그의 Next.js 감지와 위 공개 HTTP/browser 검사로 해결을 확인했다. 배포 준비 완료 메시지만으로 사이트 정상 동작을 판정하지 않았다.
