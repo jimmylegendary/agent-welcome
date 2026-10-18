@@ -1,0 +1,21 @@
+name: simple_mode_flutter_starter
+description: Minimal MVVM example source for a Flutter application.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: '>=3.9.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true

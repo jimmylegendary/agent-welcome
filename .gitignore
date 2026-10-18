@@ -12,3 +12,8 @@ node_modules/
 *.key
 .superpowers/
 .agent-welcome/
+.next/
+.vercel/
+playwright-report/
+test-results/
+*.tsbuildinfo
