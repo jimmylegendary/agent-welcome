@@ -1,0 +1,8 @@
+# Merge this snippet into ~/.codex/config.toml after backing up the file.
+# Do not replace your full config: preserve existing provider/model/approval settings.
+
+[model_providers.openrouter]
+name = "OpenRouter"
+base_url = "https://openrouter.ai/api/v1"
+wire_api = "responses"
+env_key = "OPENROUTER_API_KEY"

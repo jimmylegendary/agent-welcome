@@ -1,0 +1,3 @@
+# Save as ~/.codex/openrouter-deepseek.config.toml
+model = "deepseek/deepseek-v4.1-flash-1017"
+model_provider = "openrouter"
